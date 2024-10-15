@@ -1,0 +1,16 @@
+# Environment
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Sphinx documentation
+docs/_build/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# Packaging
+build/
+*.egg
