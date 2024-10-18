@@ -23,12 +23,12 @@ class Git(Analyser):
             '.git/'
         ]
 
-        ignore_file = path / ".gitignore"
+        ignore_file = path / '.gitignore'
         if ignore_file.exists():
-            with open(ignore_file, "r") as file:
+            with open(ignore_file, 'r') as file:
                 for line in file:
                     line = line.strip()
-                    if not line.startswith("#") and line.endswith("/"):
+                    if not line.startswith('#') and line.endswith('/'):
                         items.append(line)
 
         return items

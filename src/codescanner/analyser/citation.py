@@ -54,7 +54,7 @@ class Citation(Analyser):
             invalid.append("Multiple citation files found.")
             
         for file in files:
-            with open(root / file, "r", encoding="utf-8") as stream:
+            with open(root / file, 'r', encoding='utf-8') as stream:
                 content = yaml.safe_load(stream)
                 
             

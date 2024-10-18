@@ -42,7 +42,7 @@ def get_signature(text: str, max_tokens: int=MAX_TOKENS) -> list[str]:
 
 
 def save_signatures(
-    repo: str=".",
+    repo: str='.',
     filename: str='signatures.json',
     max_tokens: int=MAX_TOKENS,
     token_size: int=TOKEN_SIZE
@@ -58,7 +58,7 @@ def save_signatures(
         for file in files:
 
             filepath = Path(os.path.join(root, file))
-            if filepath.suffix != ".json":
+            if filepath.suffix != '.json':
                 continue
 
             id = filepath.stem

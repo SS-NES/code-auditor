@@ -49,7 +49,7 @@ def _analyse_node(node) -> dict:
                 item[f"docs.{key}"] = val
 
                 if key == 'params':
-                    if hasattr(node, "args") and len(val) != len(node.args.args):
+                    if hasattr(node, 'args') and len(val) != len(node.args.args):
                         invalids.append("Invalid number of arguments.")
 
         if invalids:

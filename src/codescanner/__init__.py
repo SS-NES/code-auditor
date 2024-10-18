@@ -41,10 +41,10 @@ class Rule:
 
 
     def __init__(self, val: str, analyser: str = None):
-        self.is_dir = val[-1] == "/"
+        self.is_dir = val[-1] == '/'
         if self.is_dir:
             val = val[:-1]
-        self.is_nested = val[0] == "/"
+        self.is_nested = val[0] == '/'
         if self.is_nested:
             val = val[1:]
         else:
@@ -134,7 +134,7 @@ def _get_excludes(path: Path) -> dict:
             rule = Rule(val, analyser)
 
             if not rule.is_dir:
-                raise ValueError("Invalid exclusion rule", val)
+                raise ValueError("Invalid exclusion rule.", val)
 
             items[val] = rule
 
