@@ -42,11 +42,6 @@ class Citation(Analyser):
 
 
     @classmethod
-    def excludes(cls) -> list[str]:
-        return []
-
-
-    @classmethod
     def analyse(cls, root: Path, files: list[Path]) -> dict:
 
         report = {

@@ -148,10 +148,6 @@ class License(Analyser):
             'license.txt'
         ]
 
-    @classmethod
-    def excludes(cls) -> list[str]:
-        return []
-
 
     @classmethod
     def analyse_file(cls, path: Path) -> dict:

@@ -31,9 +31,8 @@ class Analyser(ABC):
         raise NotImplementedError
 
     @classmethod
-    @abstractmethod
     def excludes(cls) -> list[str]:
-        raise NotImplementedError
+        return []
 
 
     @classmethod
