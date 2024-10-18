@@ -1,8 +1,8 @@
 # Environment
-.venv
+.venv/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # Sphinx documentation
 docs/_build/
