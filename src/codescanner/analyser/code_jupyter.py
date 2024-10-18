@@ -1,10 +1,10 @@
-"""Jupyter analyser module."""
+"""Jupyter code analyser module."""
 from pathlib import Path
 
 from . import Analyser, AnalyserType, Report
 
 
-class Jupyter(Analyser):
+class CodeJupyter(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
         """Returns analyser type."""

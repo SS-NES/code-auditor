@@ -6,6 +6,7 @@ import importlib
 import inspect
 import functools
 import fnmatch
+import re
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -14,6 +15,10 @@ from .aggregator import Aggregator
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+"""Snake case conversion regular expression."""
+REGEXP_SNAKE_CASE = re.compile(r"(?<!^)(?=[A-Z])")
 
 
 @dataclass(init=False)
@@ -54,6 +59,10 @@ class Rule:
         return fnmatch.fnmatch(val, self.val)
 
 
+def _snake_case(val: str) -> str:
+    return REGEXP_SNAKE_CASE.sub('_', val).lower()
+
+
 def _get_subclasses(parent) -> dict:
     """Returns available subclasses of the parent class.
 
@@ -72,7 +81,7 @@ def _get_subclasses(parent) -> dict:
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
             if issubclass(obj, parent) and obj is not parent:
-                classes[name.lower()] = obj
+                classes[_snake_case(name)] = obj
 
     return classes
 
@@ -105,10 +114,16 @@ def get_aggregators() -> dict:
     return _get_subclasses(Aggregator)
 
 
-def _get_includes(path: Path) -> dict:
+def _get_includes(path: Path, skip: list[str], skip_type: list[str]) -> dict:
     items = {}
 
     for name, analyser in get_analysers().items():
+
+        if name in skip:
+            continue
+
+        if analyser.get_type().value in skip_type:
+            continue
 
         for val in analyser.includes(path):
 
@@ -137,7 +152,11 @@ def _get_excludes(path: Path) -> dict:
     return items
 
 
-def analyse(path: str, skip: list[str] = None) -> dict:
+def analyse(
+    path: str,
+    skip: list[str] = [],
+    skip_type: list[str] = [],
+) -> dict:
     """Analyses a code base.
 
     Args:
@@ -150,11 +169,12 @@ def analyse(path: str, skip: list[str] = None) -> dict:
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
 
-    _skip = [item.lower() for item in (skip if skip else [])]
+    _skip = [_snake_case(item) for item in skip]
+    _skip_type = [_snake_case(item) for item in skip_type]
 
     logger.info(f"Scanning '{path}'.")
 
-    includes = _get_includes(path)
+    includes = _get_includes(path, _skip, _skip_type)
     excludes = _get_excludes(path)
 
     stats = {
@@ -182,9 +202,6 @@ def analyse(path: str, skip: list[str] = None) -> dict:
                 if rule.match(relpath if rule.is_nested else dir):
 
                     for analyser in rule.analysers:
-
-                        if analyser in _skip:
-                            continue
 
                         if analyser not in groups:
                             groups[analyser] = []
@@ -216,9 +233,6 @@ def analyse(path: str, skip: list[str] = None) -> dict:
 
                     for analyser in rule.analysers:
 
-                        if analyser in _skip:
-                            continue
-
                         if analyser not in groups:
                             groups[analyser] = []
 
@@ -229,6 +243,9 @@ def analyse(path: str, skip: list[str] = None) -> dict:
     for name, analyser in get_analysers().items():
 
         if name in _skip:
+            continue
+
+        if analyser.get_type().value in _skip_type:
             continue
 
         type = analyser.get_type()

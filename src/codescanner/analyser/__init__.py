@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 class AnalyserType(Enum):
     """Analyser type."""
-    CODE = 1
-    VERSION_CONTROL = 2
-    DOCUMENTATION = 3
-    LICENSE = 4
-    CITATION = 5
-    REPOSITORY = 6
-    PACKAGING = 7
-    CONTINUOUS_INTEGRATION = 8
+    CODE = "code"
+    VERSION_CONTROL = "version_control"
+    DOCUMENTATION = "documentation"
+    LICENSE = "license"
+    CITATION = "citation"
+    REPOSITORY = "repository"
+    PACKAGING = "packaging"
+    CONTINUOUS_INTEGRATION = "continuous_integration"
 
 
 class ReportStatus(Enum):

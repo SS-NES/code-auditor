@@ -24,12 +24,17 @@ logger = logging.getLogger(__name__)
     help = "List of analysers to skip."
 )
 @click.option(
+    '--skip-type',
+    multiple = True,
+    help = "List of analysers types to skip."
+)
+@click.option(
     '--debug',
     is_flag = True,
     default = False,
     help = "Enable debug mode."
 )
-def main(path, debug, skip):
+def main(path, debug, skip, skip_type):
     """Runs the command line interface (CLI).
 
     Args:
@@ -46,11 +51,11 @@ def main(path, debug, skip):
         # Clone repository to a temporary directory and analyse the code base
         with TemporaryDirectory() as temppath:
             Repo.clone_from(path, temppath)
-            report = codescanner.analyse(temppath, skip)
+            report = codescanner.analyse(temppath, skip, skip_type)
 
     else:
         # Analyse the code base
-        report = codescanner.analyse(path, skip)
+        report = codescanner.analyse(path, skip, skip_type)
 
     print(report)
 

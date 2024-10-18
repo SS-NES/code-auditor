@@ -1,4 +1,4 @@
-"""Python analyser module."""
+"""Python code analyser module."""
 import sys
 import ast
 import docstring_parser
@@ -89,7 +89,7 @@ def _analyse_node(node) -> dict:
     return report
 
 
-class Python(Analyser):
+class CodePython(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
         """Returns analyser type."""
