@@ -1,11 +1,12 @@
 import codescanner
 
-import json
 from git import Repo
 from tempfile import TemporaryDirectory
 
 import click
+
 import logging
+logger = logging.getLogger(__name__)
 
 
 @click.command(
@@ -18,22 +19,38 @@ import logging
     'path',
 )
 @click.option(
+    '--skip',
+    multiple = True,
+    help = "List of analysers to skip."
+)
+@click.option(
     '--debug',
     is_flag = True,
     default = False,
     help = "Enable debug mode."
 )
-def main(path, debug):
+def main(path, debug, skip):
+    """Runs the command line interface (CLI).
+
+    Args:
+        path (str): Path of the code base.
+        debug (bool): Debug flag (default = False)
+    """
+    # Set logging level if debug flag is set
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
+    # Check if path is a URL address
     if path.startswith('http'):
+
+        # Clone repository to a temporary directory and analyse the code base
         with TemporaryDirectory() as temppath:
             Repo.clone_from(path, temppath)
-            report = codescanner.scan(temppath)
+            report = codescanner.analyse(temppath, skip)
 
     else:
-        report = codescanner.scan(path)
+        # Analyse the code base
+        report = codescanner.analyse(path, skip)
 
     print(report)
 

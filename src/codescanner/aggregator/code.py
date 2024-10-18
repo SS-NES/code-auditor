@@ -6,9 +6,18 @@ from ..analyser import AnalyserType
 class Code(Aggregator):
     @staticmethod
     def get_type() -> AnalyserType:
+        """Returns analyser type of the aggregator."""
         return AnalyserType.CODE
 
 
     @classmethod
-    def analyse(cls, report: dict) -> dict:
+    def aggregate(cls, reports: dict) -> dict:
+        """Aggregates available analysis reports.
+
+        Args:
+            reports (dict): Analysis reports.
+
+        Raises:
+            NotImplementedError
+        """
         raise NotImplementedError

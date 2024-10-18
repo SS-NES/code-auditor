@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from hashlib import md5
 
-from . import Analyser, AnalyserType
+from . import Analyser, AnalyserType, Report
 
 
 """Maximum number of tokens per signature."""
@@ -137,11 +137,20 @@ def find_license(text: str, filename: str='signatures.json') -> str:
 class License(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
+        """Returns analyser type."""
         return AnalyserType.LICENSE
 
 
     @classmethod
     def includes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be included in the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         return [
             'license',
             'license.md',
@@ -150,8 +159,16 @@ class License(Analyser):
 
 
     @classmethod
-    def analyse_file(cls, path: Path) -> dict:
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a file.
 
+        Args:
+            path (Path): Path of the file.
+            report (Report): Analysis report.
+
+        Returns:
+            Dictionary of the analysis result of the file.
+        """
         with open(path, 'r', encoding='utf-8') as file:
             text = file.read()
 
@@ -161,15 +178,5 @@ class License(Analyser):
             'ids': ids,
             'score': score
         }
-
-        return result
-
-
-    @classmethod
-    def analyse(cls, root: Path, files: list[Path]) -> dict:
-        result = {'status': 'exists' if files else 'missing'}
-
-        if files:
-            result['files'] = cls.analyse_files(root, files)
 
         return result

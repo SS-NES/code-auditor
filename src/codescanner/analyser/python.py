@@ -4,7 +4,7 @@ import ast
 import docstring_parser
 from pathlib import Path
 
-from . import Analyser, AnalyserType
+from . import Analyser, AnalyserType, Report
 
 
 def _analyse_node(node) -> dict:
@@ -92,11 +92,20 @@ def _analyse_node(node) -> dict:
 class Python(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
+        """Returns analyser type."""
         return AnalyserType.CODE
 
 
     @classmethod
     def includes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be included in the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         return [
             '*.py',
         ]
@@ -104,13 +113,30 @@ class Python(Analyser):
 
     @classmethod
     def excludes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be excluded from the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         return [
             '__pycache__/',
         ]
 
 
     @classmethod
-    def analyse_file(cls, path: Path) -> dict:
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a file.
+
+        Args:
+            path (Path): Path of the file.
+            report (Report): Analysis report.
+
+        Returns:
+            Dictionary of the analysis result of the file.
+        """
         with open(path, 'r') as file:
             node = ast.parse(file.read(), filename=path, type_comments=True)
             result = _analyse_node(node)

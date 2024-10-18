@@ -1,7 +1,7 @@
 """Python packaging analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType
+from . import Analyser, AnalyserType, Report, ReportStatus
 
 import logging
 logger = logging.getLogger(__name__)
@@ -10,11 +10,20 @@ logger = logging.getLogger(__name__)
 class PackagingPython(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
+        """Returns analyser type."""
         return AnalyserType.PACKAGING
 
 
     @classmethod
     def includes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be included in the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         return [
             '/pyproject.toml',
             '/setup.py',
@@ -23,20 +32,21 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def analyse(cls, root: Path, files: list[Path]) -> dict:
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a file.
 
-        report = {
-            'status': 'exists' if files else 'missing'
-        }
+        Args:
+            path (Path): Path of the file.
+            report (Report): Analysis report.
 
-        for path in files:
-            logger.info(f"Found {path}.")
-            if path.name == 'pyproject.toml':
-                pass
-            elif path.name == 'setup.py':
-                pass
-            elif path.name == 'setup.cfg':
-                pass
-                
-            
-        return report
+        Returns:
+            Dictionary of the analysis result of the file.
+        """
+        if path.name == 'pyproject.toml':
+            pass
+
+        elif path.name == 'setup.py':
+            pass
+
+        elif path.name == 'setup.cfg':
+            pass

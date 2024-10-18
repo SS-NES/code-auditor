@@ -1,17 +1,26 @@
 """Git analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType
+from . import Analyser, AnalyserType, Report, ReportStatus
 
 
 class Git(Analyser):
     @staticmethod
     def get_type() -> AnalyserType:
+        """Returns analyser type."""
         return AnalyserType.VERSION_CONTROL
 
 
     @classmethod
     def includes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be included in the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         return [
             '.git/',
         ]
@@ -19,6 +28,14 @@ class Git(Analyser):
 
     @classmethod
     def excludes(cls, path: Path) -> list[str]:
+        """Returns file and directory patterns to be excluded from the analysis.
+
+        Args:
+            path (Path): Path of the code base.
+
+        Returns:
+            List of file and directory patterns.
+        """
         items = [
             '.git/'
         ]
@@ -35,10 +52,14 @@ class Git(Analyser):
 
 
     @classmethod
-    def analyse(cls, root: Path, files: list[Path]) -> dict:
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a file.
 
-        report = {
-            'status': 'exists' if files else 'missing'
-        }
+        Args:
+            path (Path): Path of the file.
+            report (Report): Analysis report.
 
-        return report
+        Returns:
+            Dictionary of the analysis result of the file.
+        """
+        report.metadata["version_control"] = "git"

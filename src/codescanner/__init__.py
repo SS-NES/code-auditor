@@ -1,22 +1,18 @@
 """
 codescanner
 """
-import os
 import pkgutil
 import importlib
 import inspect
 import functools
-import logging
-from copy import deepcopy
-from dataclasses import dataclass, field
-
 import fnmatch
 from pathlib import Path
+from dataclasses import dataclass
 
 from .analyser import Analyser, AnalyserType
 from .aggregator import Aggregator
 
-
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -76,7 +72,7 @@ def _get_subclasses(parent) -> dict:
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
             if issubclass(obj, parent) and obj is not parent:
-                classes[name] = obj
+                classes[name.lower()] = obj
 
     return classes
 
@@ -90,7 +86,7 @@ def get_analysers() -> dict:
 
     Examples:
         >>> codescanner.get_analysers()
-        >>> {'python': <class 'codescanner.analyser.python.Python'>, ...}
+        >>> {'license': <class 'codescanner.analyser.license.License'>, ...}
     """
     return _get_subclasses(Analyser)
 
@@ -104,7 +100,7 @@ def get_aggregators() -> dict:
 
     Examples:
         >>> codescanner.get_aggregators()
-        >>> {'python': <class 'codescanner.aggregator.code.Code'>, ...}
+        >>> {'code': <class 'codescanner.aggregator.code.Code'>, ...}
     """
     return _get_subclasses(Aggregator)
 
@@ -141,10 +137,20 @@ def _get_excludes(path: Path) -> dict:
     return items
 
 
-def scan(path: str):
+def analyse(path: str, skip: list[str] = None) -> dict:
+    """Analyses a code base.
+
+    Args:
+        path (str): Path of the code base.
+
+    Returns:
+        Dictionary of the analysis results.
+    """
     path = Path(path)
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
+
+    _skip = [item.lower() for item in (skip if skip else [])]
 
     logger.info(f"Scanning '{path}'.")
 
@@ -177,6 +183,9 @@ def scan(path: str):
 
                     for analyser in rule.analysers:
 
+                        if analyser in _skip:
+                            continue
+
                         if analyser not in groups:
                             groups[analyser] = []
 
@@ -207,6 +216,9 @@ def scan(path: str):
 
                     for analyser in rule.analysers:
 
+                        if analyser in _skip:
+                            continue
+
                         if analyser not in groups:
                             groups[analyser] = []
 
@@ -216,13 +228,15 @@ def scan(path: str):
 
     for name, analyser in get_analysers().items():
 
+        if name in _skip:
+            continue
+
         type = analyser.get_type()
         files = groups.get(name, [])
 
         try:
             logger.info(f"Running {name} analyser.")
-            result = analyser.analyse(path, files)
-            report[type][name] = result
+            report[type][name] = analyser.analyse(path, files)
 
         except NotImplementedError:
             logger.info(f"{name} analyser is not implemented.")
@@ -230,12 +244,14 @@ def scan(path: str):
 
     for name, aggregator in get_aggregators().items():
 
+        if name in _skip:
+            continue
+
         type = aggregator.get_type()
 
         try:
             logger.info(f"Running {name} aggregator.")
-            result = aggregator.analyse(report[type])
-            report[type] = result
+            report[type] = aggregator.aggregate(report[type])
 
         except NotImplementedError:
             logger.info(f"{name} aggregator is not implemented.")
