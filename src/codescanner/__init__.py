@@ -41,14 +41,16 @@ class Rule:
 
 
     def __init__(self, val: str, analyser: str = None):
-        if val[-1] == '/':
-            self.val = val[:-1]
-            self.is_dir = True
+        self.is_dir = val[-1] == "/"
+        if self.is_dir:
+            val = val[:-1]
+        self.is_nested = val[0] == "/"
+        if self.is_nested:
+            val = val[1:]
         else:
-            self.val = val
-            self.is_dir = False
-        self.is_pattern = Rule._is_pattern(self.val)
-        self.is_nested = Rule._is_nested(self.val)
+            self.is_nested = Rule._is_nested(val)
+        self.is_pattern = Rule._is_pattern(val)
+        self.val = val
         self.analysers = [analyser] if analyser else []
 
 
@@ -144,6 +146,8 @@ def scan(path: str):
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
 
+    logger.info(f"Scanning '{path}'.")
+
     includes = _get_includes(path)
     excludes = _get_excludes(path)
 
@@ -156,8 +160,10 @@ def scan(path: str):
     groups = {}
 
     for root, dirs, files in path.walk(top_down=True, follow_symlinks=True):
+
         stats['num_dirs'] += 1
 
+        excluded = []
         for dir in dirs:
 
             relpath = (root / dir).relative_to(path)
@@ -167,7 +173,7 @@ def scan(path: str):
                 if not rule.is_dir:
                     continue
 
-                if rule.match(dir) or (rule.is_nested and rule.match(relpath)):
+                if rule.match(relpath if rule.is_nested else dir):
 
                     for analyser in rule.analysers:
 
@@ -178,9 +184,14 @@ def scan(path: str):
 
             for _, rule in excludes.items():
 
-                if rule.match(dir) or (rule.is_nested and rule.match(relpath)):
+                if rule.match(relpath if rule.is_nested else dir):
                     stats['num_dirs_excluded'] += 1
-                    dirs.remove(dir)
+                    excluded.append(dir)
+                    logger.debug(f"Directory '{relpath}' excluded.")
+                    break
+
+        for dir in excluded:
+            dirs.remove(dir)
 
         for file in files:
 
@@ -191,7 +202,7 @@ def scan(path: str):
                 if rule.is_dir:
                     continue
 
-                if rule.match(file) or (rule.is_nested and rule.match(relpath)):
+                if rule.match(relpath if rule.is_nested else file):
                     stats['num_files'] += 1
 
                     for analyser in rule.analysers:
