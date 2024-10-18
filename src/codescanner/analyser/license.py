@@ -141,7 +141,7 @@ class License(Analyser):
 
 
     @classmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         return [
             'license',
             'license.md',

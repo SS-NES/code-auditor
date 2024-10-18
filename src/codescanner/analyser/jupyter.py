@@ -11,14 +11,14 @@ class Jupyter(Analyser):
 
 
     @classmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         return [
             '*.ipynb',
         ]
 
 
     @classmethod
-    def excludes(cls) -> list[str]:
+    def excludes(cls, path: Path) -> list[str]:
         return [
             '.ipynb_checkpoints/',
         ]

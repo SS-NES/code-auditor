@@ -35,7 +35,7 @@ class Citation(Analyser):
 
 
     @classmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         return [
             'CITATION.cff',
         ]

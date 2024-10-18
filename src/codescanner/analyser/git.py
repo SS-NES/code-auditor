@@ -11,17 +11,27 @@ class Git(Analyser):
 
 
     @classmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         return [
             '.git/',
         ]
 
 
     @classmethod
-    def excludes(cls) -> list[str]:
-        return [
+    def excludes(cls, path: Path) -> list[str]:
+        items = [
             '.git/'
         ]
+
+        ignore_file = path / ".gitignore"
+        if ignore_file.exists():
+            with open(ignore_file, "r") as file:
+                for line in file:
+                    line = line.strip()
+                    if not line.startswith("#") and line.endswith("/"):
+                        items.append(line)
+
+        return items
 
 
     @classmethod

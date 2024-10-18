@@ -107,13 +107,12 @@ def get_aggregators() -> dict:
     return _get_subclasses(Aggregator)
 
 
-@functools.cache
-def _get_includes() -> dict:
+def _get_includes(path: Path) -> dict:
     items = {}
 
     for name, analyser in get_analysers().items():
 
-        for val in analyser.includes():
+        for val in analyser.includes(path):
 
             if val not in items:
                 items[val] = Rule(val)
@@ -123,13 +122,12 @@ def _get_includes() -> dict:
     return items
 
 
-@functools.cache
-def _get_excludes() -> dict:
+def _get_excludes(path: Path) -> dict:
     items = {}
 
     for name, analyser in get_analysers().items():
 
-        for val in analyser.excludes():
+        for val in analyser.excludes(path):
 
             rule = Rule(val, analyser)
 
@@ -142,8 +140,12 @@ def _get_excludes() -> dict:
 
 
 def scan(path: str):
-    includes = _get_includes()
-    excludes = _get_excludes()
+    path = Path(path)
+    if not path.exists() or not path.is_dir():
+        raise ValueError("Invalid path.")
+
+    includes = _get_includes(path)
+    excludes = _get_excludes(path)
 
     stats = {
         'num_dirs': 0,
@@ -152,7 +154,6 @@ def scan(path: str):
     }
 
     groups = {}
-    path = Path(path)
 
     for root, dirs, files in path.walk(top_down=True, follow_symlinks=True):
         stats['num_dirs'] += 1

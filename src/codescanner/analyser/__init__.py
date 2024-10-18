@@ -15,7 +15,8 @@ class AnalyserType(Enum):
     LICENSE = 4
     CITATION = 5
     REPOSITORY = 6
-    CONTINUOUS_INTEGRATION = 7
+    PACKAGING = 7
+    CONTINUOUS_INTEGRATION = 8
 
 
 class Analyser(ABC):
@@ -27,11 +28,11 @@ class Analyser(ABC):
 
     @classmethod
     @abstractmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         raise NotImplementedError
 
     @classmethod
-    def excludes(cls) -> list[str]:
+    def excludes(cls, path: Path) -> list[str]:
         return []
 
 

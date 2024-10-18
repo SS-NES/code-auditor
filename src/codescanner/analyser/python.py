@@ -96,14 +96,14 @@ class Python(Analyser):
 
 
     @classmethod
-    def includes(cls) -> list[str]:
+    def includes(cls, path: Path) -> list[str]:
         return [
             '*.py',
         ]
 
 
     @classmethod
-    def excludes(cls) -> list[str]:
+    def excludes(cls, path: Path) -> list[str]:
         return [
             '__pycache__/',
         ]
