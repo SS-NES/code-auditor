@@ -114,16 +114,13 @@ def get_aggregators() -> dict:
     return _get_subclasses(Aggregator)
 
 
-def _get_includes(path: Path, skip: list[str], skip_type: list[str]) -> dict:
+def _get_includes(path: Path, analysers: dict = None) -> dict:
     items = {}
 
-    for name, analyser in get_analysers().items():
+    if not analysers:
+        analysers = get_analysers()
 
-        if name in skip:
-            continue
-
-        if analyser.get_type().value in skip_type:
-            continue
+    for name, analyser in analysers.items():
 
         for val in analyser.includes(path):
 
@@ -135,10 +132,13 @@ def _get_includes(path: Path, skip: list[str], skip_type: list[str]) -> dict:
     return items
 
 
-def _get_excludes(path: Path) -> dict:
+def _get_excludes(path: Path, analysers: dict = None) -> dict:
     items = {}
 
-    for name, analyser in get_analysers().items():
+    if not analysers:
+        analysers = get_analysers()
+
+    for name, analyser in analysers.items():
 
         for val in analyser.excludes(path):
 
@@ -152,6 +152,21 @@ def _get_excludes(path: Path) -> dict:
     return items
 
 
+def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dict:
+    _items = {}
+    for name, item in items.items():
+
+        if name in skip:
+            continue
+
+        if item.get_type().value in skip_type:
+            continue
+
+        _items[name] = item
+
+    return _items
+
+
 def analyse(
     path: str,
     skip: list[str] = [],
@@ -161,22 +176,33 @@ def analyse(
 
     Args:
         path (str): Path of the code base.
+        skip (list[str]): List of analysers to skip (optional)
+        skip_type (list[str]): List of analyser types to skip (optional)
 
     Returns:
         Dictionary of the analysis results.
+
+    Raises:
+        ValueError("Invalid path."): If path is invalid.
     """
+    # Check if path is valid
     path = Path(path)
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
 
+    # Initialize skip lists
     _skip = [_snake_case(item) for item in skip]
     _skip_type = [_snake_case(item) for item in skip_type]
 
-    logger.info(f"Scanning '{path}'.")
+    # Get analysers and aggregators
+    analysers = _filter(get_analysers(), _skip, _skip_type)
+    aggregators = _filter(get_aggregators(), _skip, _skip_type)
 
-    includes = _get_includes(path, _skip, _skip_type)
+    # Get inclusion and exclusion rules
+    includes = _get_includes(path, analysers)
     excludes = _get_excludes(path)
 
+    # Initialize statistics
     stats = {
         'num_dirs': 0,
         'num_dirs_excluded': 0,
@@ -185,6 +211,7 @@ def analyse(
 
     groups = {}
 
+    logger.info(f"Scanning `{path}`.")
     for root, dirs, files in path.walk(top_down=True, follow_symlinks=True):
 
         stats['num_dirs'] += 1
@@ -213,7 +240,7 @@ def analyse(
                 if rule.match(relpath if rule.is_nested else dir):
                     stats['num_dirs_excluded'] += 1
                     excluded.append(dir)
-                    logger.debug(f"Directory '{relpath}' excluded.")
+                    logger.debug(f"Directory `{relpath}` excluded.")
                     break
 
         for dir in excluded:
@@ -240,42 +267,35 @@ def analyse(
 
     report = {type: {} for type in AnalyserType}
 
-    for name, analyser in get_analysers().items():
-
-        if name in _skip:
-            continue
-
-        if analyser.get_type().value in _skip_type:
-            continue
+    # For each analyser
+    for name, analyser in analysers.items():
 
         type = analyser.get_type()
         files = groups.get(name, [])
 
+        # Try to run the analyser
         try:
             logger.info(f"Running {name} analyser.")
             report[type][name] = analyser.analyse(path, files)
 
+        # Skip if not implemented
         except NotImplementedError:
             logger.info(f"{name} analyser is not implemented.")
             pass
 
-    for name, aggregator in get_aggregators().items():
-
-        if name in _skip:
-            continue
+    # For each aggregator
+    for name, aggregator in aggregators.items():
 
         type = aggregator.get_type()
 
+        # Try to run the aggregator
         try:
             logger.info(f"Running {name} aggregator.")
             report[type] = aggregator.aggregate(report[type])
 
+        # Skip if not implemented
         except NotImplementedError:
             logger.info(f"{name} aggregator is not implemented.")
             pass
 
     return report
-
-
-if __name__ == '__main__':
-    raise NotImplementedError
