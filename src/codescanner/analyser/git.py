@@ -1,7 +1,7 @@
 """Git analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report, ReportStatus
+from . import Analyser, AnalyserType, Report
 
 
 class Git(Analyser):

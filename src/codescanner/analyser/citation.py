@@ -2,7 +2,7 @@
 import yaml
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report, ReportStatus
+from . import Analyser, AnalyserType, Report
 
 
 VALID_ATTRS = [
