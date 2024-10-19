@@ -16,6 +16,15 @@ TOKEN_SIZE = 4
 
 
 def get_signature(text: str, max_tokens: int=MAX_TOKENS) -> list[str]:
+    """Returns signature.
+
+    Args:
+        text (str): Textual content.
+        max_tokens (int): Maximum number of tokens (default = MAX_TOKENS)
+
+    Returns:
+        List of token strings.
+    """
     tokens = []
 
     text = re.sub(r'\r', '', text)
@@ -43,10 +52,18 @@ def get_signature(text: str, max_tokens: int=MAX_TOKENS) -> list[str]:
 
 def save_signatures(
     repo: str='.',
-    filename: str='signatures.json',
+    path: str='signatures.json',
     max_tokens: int=MAX_TOKENS,
     token_size: int=TOKEN_SIZE
 ):
+    """Stores the license signatures.
+
+    Args:
+        repo (str): Path of the repository of the licenses (default = '.')
+        path (str): Path of the signatures file (default = 'signatures.json')
+        max_tokens (int): Number of maximum tokens (default = MAX_TOKENS)
+        token_size (int): Token size (default = TOKEN_SIZE)
+    """
     result = {
         '_MAX_TOKENS': max_tokens,
         '_TOKEN_SIZE': token_size,
@@ -92,11 +109,20 @@ def save_signatures(
 
                 result[id] = tokens
 
-    with open(filename, 'w') as file:
+    with open(path, 'w') as file:
         json.dump(result, file)
 
 
-def find_license(text: str, filename: str='signatures.json') -> str:
+def find_license(text: str, filename: str='signatures.json') -> tuple:
+    """Finds the possible license identifiers given the license content.
+
+    Args:
+        text (str): Textual content of the license.
+        filename (str): File name of the signatures file (default = 'signatures.json')
+
+    Returns:
+        Tuple of possible license identifiers and the minimum score
+    """
     with open(filename, 'r') as file:
         signatures = json.load(file)
 
@@ -131,10 +157,12 @@ def find_license(text: str, filename: str='signatures.json') -> str:
             min_score = score
             ids = [id]
 
-    return [ids, min_score]
+    return (ids, min_score)
 
 
 class License(Analyser):
+    """License analyser class."""
+
     @staticmethod
     def get_type() -> AnalyserType:
         """Returns analyser type."""
@@ -152,9 +180,9 @@ class License(Analyser):
             List of file and directory patterns.
         """
         return [
-            'license',
-            'license.md',
-            'license.txt'
+            '/license',
+            '/license.md',
+            '/license.txt'
         ]
 
 
