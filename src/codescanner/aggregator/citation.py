@@ -1,13 +1,13 @@
-"""Code aggregator module."""
+"""Citation aggregator module."""
 from . import Aggregator
 from ..analyser import AnalyserType
 
 
-class Code(Aggregator):
+class Citation(Aggregator):
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.CODE
+        return AnalyserType.CITATION
 
 
     @classmethod

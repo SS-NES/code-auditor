@@ -1,13 +1,13 @@
-"""Code aggregator module."""
+"""License aggregator module."""
 from . import Aggregator
 from ..analyser import AnalyserType
 
 
-class Code(Aggregator):
+class License(Aggregator):
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.CODE
+        return AnalyserType.LICENSE
 
 
     @classmethod

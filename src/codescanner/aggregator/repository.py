@@ -1,13 +1,13 @@
-"""Code aggregator module."""
+"""Repository aggregator module."""
 from . import Aggregator
 from ..analyser import AnalyserType
 
 
-class Code(Aggregator):
+class Repository(Aggregator):
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.CODE
+        return AnalyserType.REPOSITORY
 
 
     @classmethod

@@ -3,16 +3,13 @@ from abc import ABC, abstractmethod
 
 from ..analyser import AnalyserType
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 class Aggregator(ABC):
     """Aggregator abstract class."""
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def get_type() -> AnalyserType:
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         raise NotImplementedError
 
@@ -20,9 +17,9 @@ class Aggregator(ABC):
     @classmethod
     @abstractmethod
     def aggregate(cls, reports: dict) -> dict:
-        """Aggregates available analysis reports.
+        """Aggregates available analyser reports.
 
         Args:
-            reports (dict): Analysis reports.
+            reports (dict): Analyser reports.
         """
         raise NotImplementedError
