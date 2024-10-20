@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 class CodeJupyter(Analyser):
@@ -56,7 +56,7 @@ class CodeJupyter(Analyser):
 
         Args:
             path (Path): Path of the Jupyter notebook file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.

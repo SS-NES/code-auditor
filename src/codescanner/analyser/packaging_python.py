@@ -6,7 +6,7 @@ except ModuleNotFoundError:
     import pip._vendor.tomli as tomllib
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 class PackagingPython(Analyser):
@@ -61,7 +61,7 @@ class PackagingPython(Analyser):
 
         Args:
             path (Path): Path of the pyproject.toml file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.
@@ -70,13 +70,13 @@ class PackagingPython(Analyser):
             val = data.get(key)
 
             if isinstance(val, str):
-                report.set_metadata(key + '_file', str(path.parent / val), path)
+                report.add_metadata(cls, key + '_file', str(path.parent / val), path)
 
             elif isinstance(val, dict):
                 if 'file' in val:
-                    report.set_metadata(key + '_file', path.parent / val['file'], path)
+                    report.add_metadata(cls, key + '_file', path.parent / val['file'], path)
                 elif 'text' in val:
-                    report.set_metadata(key, val['text'])
+                    report.add_metadata(cls, key, val['text'])
 
         with open(path, 'rb') as file:
             data = tomllib.load(file)
@@ -92,12 +92,12 @@ class PackagingPython(Analyser):
             ]:
                 val = project.get(key)
                 if val:
-                    report.set_metadata(key, val, path)
+                    report.add_metadata(cls, key, val, path)
 
             _set(project, 'readme')
 
             if isinstance(project.get("license"), str):
-                report.set_invalid("Invalid license identifier.", path)
+                report.add_issue(cls, "Invalid license identifier.", path)
             else:
                 _set(project, 'license')
 
@@ -109,15 +109,15 @@ class PackagingPython(Analyser):
                             person['name'] = item['name']
                         if item.get('email'):
                             person['email'] = item['email']
-                        report.set_metadata(key, person, path)
+                        report.add_metadata(cls, key, person, path)
                         continue
 
-                    report.set_invalid(f"Invalid {key}[{i+1}].", path)
+                    report.add_issue(cls, f"Invalid {key}[{i+1}].", path)
 
             for item in project.get('classifiers', []):
                 parts = [part.strip() for part in item.split('::')]
                 if parts[0] == 'License':
-                    report.set_metadata('license_name', parts[-1], path)
+                    report.add_metadata(cls, 'license_name', parts[-1], path)
 
 
     @classmethod
@@ -129,7 +129,7 @@ class PackagingPython(Analyser):
 
         Args:
             path (Path): Path of the setup.cfg file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.
@@ -146,7 +146,7 @@ class PackagingPython(Analyser):
                 'keywords',
             ]:
                 val = data['metadata'].get(key)
-                report.set_metadata(key, val, path)
+                report.add_metadata(cls, key, val, path)
 
 
     @classmethod
@@ -155,7 +155,7 @@ class PackagingPython(Analyser):
 
         Args:
             path (Path): Path of the packaging file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.

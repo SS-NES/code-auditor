@@ -5,8 +5,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from enum import Enum
 
-from ..metadata import Metadata
-from .report import Report
+from ..report import Report
 
 import logging
 logger = logging.getLogger(__name__)
@@ -68,12 +67,12 @@ class Analyser(ABC):
 
 
     @classmethod
-    def analyse_file_results(cls, results: dict, report: Report):
+    def analyse_results(cls, results: dict, report: Report):
         """Analyses the analysis results of the files.
 
         Args:
             results (dict): Analysis results of the files.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
         """
         pass
 
@@ -85,7 +84,7 @@ class Analyser(ABC):
 
         Args:
             path (Path): Path of the file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.
@@ -94,13 +93,13 @@ class Analyser(ABC):
 
 
     @classmethod
-    def analyse_files(cls, root: Path, files: list[Path], report: Report) -> dict:
-        """Analyses a set of files.
+    def analyse(cls, root: Path, files: list[Path], report: Report) -> dict:
+        """Performs the analysis of the files.
 
         Args:
             root (Path): Path of the code base.
             files (list[Path]): Paths of the files relative to the root path.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results of the files.
@@ -111,24 +110,6 @@ class Analyser(ABC):
             logger.debug(f"Analysing `{path}`.")
             results[path.as_posix()] = cls.analyse_file(root / path, report)
 
+        cls.analyse_results(results, report)
+
         return results
-
-
-    @classmethod
-    def analyse(cls, root: Path, files: list[Path]) -> Report:
-        """Performs the analysis and generates the analyser report.
-
-        Args:
-            root (Path): Path of the code base.
-            files (list[Path]): Paths of the files relative to the root path.
-
-        Returns:
-            Analyser report.
-        """
-        report = Report(cls)
-
-        results = cls.analyse_files(root, files, report)
-        cls.analyse_file_results(results, report)
-        report.results = results
-
-        return report

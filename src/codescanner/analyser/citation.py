@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 VALID_ATTRS = [
@@ -67,7 +67,7 @@ class Citation(Analyser):
 
         Args:
             path (Path): Path of the citation file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.
@@ -77,12 +77,12 @@ class Citation(Analyser):
 
 
     @classmethod
-    def analyse_file_results(cls, results: dict, report: Report):
+    def analyse_results(cls, results: dict, report: Report):
         """Analyses the analysis results of the files.
 
         Args:
             results (dict): Analysis results of the files.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
         """
         if len(results) > 1:
-            report.set_invalid("Multiple citation files found.")
+            report.add_issue(cls, "Multiple citation files found.")

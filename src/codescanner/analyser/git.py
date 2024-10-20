@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 class Git(Analyser):
@@ -74,4 +74,4 @@ class Git(Analyser):
         Returns:
             Dictionary of the analysis results.
         """
-        report.set_metadata("version_control", "git")
+        report.add_metadata(cls, "version_control", "git")

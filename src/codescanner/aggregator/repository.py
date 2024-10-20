@@ -1,6 +1,7 @@
 """Repository aggregator module."""
 from . import Aggregator
 from ..analyser import AnalyserType
+from ..report import Report
 
 
 class Repository(Aggregator):
@@ -11,10 +12,11 @@ class Repository(Aggregator):
 
 
     @classmethod
-    def aggregate(cls, reports: dict) -> dict:
-        """Aggregates available analyser reports.
+    def aggregate(cls, report: Report, results: dict):
+        """Aggregates available analysis results.
 
         Args:
-            reports (dict): Analyser reports.
+            report (Report): Analysis report.
+            results (dict): Analyser results.
         """
         raise NotImplementedError

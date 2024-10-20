@@ -6,7 +6,7 @@ from pathlib import Path
 from hashlib import md5
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 """Maximum number of tokens per signature."""
@@ -205,7 +205,7 @@ class License(Analyser):
 
         Args:
             path (Path): Path of the license file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.

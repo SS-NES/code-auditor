@@ -1,6 +1,7 @@
 """License aggregator module."""
 from . import Aggregator
 from ..analyser import AnalyserType
+from ..report import Report
 
 
 class License(Aggregator):
@@ -11,10 +12,11 @@ class License(Aggregator):
 
 
     @classmethod
-    def aggregate(cls, reports: dict) -> dict:
-        """Aggregates available analyser reports.
+    def aggregate(cls, report: Report, results: dict):
+        """Aggregates available analysis results.
 
         Args:
-            reports (dict): Analyser reports.
+            report (Report): Analysis report.
+            results (dict): Analyser results.
         """
         raise NotImplementedError

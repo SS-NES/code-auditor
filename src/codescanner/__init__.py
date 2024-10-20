@@ -9,9 +9,9 @@ import os
 from pathlib import Path
 
 from .rule import Rule
-from .metadata import Metadata
 from .analyser import Analyser
 from .aggregator import Aggregator
+from .report import Report
 from .utils import get_id, OutputType
 
 import logging
@@ -226,8 +226,10 @@ def analyse(
 
                         _files[id].append(relpath)
 
+    report = Report()
+    report.results = {}
+
     results = {}
-    reports = {}
 
     # For each analyser
     for id, analyser in analysers.items():
@@ -239,7 +241,7 @@ def analyse(
         # Try to run the analyser
         logger.debug(f"Running {id} analyser.")
         try:
-            results[id] = analyser.analyse(path, _files[id])
+            report.results[id] = analyser.analyse(path, _files[id], report)
 
         # Skip if not implemented
         except NotImplementedError:
@@ -247,10 +249,10 @@ def analyse(
             continue
 
         type = analyser.get_type()
-        if type not in reports:
-            reports[type] = {}
+        if type not in results:
+            results[type] = {}
 
-        reports[type][id] = results[id]
+        results[type].update(report.results[id])
 
     # For each aggregator
     for id, aggregator in aggregators.items():
@@ -261,24 +263,24 @@ def analyse(
         # Try to run the aggregator
         logger.debug(f"Running {id} aggregator.")
         try:
-            results[id] = aggregator.aggregate(reports.get(type, {}))
+            aggregator.aggregate(report, results.get(type, {}))
 
         # Skip if not implemented
         except NotImplementedError:
             logger.debug(f"{id} aggregator is not implemented.")
             continue
 
-    return results
+    return report
 
 
-def output(results, format: OutputType=OutputType.TEXT) -> str:
-    """Generates analysis results output.
+def output(report: Report, format: OutputType=OutputType.TEXT) -> str:
+    """Generates analysis report output.
 
     Args:
-        results: Analysis results.
+        report: Analysis report.
         format (OutputType): Output format (default = OutputType.TEXT)
 
     Returns:
-        Analysis results output.
+        Analysis report output.
     """
-    return results
+    return report

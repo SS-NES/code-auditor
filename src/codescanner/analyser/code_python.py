@@ -5,7 +5,7 @@ import docstring_parser
 from pathlib import Path
 
 from . import Analyser, AnalyserType
-from .report import Report
+from ..report import Report
 
 
 def _analyse_node(node) -> dict:
@@ -35,7 +35,7 @@ def _analyse_node(node) -> dict:
 
         docstring = docstring_parser.parse(docs)
 
-        invalids = []
+        issues = []
 
         for key in [
             'style',
@@ -51,10 +51,10 @@ def _analyse_node(node) -> dict:
 
                 if key == 'params':
                     if hasattr(node, 'args') and len(val) != len(node.args.args):
-                        invalids.append("Invalid number of arguments.")
+                        issues.append("Invalid number of arguments.")
 
-        if invalids:
-            item['docs.invalids'] = invalids
+        if issues:
+            item['docs.issues'] = issues
 
     report = {name: item}
 
@@ -141,7 +141,7 @@ class CodePython(Analyser):
 
         Args:
             path (Path): Path of the Python file.
-            report (Report): Analyser report.
+            report (Report): Analysis report.
 
         Returns:
             Dictionary of the analysis results.

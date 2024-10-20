@@ -5,7 +5,7 @@ import zipfile
 import tarfile
 import urllib.request
 import git
-from tempfile import TemporaryDirectory
+import tempfile
 
 import click
 
@@ -159,7 +159,7 @@ def main(
             pass
 
     # Create temporary directory
-    tempdir = TemporaryDirectory(ignore_cleanup_errors=True)
+    tempdir = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
 
     try:
         is_local = False
@@ -196,8 +196,8 @@ def main(
         else:
             is_local = True
 
-        # Perform analysis
-        result = codescanner.analyse(
+        # Generate analysis report
+        report = codescanner.analyse(
             path if is_local else tempdir.name,
             skip=skip,
             skip_type=skip_type
@@ -208,7 +208,7 @@ def main(
         tempdir.cleanup()
 
     # Generate output
-    out = codescanner.output(result, format)
+    out = codescanner.output(report, format)
 
     # Check if output to a file is requested
     if output:
