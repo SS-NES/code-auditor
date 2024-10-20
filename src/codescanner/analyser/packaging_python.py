@@ -125,6 +125,17 @@ class PackagingPython(Analyser):
 
     @classmethod
     def analyse_setup_config(cls, path: Path) -> dict:
+        """Analyses a setup.cfg file.
+
+        setup.cfg specification is available at:
+        https://setuptools.pypa.io/en/latest/userguide/declarative_config.html
+
+        Args:
+            path (Path): Path of the file.
+
+        Returns:
+            Analysis results.
+        """
         metadata = {}
         invalids = []
 
