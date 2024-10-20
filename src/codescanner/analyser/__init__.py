@@ -73,6 +73,17 @@ class Analyser(ABC):
 
 
     @classmethod
+    def analyse_file_results(cls, results: dict, report: Report):
+        """Analyses the results of the files.
+
+        Args:
+            results (dict): Results of the files.
+            report (Report): Analysis report.
+        """
+        pass
+
+
+    @classmethod
     @abstractmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
         """Analyses a file.
@@ -129,5 +140,6 @@ class Analyser(ABC):
         result = cls.analyse_files(root, files, report)
         if result:
             report.files = result
+            cls.analyse_file_results(result, report)
 
         return report
