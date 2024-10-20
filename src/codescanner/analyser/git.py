@@ -30,6 +30,9 @@ class Git(Analyser):
     def excludes(cls, path: Path) -> list[str]:
         """Returns file and directory patterns to be excluded from the analysis.
 
+        Reads .gitignore file to retrieve the list of directories to be
+        excluded.
+
         Args:
             path (Path): Path of the code base.
 
