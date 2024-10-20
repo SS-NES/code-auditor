@@ -7,8 +7,10 @@ import inspect
 import functools
 import fnmatch
 import re
+import os
 from pathlib import Path
 from dataclasses import dataclass
+from enum import Enum
 
 from .analyser import Analyser, AnalyserType
 from .aggregator import Aggregator
@@ -19,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 """Snake case conversion regular expression."""
 REGEXP_SNAKE_CASE = re.compile(r"(?<!^)(?=[A-Z])")
+
+
+class OutputType(Enum):
+    """Output type."""
+    TEXT = 'text'
+    JSON = 'json'
+    YAML = 'yaml'
 
 
 @dataclass(init=False)
@@ -168,7 +177,7 @@ def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dic
 
 
 def analyse(
-    path: str,
+    path: str | Path,
     skip: list[str] = [],
     skip_type: list[str] = [],
 ) -> dict:
@@ -186,9 +195,19 @@ def analyse(
         ValueError("Invalid path."): If path is invalid.
     """
     # Check if path is valid
-    path = Path(path)
+    if not isinstance(path, Path):
+        path = Path(path)
+
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
+
+    # Find actual path if required
+    while True:
+        items = os.listdir(path)
+        if len(items) != 1 or not os.path.isdir(path / items[0]):
+            break
+        path = path / items[0]
+        logger.info(f"Proceeding to `{path}`")
 
     # Initialize skip lists
     _skip = [_snake_case(item) for item in skip]
@@ -298,4 +317,8 @@ def analyse(
             logger.info(f"{name} aggregator is not implemented.")
             pass
 
+    return report
+
+
+def output(report, format: OutputType=OutputType.TEXT) -> str:
     return report
