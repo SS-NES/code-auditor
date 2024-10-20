@@ -1,5 +1,5 @@
 import codescanner
-from codescanner.analyser import AnalyserType
+from .analyser import AnalyserType
 
 import zipfile
 import tarfile
@@ -47,7 +47,7 @@ PATH_TYPES = [
     '-T',
     '--skip-type',
     type = click.Choice(
-        [item.value for item in AnalyserType],
+        [item.name.lower() for item in AnalyserType],
         case_sensitive = False
     ),
     multiple = True,
@@ -139,7 +139,7 @@ def main(
     # Set logging level if debug flag is set
     if debug:
         logging.basicConfig(level=logging.DEBUG)
-        logger.info("Debugging enabled.")
+        logger.debug("Debugging enabled.")
 
     # Set path type if required
     if not path_type:
@@ -158,39 +158,46 @@ def main(
         except:
             pass
 
+    # Create temporary directory
     tempdir = TemporaryDirectory(ignore_cleanup_errors=True)
+
     try:
         is_local = False
 
+        # Check if remote file
         if path.startswith('http') and path_type and path_type not in ('git'):
-            logger.info(f"Retrieving `{path}`.")
+            # Retrieve remote file
+            logger.debug(f"Retrieving `{path}`.")
             temppath, _ = urllib.request.urlretrieve(path)
-            logger.info(f"File stored as `{temppath}`.")
+            logger.debug(f"File stored as `{temppath}`.")
         else:
             temppath = None
 
+        # Check if ZIP archive
         if path_type == 'zip':
             # Extract archive to the temporary directory
-            logger.info(f"Extracting {path_type} archive `{path}`.")
+            logger.debug(f"Extracting {path_type} archive `{path}`.")
             with zipfile.ZipFile(temppath if temppath else path, 'r') as file:
                 file.extractall(tempdir.name)
 
+        # Check if TAR archive
         elif path_type in ('tar', 'tgz', 'tar.gz'):
             # Extract archive to the temporary directory
-            logger.info(f"Extracting {path_type} archive `{path}`.")
+            logger.debug(f"Extracting {path_type} archive `{path}`.")
             with tarfile.open(temppath if temppath else path, 'r') as file:
                 file.extractall(tempdir.name)
 
+        # Check if git repository
         elif path_type == 'git' or path.startswith('http'):
             # Clone repository to the temporary directory
-            logger.info(f"Cloning `{path}`.")
+            logger.debug(f"Cloning `{path}`.")
             git.Repo.clone_from(path, tempdir.name, branch=branch)
 
         else:
             is_local = True
 
         # Perform analysis
-        report = codescanner.analyse(
+        result = codescanner.analyse(
             path if is_local else tempdir.name,
             skip=skip,
             skip_type=skip_type
@@ -201,7 +208,7 @@ def main(
         tempdir.cleanup()
 
     # Generate output
-    out = codescanner.output(report, format)
+    out = codescanner.output(result, format)
 
     # Check if output to a file is requested
     if output:

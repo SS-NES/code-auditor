@@ -5,71 +5,17 @@ import pkgutil
 import importlib
 import inspect
 import functools
-import fnmatch
-import re
 import os
 from pathlib import Path
-from dataclasses import dataclass
-from enum import Enum
 
-from .analyser import Analyser, AnalyserType
+from .rule import Rule
+from .metadata import Metadata
+from .analyser import Analyser
 from .aggregator import Aggregator
+from .utils import get_id, OutputType
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-"""Snake case conversion regular expression."""
-REGEXP_SNAKE_CASE = re.compile(r"(?<!^)(?=[A-Z])")
-
-
-class OutputType(Enum):
-    """Output type."""
-    TEXT = 'text'
-    JSON = 'json'
-    YAML = 'yaml'
-
-
-@dataclass(init=False)
-class Rule:
-    val: str
-    is_dir: bool
-    is_pattern: bool
-    is_nested: bool
-    analysers: list[str]
-
-
-    @staticmethod
-    def _is_pattern(val: str) -> bool:
-        """Checks if rule value is a pattern."""
-        return ('*' in val) or ('?' in val) or ('[' in val)
-
-
-    @staticmethod
-    def _is_nested(val: str) -> bool:
-        return ('/' in val)
-
-
-    def __init__(self, val: str, analyser: str = None):
-        self.is_dir = val[-1] == '/'
-        if self.is_dir:
-            val = val[:-1]
-        self.is_nested = val[0] == '/'
-        if self.is_nested:
-            val = val[1:]
-        else:
-            self.is_nested = Rule._is_nested(val)
-        self.is_pattern = Rule._is_pattern(val)
-        self.val = val
-        self.analysers = [analyser] if analyser else []
-
-
-    def match(self, val: str) -> bool:
-        return fnmatch.fnmatch(val, self.val)
-
-
-def _snake_case(val: str) -> str:
-    return REGEXP_SNAKE_CASE.sub('_', val).lower()
 
 
 def _get_subclasses(parent) -> dict:
@@ -90,7 +36,7 @@ def _get_subclasses(parent) -> dict:
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
             if issubclass(obj, parent) and obj is not parent:
-                classes[_snake_case(name)] = obj
+                classes[get_id(obj)] = obj
 
     return classes
 
@@ -151,7 +97,7 @@ def _get_excludes(path: Path, analysers: dict = None) -> dict:
 
         for val in analyser.excludes(path):
 
-            rule = Rule(val, analyser)
+            rule = Rule(val, name)
 
             if not rule.is_dir:
                 raise ValueError("Invalid exclusion rule.", val)
@@ -168,7 +114,7 @@ def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dic
         if name in skip:
             continue
 
-        if item.get_type().value in skip_type:
+        if item.get_type().name.lower() in skip_type:
             continue
 
         _items[name] = item
@@ -207,15 +153,11 @@ def analyse(
         if len(items) != 1 or not os.path.isdir(path / items[0]):
             break
         path = path / items[0]
-        logger.info(f"Proceeding to `{path}`")
-
-    # Initialize skip lists
-    _skip = [_snake_case(item) for item in skip]
-    _skip_type = [_snake_case(item) for item in skip_type]
+        logger.debug(f"Proceeding to `{path}`")
 
     # Get analysers and aggregators
-    analysers = _filter(get_analysers(), _skip, _skip_type)
-    aggregators = _filter(get_aggregators(), _skip, _skip_type)
+    analysers = _filter(get_analysers(), skip, skip_type)
+    aggregators = _filter(get_aggregators(), skip, skip_type)
 
     # Get inclusion and exclusion rules
     includes = _get_includes(path, analysers)
@@ -228,9 +170,9 @@ def analyse(
         'num_files': 0,
     }
 
-    groups = {}
+    _files = {}
 
-    logger.info(f"Scanning `{path}`.")
+    logger.debug(f"Scanning `{path}`.")
     for root, dirs, files in path.walk(top_down=True, follow_symlinks=True):
 
         stats['num_dirs'] += 1
@@ -247,12 +189,12 @@ def analyse(
 
                 if rule.match(relpath if rule.is_nested else dir):
 
-                    for analyser in rule.analysers:
+                    for id in rule.analysers:
 
-                        if analyser not in groups:
-                            groups[analyser] = []
+                        if id not in _files:
+                            _files[id] = []
 
-                        groups[analyser].append(relpath)
+                        _files[id].append(relpath)
 
             for _, rule in excludes.items():
 
@@ -277,48 +219,66 @@ def analyse(
                 if rule.match(relpath if rule.is_nested else file):
                     stats['num_files'] += 1
 
-                    for analyser in rule.analysers:
+                    for id in rule.analysers:
 
-                        if analyser not in groups:
-                            groups[analyser] = []
+                        if id not in _files:
+                            _files[id] = []
 
-                        groups[analyser].append(relpath)
+                        _files[id].append(relpath)
 
-    report = {type: {} for type in AnalyserType}
+    results = {}
+    reports = {}
 
     # For each analyser
-    for name, analyser in analysers.items():
+    for id, analyser in analysers.items():
 
-        type = analyser.get_type()
-        files = groups.get(name, [])
+        # Skip if no files are available for the analyser
+        if id not in _files:
+            continue
 
         # Try to run the analyser
+        logger.debug(f"Running {id} analyser.")
         try:
-            logger.info(f"Running {name} analyser.")
-            report[type][name] = analyser.analyse(path, files)
+            results[id] = analyser.analyse(path, _files[id])
 
         # Skip if not implemented
         except NotImplementedError:
-            logger.info(f"{name} analyser is not implemented.")
-            pass
+            logger.debug(f"{id} analyser is not implemented.")
+            continue
+
+        type = analyser.get_type()
+        if type not in reports:
+            reports[type] = {}
+
+        reports[type][id] = results[id]
 
     # For each aggregator
-    for name, aggregator in aggregators.items():
+    for id, aggregator in aggregators.items():
 
+        # Get aggregator type
         type = aggregator.get_type()
 
         # Try to run the aggregator
+        logger.debug(f"Running {id} aggregator.")
         try:
-            logger.info(f"Running {name} aggregator.")
-            report[type] = aggregator.aggregate(report[type])
+            results[id] = aggregator.aggregate(reports.get(type, {}))
 
         # Skip if not implemented
         except NotImplementedError:
-            logger.info(f"{name} aggregator is not implemented.")
-            pass
+            logger.debug(f"{id} aggregator is not implemented.")
+            continue
 
-    return report
+    return results
 
 
-def output(report, format: OutputType=OutputType.TEXT) -> str:
-    return report
+def output(results, format: OutputType=OutputType.TEXT) -> str:
+    """Generates analysis results output.
+
+    Args:
+        results: Analysis results.
+        format (OutputType): Output format (default = OutputType.TEXT)
+
+    Returns:
+        Analysis results output.
+    """
+    return results

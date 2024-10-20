@@ -1,8 +1,12 @@
 """Analyser module."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from enum import Enum
 from pathlib import Path
-from dataclasses import dataclass, field
+from enum import Enum
+
+from ..metadata import Metadata
+from .report import Report
 
 import logging
 logger = logging.getLogger(__name__)
@@ -10,38 +14,29 @@ logger = logging.getLogger(__name__)
 
 class AnalyserType(Enum):
     """Analyser type."""
-    CODE = "code"
-    VERSION_CONTROL = "version_control"
-    DOCUMENTATION = "documentation"
-    LICENSE = "license"
-    CITATION = "citation"
-    REPOSITORY = "repository"
-    PACKAGING = "packaging"
-    CONTINUOUS_INTEGRATION = "continuous_integration"
-
-
-class ReportStatus(Enum):
-    """Analysis report status."""
-    MISSING = 0
-    EXISTS = 1
-
-
-@dataclass
-class Report:
-    """Analysis report."""
-    status: ReportStatus=ReportStatus.MISSING
-    files: dict=field(default_factory=lambda: {})
-    invalids: list=field(default_factory=lambda: [])
-    metadata: dict=field(default_factory=lambda: {})
+    CODE = "Code"
+    LICENSE = "License"
+    CITATION = "Citation"
+    VERSION_CONTROL = "Version Control"
+    DOCUMENTATION = "Documentation"
+    PACKAGING = "Packaging"
+    REPOSITORY = "Repository"
 
 
 class Analyser(ABC):
     """Analyse abstract class."""
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def get_type() -> AnalyserType:
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
+        raise NotImplementedError
+
+
+    @classmethod
+    @abstractmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
         raise NotImplementedError
 
 
@@ -74,11 +69,11 @@ class Analyser(ABC):
 
     @classmethod
     def analyse_file_results(cls, results: dict, report: Report):
-        """Analyses the results of the files.
+        """Analyses the analysis results of the files.
 
         Args:
-            results (dict): Results of the files.
-            report (Report): Analysis report.
+            results (dict): Analysis results of the files.
+            report (Report): Analyser report.
         """
         pass
 
@@ -90,10 +85,10 @@ class Analyser(ABC):
 
         Args:
             path (Path): Path of the file.
-            report (Report): Analysis report.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
         raise NotImplementedError
 
@@ -104,8 +99,8 @@ class Analyser(ABC):
 
         Args:
             root (Path): Path of the code base.
-            files (list[Path]): Paths of the files.
-            report (Report): Analysis report.
+            files (list[Path]): Paths of the files relative to the root path.
+            report (Report): Analyser report.
 
         Returns:
             Dictionary of the analysis results of the files.
@@ -114,32 +109,26 @@ class Analyser(ABC):
 
         for path in files:
             logger.debug(f"Analysing `{path}`.")
-
-            result = cls.analyse_file(root / path, report)
-            if result is not None:
-                results[path.as_posix()] = result
+            results[path.as_posix()] = cls.analyse_file(root / path, report)
 
         return results
 
 
     @classmethod
     def analyse(cls, root: Path, files: list[Path]) -> Report:
-        """Performs the analysis.
+        """Performs the analysis and generates the analyser report.
 
         Args:
             root (Path): Path of the code base.
-            files (list[Path]): Paths of the files.
+            files (list[Path]): Paths of the files relative to the root path.
 
         Returns:
-            Analysis result.
+            Analyser report.
         """
-        if not files:
-            return Report()
+        report = Report(cls)
 
-        report = Report(status=ReportStatus.EXISTS)
-        result = cls.analyse_files(root, files, report)
-        if result:
-            report.files = result
-            cls.analyse_file_results(result, report)
+        results = cls.analyse_files(root, files, report)
+        cls.analyse_file_results(results, report)
+        report.results = results
 
         return report

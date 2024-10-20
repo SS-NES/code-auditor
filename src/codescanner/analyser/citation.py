@@ -2,7 +2,8 @@
 import yaml
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 VALID_ATTRS = [
@@ -31,10 +32,18 @@ VALID_ATTRS = [
 
 
 class Citation(Analyser):
-    @staticmethod
-    def get_type() -> AnalyserType:
+    """Citation analyser class."""
+
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.CITATION
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "Citation"
 
 
     @classmethod
@@ -53,20 +62,27 @@ class Citation(Analyser):
 
 
     @classmethod
-    def analyse_files(cls, root: Path, files: list[Path], report: Report) -> dict:
-        """Analyses a set of files.
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a citation file.
 
         Args:
-            root (Path): Path of the code base.
-            files (list[Path]): Paths of the files.
-            report (Report): Analysis report.
+            path (Path): Path of the citation file.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis results of the files.
+            Dictionary of the analysis results.
         """
-        if len(files) > 1:
-            report.invalids.append("Multiple citation files found.")
+        with open(path, 'r', encoding='utf-8') as file:
+            content = yaml.safe_load(file)
 
-        for path in files:
-            with open(root / path, 'r', encoding='utf-8') as file:
-                content = yaml.safe_load(file)
+
+    @classmethod
+    def analyse_file_results(cls, results: dict, report: Report):
+        """Analyses the analysis results of the files.
+
+        Args:
+            results (dict): Analysis results of the files.
+            report (Report): Analyser report.
+        """
+        if len(results) > 1:
+            report.set_invalid("Multiple citation files found.")

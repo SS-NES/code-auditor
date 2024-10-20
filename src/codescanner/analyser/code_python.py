@@ -4,7 +4,8 @@ import ast
 import docstring_parser
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 def _analyse_node(node) -> dict:
@@ -90,10 +91,18 @@ def _analyse_node(node) -> dict:
 
 
 class CodePython(Analyser):
-    @staticmethod
-    def get_type() -> AnalyserType:
+    """Python code analyser class."""
+
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.CODE
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "Python Code"
 
 
     @classmethod
@@ -128,17 +137,18 @@ class CodePython(Analyser):
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a file.
+        """Analyses a Python file.
 
         Args:
-            path (Path): Path of the file.
-            report (Report): Analysis report.
+            path (Path): Path of the Python file.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
         with open(path, 'r') as file:
             node = ast.parse(file.read(), filename=path, type_comments=True)
-            result = _analyse_node(node)
+
+        result = _analyse_node(node)
 
         return result

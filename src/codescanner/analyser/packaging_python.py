@@ -1,12 +1,12 @@
 """Python packaging analyser module."""
 from pathlib import Path
-try: import tomllib
-except ModuleNotFoundError: import pip._vendor.tomli as tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import pip._vendor.tomli as tomllib
 
-from . import Analyser, AnalyserType, Report
-
-import logging
-logger = logging.getLogger(__name__)
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 class PackagingPython(Analyser):
@@ -18,10 +18,17 @@ class PackagingPython(Analyser):
     Version specifiers information is available at:
     https://packaging.python.org/en/latest/specifications/version-specifiers/
     """
-    @staticmethod
-    def get_type() -> AnalyserType:
+
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.PACKAGING
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "Python Packaging"
 
 
     @classmethod
@@ -42,7 +49,7 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def analyse_pyproject(cls, path: Path) -> dict:
+    def analyse_pyproject(cls, path: Path, report: Report) -> dict:
         """Analyses a pyproject.toml file.
 
         pyproject.toml specification is available at:
@@ -53,25 +60,23 @@ class PackagingPython(Analyser):
         - Description is a one-liner summary
 
         Args:
-            path (Path): Path of the file.
+            path (Path): Path of the pyproject.toml file.
+            report (Report): Analyser report.
 
         Returns:
-            Analysis results.
+            Dictionary of the analysis results.
         """
         def _set(data, key):
             val = data.get(key)
 
             if isinstance(val, str):
-                metadata[key + '_file'] = str(path.parent / val)
+                report.set_metadata(key + '_file', str(path.parent / val), path)
 
             elif isinstance(val, dict):
                 if 'file' in val:
-                    metadata[key + '_file'] = str(path.parent / val['file'])
+                    report.set_metadata(key + '_file', path.parent / val['file'], path)
                 elif 'text' in val:
-                    metadata[key] = val['text']
-
-        metadata = {}
-        invalids = []
+                    report.set_metadata(key, val['text'])
 
         with open(path, 'rb') as file:
             data = tomllib.load(file)
@@ -87,12 +92,12 @@ class PackagingPython(Analyser):
             ]:
                 val = project.get(key)
                 if val:
-                    metadata[key] = val
+                    report.set_metadata(key, val, path)
 
             _set(project, 'readme')
 
             if isinstance(project.get("license"), str):
-                invalids.append("Invalid license identifier.")
+                report.set_invalid("Invalid license identifier.", path)
             else:
                 _set(project, 'license')
 
@@ -104,47 +109,35 @@ class PackagingPython(Analyser):
                             person['name'] = item['name']
                         if item.get('email'):
                             person['email'] = item['email']
-                        if person:
-                            if key not in metadata:
-                                metadata[key] = []
-                            metadata[key].append(person)
-                            continue
+                        report.set_metadata(key, person, path)
+                        continue
 
-                    invalids.append(f"Invalid {key}[{i+1}].")
+                    report.set_invalid(f"Invalid {key}[{i+1}].", path)
 
             for item in project.get('classifiers', []):
                 parts = [part.strip() for part in item.split('::')]
                 if parts[0] == 'License':
-                    metadata['license_name'] = parts[-1]
-
-        return {
-            'metadata': metadata,
-            'invalids': invalids,
-        }
+                    report.set_metadata('license_name', parts[-1], path)
 
 
     @classmethod
-    def analyse_setup_config(cls, path: Path) -> dict:
+    def analyse_setup_config(cls, path: Path, report: Report) -> dict:
         """Analyses a setup.cfg file.
 
         setup.cfg specification is available at:
         https://setuptools.pypa.io/en/latest/userguide/declarative_config.html
 
         Args:
-            path (Path): Path of the file.
+            path (Path): Path of the setup.cfg file.
+            report (Report): Analyser report.
 
         Returns:
-            Analysis results.
+            Dictionary of the analysis results.
         """
-        metadata = {}
-        invalids = []
-
         with open(path, 'rb') as file:
             data = tomllib.load(file)
 
         if 'metadata' in data:
-            meta = data['metadata']
-
             for key in [
                 'name',
                 'version',
@@ -152,32 +145,26 @@ class PackagingPython(Analyser):
                 'long_description',
                 'keywords',
             ]:
-                val = project.get(key)
-                if val:
-                    metadata[key] = val
-
-        return {
-            'metadata': metadata,
-            'invalids': invalids,
-        }
+                val = data['metadata'].get(key)
+                report.set_metadata(key, val, path)
 
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a file.
+        """Analyses a packaging file.
 
         Args:
-            path (Path): Path of the file.
-            report (Report): Analysis report.
+            path (Path): Path of the packaging file.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
         if path.name == 'pyproject.toml':
-            return cls.analyse_pyproject(path)
+            return cls.analyse_pyproject(path, report)
 
         elif path.name == 'setup.py':
             pass
 
         elif path.name == 'setup.cfg':
-            return cls.analyse_setup_config(path)
+            return cls.analyse_setup_config(path, report)

@@ -5,7 +5,8 @@ import os
 from pathlib import Path
 from hashlib import md5
 
-from . import Analyser, AnalyserType, Report
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 """Maximum number of tokens per signature."""
@@ -63,6 +64,9 @@ def save_signatures(
         path (str): Path of the signatures file (default = 'signatures.json')
         max_tokens (int): Number of maximum tokens (default = MAX_TOKENS)
         token_size (int): Token size (default = TOKEN_SIZE)
+
+    Raises:
+        ValueError("Invalid token size."): If token size is invalid.
     """
     result = {
         '_MAX_TOKENS': max_tokens,
@@ -99,7 +103,7 @@ def save_signatures(
                         lookup[tiny_token] = token
 
                     elif token != lookup[tiny_token]:
-                        raise ValueError("Invalid token size", token_size)
+                        raise ValueError("Invalid token size.")
 
                     tiny_tokens.append(tiny_token)
 
@@ -121,13 +125,16 @@ def find_license(text: str, filename: str='signatures.json') -> tuple:
         filename (str): File name of the signatures file (default = 'signatures.json')
 
     Returns:
-        Tuple of possible license identifiers and the minimum score
+        Tuple of possible license identifiers and the minimum score.
+
+    Raises:
+        Valuerror("Invalid signatures file."): If signatures file is invalid.
     """
     with open(filename, 'r') as file:
         signatures = json.load(file)
 
     if '_MAX_TOKENS' not in signatures or '_TOKEN_SIZE' not in signatures:
-        raise ValueError("Invalid signatures file", filename)
+        raise ValueError("Invalid signatures file.")
 
     max_tokens = signatures['_MAX_TOKENS']
     token_size = signatures['_TOKEN_SIZE']
@@ -163,10 +170,16 @@ def find_license(text: str, filename: str='signatures.json') -> tuple:
 class License(Analyser):
     """License analyser class."""
 
-    @staticmethod
-    def get_type() -> AnalyserType:
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.LICENSE
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "License"
 
 
     @classmethod
@@ -188,14 +201,14 @@ class License(Analyser):
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a file.
+        """Analyses a license file.
 
         Args:
-            path (Path): Path of the file.
-            report (Report): Analysis report.
+            path (Path): Path of the license file.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
         with open(path, 'r', encoding='utf-8') as file:
             text = file.read()

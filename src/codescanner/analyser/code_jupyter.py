@@ -1,14 +1,23 @@
-"""Jupyter code analyser module."""
+"""Jupyter notebooks analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 class CodeJupyter(Analyser):
-    @staticmethod
-    def get_type() -> AnalyserType:
+    """Jupyter notebooks analyser class."""
+
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.CODE
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "Jupyter Notebooks"
 
 
     @classmethod
@@ -43,13 +52,13 @@ class CodeJupyter(Analyser):
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a file.
+        """Analyses a Jupyter notebook file.
 
         Args:
-            path (Path): Path of the file.
-            report (Report): Analysis report.
+            path (Path): Path of the Jupyter notebook file.
+            report (Report): Analyser report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
         raise NotImplementedError

@@ -1,14 +1,23 @@
-"""Git analyser module."""
+"""Git version control analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType, Report
+from . import Analyser, AnalyserType
+from .report import Report
 
 
 class Git(Analyser):
-    @staticmethod
-    def get_type() -> AnalyserType:
+    """Git version control analyser class."""
+
+    @classmethod
+    def get_type(cls) -> AnalyserType:
         """Returns analyser type."""
         return AnalyserType.VERSION_CONTROL
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns analyser name."""
+        return "Git Version Control"
 
 
     @classmethod
@@ -56,13 +65,13 @@ class Git(Analyser):
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a file.
+        """Analyses a git file.
 
         Args:
-            path (Path): Path of the file.
-            report (Report): Analysis report.
+            path (Path): Path of the git file.
+            report (Report): Analyse report.
 
         Returns:
-            Dictionary of the analysis result of the file.
+            Dictionary of the analysis results.
         """
-        report.metadata["version_control"] = "git"
+        report.set_metadata("version_control", "git")
