@@ -48,8 +48,9 @@ class PackagingPython(Analyser):
         pyproject.toml specification is available at:
         https://packaging.python.org/en/latest/specifications/pyproject-toml/
 
-        Metadata paths are relative to pyproject.toml.
-        List of classifiers is available at https://pypi.org/classifiers/.
+        - Metadata paths are relative to pyproject.toml.
+        - List of classifiers is available at https://pypi.org/classifiers/.
+        - Description is a one-liner summary
 
         Args:
             path (Path): Path of the file.
@@ -78,8 +79,12 @@ class PackagingPython(Analyser):
         if 'project' in data:
             project = data['project']
 
-            # REMARK: `description` is a one-liner summary.
-            for key in ['name', 'description', 'version', 'keywords']:
+            for key in [
+                'name',
+                'description',
+                'version',
+                'keywords'
+            ]:
                 val = project.get(key)
                 if val:
                     metadata[key] = val
@@ -119,6 +124,34 @@ class PackagingPython(Analyser):
 
 
     @classmethod
+    def analyse_setup_config(cls, path: Path) -> dict:
+        metadata = {}
+        invalids = []
+
+        with open(path, 'rb') as file:
+            data = tomllib.load(file)
+
+        if 'metadata' in data:
+            meta = data['metadata']
+
+            for key in [
+                'name',
+                'version',
+                'description',
+                'long_description',
+                'keywords',
+            ]:
+                val = project.get(key)
+                if val:
+                    metadata[key] = val
+
+        return {
+            'metadata': metadata,
+            'invalids': invalids,
+        }
+
+
+    @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
         """Analyses a file.
 
@@ -136,4 +169,4 @@ class PackagingPython(Analyser):
             pass
 
         elif path.name == 'setup.cfg':
-            pass
+            return cls.analyse_setup_config(path)
