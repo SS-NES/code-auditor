@@ -1,13 +1,23 @@
 import codescanner
 from codescanner.analyser import AnalyserType
 
-from git import Repo
+import zipfile
+import tarfile
+import urllib.request
+import git
 from tempfile import TemporaryDirectory
 
 import click
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+PATH_TYPES = [
+    'zip',
+    'tar', 'tgz', 'tar.gz',
+    'git',
+]
 
 
 @click.command(
@@ -56,6 +66,12 @@ logger = logging.getLogger(__name__)
     type = click.STRING,
     help = "Branch or tag of the remote code repository."
 )
+@click.option(
+    '-t',
+    '--path-type',
+    type = click.Choice(PATH_TYPES, case_sensitive = False),
+    help = "Type of the file located at the path."
+)
 # Output options
 @click.option(
     '-m',
@@ -100,6 +116,7 @@ def main(
     skip_type,
     smp,
     branch,
+    path_type,
     metadata,
     output,
     format,
@@ -113,6 +130,7 @@ def main(
         skip_type (list[str]): List of analyser types to skip (optional).
         smp (str): Path of the software management plan (SMP) (optional).
         branch (str): Branch or tag of the remote repository (optional).
+        path_type (str): Path type (optional).
         metadata (str): Path to store the metadata extracted from the code base (optional).
         output (str): Path to store the analysis output (optional).
         format (str): Output format (default = 'text').
@@ -123,29 +141,75 @@ def main(
         logging.basicConfig(level=logging.DEBUG)
         logger.info("Debugging enabled.")
 
-    # Check if path is a URL address
-    if path.startswith('http'):
+    # Set path type if required
+    if not path_type:
+        for val in PATH_TYPES:
+            if path.endswith('.' + val):
+                path_type = val
+                break
 
-        # Clone repository to a temporary directory and analyse the code base
-        logger.info(f"Cloning `{path}`.")
-        with TemporaryDirectory() as temppath:
-            Repo.clone_from(path, temppath, branch=branch)
-            report = codescanner.analyse(temppath, skip, skip_type)
+    if not path_type and not path.startswith('http'):
+        try:
+            if zipfile.is_zipfile(path):
+                path_type = 'zip'
 
+            elif tarfile.is_tarfile(path):
+                path_type = 'tar'
+        except:
+            pass
+
+    tempdir = TemporaryDirectory(ignore_cleanup_errors=True)
+    try:
+        is_local = False
+
+        if path.startswith('http') and path_type and path_type not in ('git'):
+            logger.info(f"Retrieving `{path}`.")
+            temppath, _ = urllib.request.urlretrieve(path)
+            logger.info(f"File stored as `{temppath}`.")
+        else:
+            temppath = None
+
+        if path_type == 'zip':
+            # Extract archive to the temporary directory
+            logger.info(f"Extracting {path_type} archive `{path}`.")
+            with zipfile.ZipFile(temppath if temppath else path, 'r') as file:
+                file.extractall(tempdir.name)
+
+        elif path_type in ('tar', 'tgz', 'tar.gz'):
+            # Extract archive to the temporary directory
+            logger.info(f"Extracting {path_type} archive `{path}`.")
+            with tarfile.open(temppath if temppath else path, 'r') as file:
+                file.extractall(tempdir.name)
+
+        elif path_type == 'git' or path.startswith('http'):
+            # Clone repository to the temporary directory
+            logger.info(f"Cloning `{path}`.")
+            git.Repo.clone_from(path, tempdir.name, branch=branch)
+
+        else:
+            is_local = True
+
+        # Perform analysis
+        report = codescanner.analyse(
+            path if is_local else tempdir.name,
+            skip=skip,
+            skip_type=skip_type
+        )
+
+    finally:
+        # Clean up temporary directory
+        tempdir.cleanup()
+
+    # Generate output
+    out = codescanner.output(report, format)
+
+    # Check if output to a file is requested
+    if output:
+        # Store output
+        output.write(out)
     else:
-        # Analyse the code base
-        report = codescanner.analyse(path, skip, skip_type)
-
-    if format == "text":
-        click.echo(report)
-
-    elif format == "json":
-        # TODO: JSON output
-        pass
-
-    elif format == "yaml":
-        # TODO: Yaml output
-        pass
+        # Display output
+        click.echo(out)
 
     if metadata:
         # TODO: Store metadata
