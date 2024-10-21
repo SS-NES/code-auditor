@@ -4,38 +4,40 @@ build-backend = "hatchling.build"
 
 [project]
 name = "CodeScanner"
-version = "0.1.0"
+dynamic = ["version"]
 authors = [
-  { name="Serkan Girgin", email="girgink@gmail.com" },
-  { name="Robert Ohuru", email="r.o.ohuru@utwente.nl"},
+    { name="Serkan Girgin", email="girgink@gmail.com" },
+    { name="Robert Ohuru", email="r.o.ohuru@utwente.nl"},
 ]
 description = "A package and command-line utility to test compliance of software with best practices."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
 classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Environment :: Console",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-  "Operating System :: OS Independent",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
 ]
 dependencies = [
-  "click >=7.0, <9",
-  "docstring_parser",
-  "gitpython",
-  "pyyaml",
+    "click >=7.0, <9",
+    "docstring_parser",
+    "gitpython",
+    "jinja2",
+    "pypandoc",
+    "pyyaml",
 ]
 keywords = [
-  "software development",
-  "code quality",
-  "conformity check",
+    "software development",
+    "code quality",
+    "conformity check",
 ]
 
 [project.urls]
@@ -44,3 +46,6 @@ Issues = "https://github.com/SS-NES/CodeScanner/issues"
 
 [project.scripts]
 codescanner = "codescanner.cli:main"
+
+[tool.hatch.version]
+path = "src/codescanner/__init__.py"
