@@ -47,7 +47,7 @@ def _analyse_node(node) -> dict:
         ]:
             val = getattr(docstring, key)
             if val:
-                item[f"docs.{key}"] = val
+                item[f'docs.{key}'] = val
 
                 if key == 'params':
                     if hasattr(node, 'args') and len(val) != len(node.args.args):

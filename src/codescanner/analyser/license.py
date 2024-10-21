@@ -193,9 +193,9 @@ class License(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/license',
-            '/license.md',
-            '/license.txt'
+            '/licen[cs]e',
+            '/licen[cs]e.md',
+            '/licen[cs]e.txt'
         ]
 
 

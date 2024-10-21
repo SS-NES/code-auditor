@@ -108,8 +108,18 @@ class Analyser(ABC):
 
         for path in files:
             logger.debug(f"Analysing `{path}`.")
-            results[path.as_posix()] = cls.analyse_file(root / path, report)
+            try:
+                results[path.as_posix()] = cls.analyse_file(root / path, report)
+
+            except NotImplementedError:
+                logger.debug(f"{cls} file analyser is not implemented.")
+                continue
 
         cls.analyse_results(results, report)
 
         return results
+
+
+    @classmethod
+    def output_results(cls, results: dict) -> str:
+        pass

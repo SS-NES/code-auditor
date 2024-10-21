@@ -70,11 +70,21 @@ class PackagingPython(Analyser):
             val = data.get(key)
 
             if isinstance(val, str):
-                report.add_metadata(cls, key + '_file', str(path.parent / val), path)
+                report.add_metadata(
+                    cls,
+                    key + '_file',
+                    (path.parent / val).relative_to(report.path),
+                    path
+                )
 
             elif isinstance(val, dict):
                 if 'file' in val:
-                    report.add_metadata(cls, key + '_file', path.parent / val['file'], path)
+                    report.add_metadata(
+                        cls,
+                        key + '_file',
+                        (path.parent / val['file']).relative_to(report.path),
+                        path
+                    )
                 elif 'text' in val:
                     report.add_metadata(cls, key, val['text'])
 
@@ -96,7 +106,7 @@ class PackagingPython(Analyser):
 
             _set(project, 'readme')
 
-            if isinstance(project.get("license"), str):
+            if isinstance(project.get('license'), str):
                 report.add_issue(cls, "Invalid license identifier.", path)
             else:
                 _set(project, 'license')

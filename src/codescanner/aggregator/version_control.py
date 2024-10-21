@@ -19,4 +19,8 @@ class VersionControl(Aggregator):
             report (Report): Analysis report.
             results (dict): Analyser results.
         """
-        raise NotImplementedError
+        if not results:
+            report.add_issue(cls, "No version control.")
+
+        else:
+            report.add_notice(cls, "Version control exits.")

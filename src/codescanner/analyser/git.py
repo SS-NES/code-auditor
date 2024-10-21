@@ -74,4 +74,4 @@ class Git(Analyser):
         Returns:
             Dictionary of the analysis results.
         """
-        report.add_metadata(cls, "version_control", "git")
+        report.add_metadata(cls, 'version_control', 'git')
