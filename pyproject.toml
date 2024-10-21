@@ -9,7 +9,7 @@ authors = [
     { name="Serkan Girgin", email="girgink@gmail.com" },
     { name="Robert Ohuru", email="r.o.ohuru@utwente.nl"},
 ]
-description = "A package and command-line utility to test compliance of software with best practices."
+description = "A package and command-line utility to check code quality and compliance to the best practices."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
