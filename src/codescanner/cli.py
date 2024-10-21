@@ -1,5 +1,6 @@
 import codescanner
 from .analyser import AnalyserType
+from .utils import OutputType
 
 import zipfile
 import tarfile
@@ -31,7 +32,6 @@ PATH_TYPES = [
 )
 # Analysis options
 @click.option(
-    '-S',
     '--skip',
     type = click.Choice(
         [
@@ -44,7 +44,6 @@ PATH_TYPES = [
     help = "List of analysers to skip."
 )
 @click.option(
-    '-T',
     '--skip-type',
     type = click.Choice(
         [item.name.lower() for item in AnalyserType],
@@ -54,10 +53,10 @@ PATH_TYPES = [
     help = "List of analysers types to skip."
 )
 @click.option(
-    '-p',
-    '--smp',
-    type = click.File("r", encoding="utf-8"),
-    help = "Path of the software management plan (SMP) for comparison."
+    '-r',
+    '--reference',
+    type = click.File('r', encoding='utf-8'),
+    help = "Path of the reference metadata for comparison (e.g. SMP)."
 )
 # Remote repository options
 @click.option(
@@ -76,20 +75,23 @@ PATH_TYPES = [
 @click.option(
     '-m',
     '--metadata',
-    type = click.File("w", encoding="utf-8", lazy=True),
+    type = click.File('w', encoding='utf-8', lazy=True),
     help = "Path to store the metadata extracted from the code base."
 )
 @click.option(
     '-o',
     '--output',
-    type = click.File("w", encoding="utf-8", lazy=True),
+    type = click.Path(),
     help = "Path to store the analysis output."
 )
 @click.option(
     '-f',
     '--format',
-    type = click.Choice(['text', 'json', 'yaml'], case_sensitive = False),
-    default = 'text',
+    type = click.Choice(
+        [item.value for item in OutputType],
+        case_sensitive = False
+    ),
+    default = 'plain',
     help = "Output format."
 )
 # Development options
@@ -114,7 +116,7 @@ def main(
     path,
     skip,
     skip_type,
-    smp,
+    reference,
     branch,
     path_type,
     metadata,
@@ -128,7 +130,7 @@ def main(
         path (str): Path of the code base.
         skip (list[str]): List of analysers to skip (optional).
         skip_type (list[str]): List of analyser types to skip (optional).
-        smp (str): Path of the software management plan (SMP) (optional).
+        reference (str): Path of the reference metadata for comparison (e.g. SMP) (optional).
         branch (str): Branch or tag of the remote repository (optional).
         path_type (str): Path type (optional).
         metadata (str): Path to store the metadata extracted from the code base (optional).
@@ -136,6 +138,8 @@ def main(
         format (str): Output format (default = 'text').
         debug (bool): Debug flag (default = False).
     """
+    logger.debug(f"Analysing `{path}`.")
+
     # Set logging level if debug flag is set
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -208,15 +212,17 @@ def main(
         tempdir.cleanup()
 
     # Generate output
-    out = codescanner.output(report, format)
+    out = report.output(OutputType(format), output)
 
     # Check if output to a file is requested
-    if output:
-        # Store output
-        output.write(out)
-    else:
-        # Display output
-        click.echo(out)
+    if isinstance(out, str):
+        if output:
+            # Store output
+            with open(output, 'w', encoding='utf-8') as file:
+                file.write(out)
+        else:
+            # Display output
+            click.echo(out)
 
     if metadata:
         # TODO: Store metadata

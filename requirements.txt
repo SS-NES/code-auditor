@@ -1,4 +1,6 @@
 click >=7.0, <9
 docstring_parser
 gitpython
+jinja2
+pypandoc
 pyyaml

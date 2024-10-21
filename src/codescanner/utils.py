@@ -4,14 +4,19 @@ from enum import Enum
 
 
 """Snake case conversion regular expression."""
-REGEXP_SNAKE_CASE = re.compile(r"(?<!^)(?=[A-Z])")
+REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
 
 
 class OutputType(Enum):
     """Output type."""
-    TEXT = 'text'
+    PLAIN = 'plain'
+    HTML = 'html'
     JSON = 'json'
     YAML = 'yaml'
+    MARKDOWN = 'md'
+    RST = 'rst'
+    RTF = 'rtf'
+    DOCX = 'docx'
 
 
 def get_id(cls) -> str:

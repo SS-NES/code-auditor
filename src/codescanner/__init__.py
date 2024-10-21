@@ -6,6 +6,7 @@ import importlib
 import inspect
 import functools
 import os
+from datetime import datetime
 from pathlib import Path
 
 from .rule import Rule
@@ -16,6 +17,8 @@ from .utils import get_id, OutputType
 
 import logging
 logger = logging.getLogger(__name__)
+
+__version__ = "0.1.0"
 
 
 def _get_subclasses(parent) -> dict:
@@ -31,7 +34,7 @@ def _get_subclasses(parent) -> dict:
 
     for _, name, _ in pkgutil.iter_modules([Path(inspect.getfile(parent)).parent]):
 
-        module = importlib.import_module(f".{name}", f"{parent.__module__}")
+        module = importlib.import_module(f'.{name}', f'{parent.__module__}')
 
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
@@ -165,6 +168,8 @@ def analyse(
 
     # Initialize statistics
     stats = {
+        'date': datetime.now(),
+        'version': __version__,
         'num_dirs': 0,
         'num_dirs_excluded': 0,
         'num_files': 0,
@@ -270,17 +275,9 @@ def analyse(
             logger.debug(f"{id} aggregator is not implemented.")
             continue
 
-    return report
 
+    stats['end_date'] = datetime.now()
+    stats['duration'] = (stats['end_date'] - stats['date']).total_seconds()
+    report.stats = stats
 
-def output(report: Report, format: OutputType=OutputType.TEXT) -> str:
-    """Generates analysis report output.
-
-    Args:
-        report: Analysis report.
-        format (OutputType): Output format (default = OutputType.TEXT)
-
-    Returns:
-        Analysis report output.
-    """
     return report
