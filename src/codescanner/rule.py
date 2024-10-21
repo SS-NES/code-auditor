@@ -3,23 +3,12 @@ from dataclasses import dataclass
 import fnmatch
 
 
-def _is_pattern(val: str) -> bool:
-    """Checks if rule value is a pattern."""
-    return ('*' in val) or ('?' in val) or ('[' in val)
-
-
-def _is_nested(val: str) -> bool:
-    """Checks if rule value is nested."""
-    return ('/' in val)
-
-
 @dataclass(init=False)
 class Rule:
     """Rule class."""
 
     val: str
     is_dir: bool
-    is_pattern: bool
     is_nested: bool
     analysers: list[str]
 
@@ -32,8 +21,7 @@ class Rule:
         if self.is_nested:
             val = val[1:]
         else:
-            self.is_nested = _is_nested(val)
-        self.is_pattern = _is_pattern(val)
+            self.is_nested = '/' in val
         self.val = val
         self.analysers = [analyser] if analyser else []
 
