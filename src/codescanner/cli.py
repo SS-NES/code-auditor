@@ -32,16 +32,22 @@ PATH_TYPES = [
 )
 # Analysis options
 @click.option(
-    '--skip',
+    '--skip-analyser',
     type = click.Choice(
-        [
-            *codescanner.get_analysers().keys(),
-            *codescanner.get_aggregators().keys()
-        ],
+        codescanner.get_analysers().keys(),
         case_sensitive = False
     ),
     multiple = True,
     help = "List of analysers to skip."
+)
+@click.option(
+    '--skip-aggregator',
+    type = click.Choice(
+        codescanner.get_aggregators().keys(),
+        case_sensitive=False
+    ),
+    multiple = True,
+    help = "List of aggregators to skip."
 )
 @click.option(
     '--skip-type',
@@ -114,7 +120,8 @@ PATH_TYPES = [
 )
 def main(
     path,
-    skip,
+    skip_analyser,
+    skip_aggregator,
     skip_type,
     reference,
     branch,
@@ -128,7 +135,8 @@ def main(
 
     Args:
         path (str): Path of the code base.
-        skip (list[str]): List of analysers to skip (optional).
+        skip_analyser (list[str]): List of analysers to skip (optional).
+        skip_aggregator (list[str]): List of aggregators to skip (optional).
         skip_type (list[str]): List of analyser types to skip (optional).
         reference (str): Path of the reference metadata for comparison (e.g. SMP) (optional).
         branch (str): Branch or tag of the remote repository (optional).
@@ -203,7 +211,8 @@ def main(
         # Generate analysis report
         report = codescanner.analyse(
             path if is_local else tempdir.name,
-            skip=skip,
+            skip_analyser=skip_analyser,
+            skip_aggregator=skip_aggregator,
             skip_type=skip_type
         )
 

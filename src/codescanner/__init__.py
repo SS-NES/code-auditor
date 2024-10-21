@@ -78,14 +78,14 @@ def _get_includes(path: Path, analysers: dict = None) -> dict:
     if not analysers:
         analysers = get_analysers()
 
-    for name, analyser in analysers.items():
+    for id, analyser in analysers.items():
 
         for val in analyser.includes(path):
 
             if val not in items:
                 items[val] = Rule(val)
 
-            items[val].analysers.append(name)
+            items[val].analysers.append(id)
 
     return items
 
@@ -96,11 +96,11 @@ def _get_excludes(path: Path, analysers: dict = None) -> dict:
     if not analysers:
         analysers = get_analysers()
 
-    for name, analyser in analysers.items():
+    for id, analyser in analysers.items():
 
         for val in analyser.excludes(path):
 
-            rule = Rule(val, name)
+            rule = Rule(val, id)
 
             if not rule.is_dir:
                 raise ValueError("Invalid exclusion rule.", val)
@@ -127,15 +127,17 @@ def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dic
 
 def analyse(
     path: str | Path,
-    skip: list[str] = [],
+    skip_analyser: list[str] = [],
+    skip_aggregator: list[str] = [],
     skip_type: list[str] = [],
 ) -> dict:
     """Analyses a code base.
 
     Args:
         path (str): Path of the code base.
-        skip (list[str]): List of analysers to skip (optional)
-        skip_type (list[str]): List of analyser types to skip (optional)
+        skip_analyser (list[str]): List of analysers to skip (optional).
+        skip_aggregator (list[str]): List of aggregators to skip (optional).
+        skip_type (list[str]): List of analyser types to skip (optional).
 
     Returns:
         Dictionary of the analysis results.
@@ -146,6 +148,7 @@ def analyse(
     # Check if path is valid
     if not isinstance(path, Path):
         path = Path(path)
+    path = path.resolve()
 
     if not path.exists() or not path.is_dir():
         raise ValueError("Invalid path.")
@@ -159,8 +162,8 @@ def analyse(
         logger.debug(f"Proceeding to `{path}`")
 
     # Get analysers and aggregators
-    analysers = _filter(get_analysers(), skip, skip_type)
-    aggregators = _filter(get_aggregators(), skip, skip_type)
+    analysers = _filter(get_analysers(), skip_analyser, skip_type)
+    aggregators = _filter(get_aggregators(), skip_aggregator, skip_type)
 
     # Get inclusion and exclusion rules
     includes = _get_includes(path, analysers)
@@ -168,6 +171,7 @@ def analyse(
 
     # Initialize statistics
     stats = {
+        'path': path.absolute(),
         'date': datetime.now(),
         'version': __version__,
         'num_dirs': 0,
@@ -231,9 +235,7 @@ def analyse(
 
                         _files[id].append(relpath)
 
-    report = Report()
-    report.results = {}
-
+    report = Report(path)
     results = {}
 
     # For each analyser
