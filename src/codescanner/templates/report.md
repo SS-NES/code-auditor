@@ -1,11 +1,11 @@
 # CodeScanner Analysis Report
 
 Code quality and conformity for software development best practices analysis
-report of {{ metadata.name if metadata.name else 'Unnamed Software'}}. The
+report of {{ metadata.name | metadata(one=True, default='Unnamed Software') }}. The
 software is located at `{{ stats.path }}`.
 
 {% for item in notices %}
-{{ item }}
+{{ item | notice }}
 {% endfor %}
 
 ## Issues
@@ -21,9 +21,9 @@ No issues found.
 ## Metadata
 
 {% if metadata %}
-{% for key, val in metadata.items() %}
+{% for key, item in metadata.items() %}
 {{ key }}
-: {{ val }}
+: {{ item | metadata(key) }}
 
 {% endfor %}
 {% else %}
@@ -31,6 +31,6 @@ No metadata found.
 {% endif %}
 
 ---
-Created by [CodeScanner](https://github.com/SS-NES/codescanner) v{{ stats.version }} on {{ stats.date.isoformat(timespec='seconds') }}.  
+Created by [CodeScanner](https://github.com/SS-NES/codescanner) v{{ stats.version }} on {{ stats.date }}.  
 {{ stats.num_dirs }} directories and {{ stats.num_files }} files are analysed, {{ stats.num_dirs_excluded }} directories were skipped.  
 Analysis finished in {{ stats.duration }} s.  

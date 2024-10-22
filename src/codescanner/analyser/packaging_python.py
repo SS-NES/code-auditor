@@ -98,11 +98,14 @@ class PackagingPython(Analyser):
                 'name',
                 'description',
                 'version',
-                'keywords'
             ]:
-                val = project.get(key)
-                if val:
-                    report.add_metadata(cls, key, val, path)
+                report.add_metadata(cls, key, project.get(key), path)
+
+            for key in [
+                'keywords',
+            ]:
+                for val in project.get(key, []):
+                    report.add_metadata(cls, key, [val], path)
 
             _set(project, 'readme')
 
@@ -119,7 +122,7 @@ class PackagingPython(Analyser):
                             person['name'] = item['name']
                         if item.get('email'):
                             person['email'] = item['email']
-                        report.add_metadata(cls, key, person, path)
+                        report.add_metadata(cls, key, [person], path)
                         continue
 
                     report.add_issue(cls, f"Invalid {key}[{i+1}].", path)
@@ -153,10 +156,15 @@ class PackagingPython(Analyser):
                 'version',
                 'description',
                 'long_description',
-                'keywords',
             ]:
                 val = data['metadata'].get(key)
                 report.add_metadata(cls, key, val, path)
+
+            for key in [
+                'keywords'
+            ]:
+                for val in data['metadata'].get(key):
+                    report.add_metadata(cls, key, [val], path)
 
 
     @classmethod

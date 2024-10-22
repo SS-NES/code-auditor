@@ -7,6 +7,7 @@ import tarfile
 import urllib.request
 import git
 import tempfile
+import yaml
 
 import click
 
@@ -97,8 +98,16 @@ PATH_TYPES = [
         [item.value for item in OutputType],
         case_sensitive = False
     ),
-    default = 'plain',
+    default = OutputType.MARKDOWN.value,
     help = "Output format."
+)
+@click.option(
+    '-p',
+    '--plain',
+    type = click.BOOL,
+    is_flag = True,
+    default = False,
+    help = "Enable plain output."
 )
 # Development options
 @click.option(
@@ -129,6 +138,7 @@ def main(
     metadata,
     output,
     format,
+    plain,
     debug,
 ):
     """Runs the command line interface (CLI).
@@ -220,8 +230,13 @@ def main(
         # Clean up temporary directory
         tempdir.cleanup()
 
+    # Compare with reference metadata if required
+    if reference:
+        metadata = yaml.safe_load(reference)
+        report.compare(metadata)
+
     # Generate output
-    out = report.output(OutputType(format), output)
+    out = report.output(OutputType(format), plain, output)
 
     # Check if output to a file is requested
     if isinstance(out, str):
@@ -234,8 +249,7 @@ def main(
             click.echo(out)
 
     if metadata:
-        # TODO: Store metadata
-        pass
+        yaml.dump(report.as_dict(plain)['metadata'], metadata)
 
 
 if __name__ == '__main__':
