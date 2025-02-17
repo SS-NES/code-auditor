@@ -9,7 +9,19 @@ from ..report import Report
 
 
 def _analyse_node(node) -> dict:
-    """Documentation."""
+    """Analyses a code node.
+
+    Analysis report:
+        type (str): Node type (`module`, `class`, `function`)
+        docs (dict): Documentation information.
+        modules (list): List of modules.
+
+    Args:
+        node: Code node.
+
+    Returns:
+        Anaysis report.
+    """
     item = {}
 
     if isinstance(node, ast.Module):
@@ -26,13 +38,10 @@ def _analyse_node(node) -> dict:
 
     name = node.name if hasattr(node, 'name') else ''
 
+    item['docs'] = {}
+
     docs = ast.get_docstring(node, clean=True)
-    if not docs:
-        item['docs'] = 'missing'
-
-    else:
-        item['docs'] = 'exists'
-
+    if docs:
         docstring = docstring_parser.parse(docs)
 
         issues = []
@@ -47,14 +56,14 @@ def _analyse_node(node) -> dict:
         ]:
             val = getattr(docstring, key)
             if val:
-                item[f'docs.{key}'] = val
+                item['docs'][key] = val
 
                 if key == 'params':
                     if hasattr(node, 'args') and len(val) != len(node.args.args):
                         issues.append("Invalid number of arguments.")
 
         if issues:
-            item['docs.issues'] = issues
+            item['docs']['issues'] = issues
 
     report = {name: item}
 
