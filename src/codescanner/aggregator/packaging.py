@@ -23,5 +23,5 @@ class Packaging(Aggregator):
             report.add_issue(cls, "No packaging.")
 
         else:
-            report.add_notice(cls, "Packaging exits.")
+            report.add_notice(cls, "Packaging exists.")
 

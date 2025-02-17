@@ -23,5 +23,5 @@ class Code(Aggregator):
             report.add_issue(cls, "No software code.")
 
         else:
-            report.add_notice(cls, "Software code exits.")
+            report.add_notice(cls, "Software code exists.")
 

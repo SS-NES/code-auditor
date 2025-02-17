@@ -23,5 +23,5 @@ class Documentation(Aggregator):
             report.add_issue(cls, "No documentation.")
 
         else:
-            report.add_notice(cls, "Documentation exits.")
+            report.add_notice(cls, "Documentation exists.")
 

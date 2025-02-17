@@ -23,4 +23,4 @@ class VersionControl(Aggregator):
             report.add_issue(cls, "No version control.")
 
         else:
-            report.add_notice(cls, "Version control exits.")
+            report.add_notice(cls, "Version control exists.")
