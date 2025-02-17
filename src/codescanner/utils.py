@@ -7,6 +7,13 @@ from enum import Enum
 REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
 
 
+class MessageType(Enum):
+    """Message type."""
+    INFO = 1
+    NOTICE = 2
+    ISSUE = 3
+
+
 class OutputType(Enum):
     """Output type."""
     PLAIN = 'plain'

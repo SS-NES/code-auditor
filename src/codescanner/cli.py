@@ -1,6 +1,6 @@
 import codescanner
 from .analyser import AnalyserType
-from .utils import OutputType
+from .utils import OutputType, MessageType
 
 import zipfile
 import tarfile
@@ -110,6 +110,18 @@ PATH_TYPES = [
     default = False,
     help = "Enable plain output."
 )
+@click.option(
+    '-l',
+    '--message-level',
+    'level',
+    type = click.IntRange(
+        min = MessageType.INFO.value,
+        max = MessageType.ISSUE.value,
+        clamp = True
+    ),
+    default = MessageType.NOTICE.value,
+    help = "Message level.",
+)
 # Development options
 @click.option(
     '-d',
@@ -140,6 +152,7 @@ def main(
     output,
     format,
     plain,
+    level,
     debug,
 ):
     """Runs the command line interface (CLI).
@@ -237,7 +250,13 @@ def main(
         report.compare(reference_metadata)
 
     # Generate output
-    out = report.output(OutputType(format), plain, output)
+    logger.debug(f"Using message level {MessageType(level)}")
+    out = report.output(
+        OutputType(format),
+        level = MessageType(level),
+        plain = plain,
+        path = output
+    )
 
     # Check if output to a file is requested
     if isinstance(out, str):

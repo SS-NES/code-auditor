@@ -5,10 +5,11 @@ import yaml
 import jinja2
 import pypandoc
 import functools
+from enum import Enum
 from pathlib import Path
 from datetime import datetime
 
-from .utils import get_id, OutputType
+from .utils import get_id, OutputType, MessageType
 
 import logging
 logger = logging.getLogger(__name__)
@@ -110,8 +111,7 @@ class Report:
 
     Attributes:
         path (Path): Path of the code base.
-        issues (list): List of issues.
-        notices (list): List of notices.
+        messages (dict): List of messages.
         metadata (dict): Metadata.
         results (dict): Analyser results (id: result).
         stats (dict): Statistics.
@@ -132,8 +132,7 @@ class Report:
             path (Path): Path of the code base.
         """
         self.path = path
-        self.issues = []
-        self.notices = []
+        self.messages = {type: [] for type in MessageType}
         self.metadata = {}
         self.results = {}
         self.stats = {}
@@ -226,6 +225,27 @@ class Report:
             })
 
 
+    def add_message(self, type: MessageType, analyser, msg: str, path: Path | list[Path]=None):
+        """Adds a message.
+
+        Args:
+            type (MessageType): Message type.
+            analyser (Analyser): Analyser class.
+            msg (str): Issue message.
+            path (Path | list[Path]): Path of the source file(s) (optional).
+
+        Raises:
+            ValueError("Invalid message type.")
+        """
+        if not isinstance(type, MessageType):
+            raise ValueError("Invalid message type.")
+
+        if path and not isinstance(path, list):
+            path = [path]
+
+        self.messages[type].append({'val': msg, 'analyser': analyser, 'path': path})
+
+
     def add_issue(self, analyser, msg: str, path: Path | list[Path]=None):
         """Adds an issue message.
 
@@ -234,7 +254,7 @@ class Report:
             msg (str): Issue message.
             path (Path | list[Path]): Path of the source file(s) (optional).
         """
-        self.issues.append({'val': msg, 'analyser': analyser, 'path': path})
+        self.add_message(MessageType.ISSUE, analyser, msg, path)
 
 
     def add_notice(self, analyser, msg: str, path: Path | list[Path]=None):
@@ -245,13 +265,24 @@ class Report:
             msg (str): Notice message.
             path (Path | list[Path]): Path of the source file(s) (optional).
         """
-        self.notices.append({'val': msg, 'analyser': analyser, 'path': path})
+        self.add_message(MessageType.NOTICE, analyser, msg, path)
+
+
+    def add_info(self, analyser, msg: str, path: Path | list[Path]=None):
+        """Adds an info message.
+
+        Args:
+            analyser (Analyser): Analyser class.
+            msg (str): Info message.
+            path (Path | list[Path]): Path of the source file(s) (optional).
+        """
+        self.add_message(MessageType.INFO, analyser, msg, path)
 
 
     def compare(self, metadata: dict):
         """Compares reference metadata with the report metadata.
 
-        Adds issues and notices for the identified issues.
+        Adds messages for the identified issues.
 
         Args:
             metadata (dict): Reference metadata.
@@ -290,7 +321,11 @@ class Report:
         return val
 
 
-    def as_dict(self, plain: bool=False) -> dict:
+    def as_dict(
+        self,
+        level: MessageType = MessageType.NOTICE,
+        plain: bool = False
+    ) -> dict:
         """Converts analysis report into a dictionary.
 
         Args:
@@ -322,15 +357,22 @@ class Report:
             if plain:
                 metadata[key] = self.output_metadata(metadata[key], key)
 
-        return {
+        out = {
             'metadata': metadata,
-            'issues': [_serialize(item, plain=plain) for item in self.issues],
-            'notices': [_serialize(item, plain=plain) for item in self.notices],
             'stats': self.serialize(self.stats),
+            'issues': [_serialize(item, plain=plain) for item in self.messages[MessageType.ISSUE]],
         }
 
+        if level.value <= MessageType.NOTICE.value:
+            out['notices'] = [_serialize(item, plain=plain) for item in self.messages[MessageType.NOTICE]]
 
-    def output_notice(self, item: dict) -> str:
+        if level.value <= MessageType.INFO.value:
+            out['infos'] = [_serialize(item, plain=plain) for item in self.messages[MessageType.INFO]]
+
+        return out
+
+
+    def output_message(self, item: dict) -> str:
         """Generates notice output.
 
         Args:
@@ -398,11 +440,18 @@ class Report:
         return out.pop()
 
 
-    def output(self, format: OutputType=OutputType.PLAIN, plain: bool=False, path=None) -> str | Path:
+    def output(
+        self,
+        format: OutputType = OutputType.PLAIN,
+        level: MessageType = MessageType.NOTICE,
+        plain: bool = False,
+        path = None
+    ) -> str | Path:
         """Generates analysis report output.
 
         Args:
             format (OutputType): Output format (default = OutputType.PLAIN)
+            level (MessageType): Minimum message level (default = MessageType.NOTICE)
             plain (bool): Set True to get plain output for JSON and YAML (default = False)
             path (str): Path of the output file (optional)
 
@@ -410,10 +459,13 @@ class Report:
             Analysis report output.
         """
         if format == OutputType.JSON:
-            return json.dumps(self.as_dict(plain), indent=4)
+            return json.dumps(
+                self.as_dict(level = level, plain = plain),
+                indent = 4
+            )
 
         elif format == OutputType.YAML:
-            return yaml.dump(self.as_dict(plain))
+            return yaml.dump(self.as_dict(level = level, plain = plain))
 
         else:
             env = jinja2.Environment(
@@ -422,18 +474,26 @@ class Report:
                 trim_blocks=True
             )
             env.filters.update({
-                'issue': self.output_issue,
                 'metadata': self.output_metadata,
-                'notice': self.output_notice,
+                'issue': self.output_issue,
+                'message': self.output_message,
                 'serialize': self.serialize,
             })
-            template = env.get_template('report.md')
-            out = template.render(**{
-                'issues': self.issues,
+
+            out = {
                 'metadata': self.metadata,
-                'notices': self.notices,
                 'stats': self.stats,
-            })
+                'issues': self.messages[MessageType.ISSUE],
+            }
+
+            if level.value <= MessageType.NOTICE.value:
+                out['notices'] = self.messages[MessageType.NOTICE]
+
+            if level.value <= MessageType.INFO.value:
+                out['infos'] = self.messages[MessageType.INFO]
+
+            template = env.get_template('report.md')
+            out = template.render(**out)
 
             if format == OutputType.MARKDOWN:
                 return out

@@ -5,7 +5,7 @@ report of {{ metadata.name | metadata(one=True, default='Unnamed Software') }}. 
 software is located at `{{ stats.path }}`.
 
 {% for item in notices %}
-{{ item | notice }}
+{{ item | message }}
 {% endfor %}
 
 ## Issues
