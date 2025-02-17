@@ -70,26 +70,38 @@ class PackagingPython(Analyser):
             val = data.get(key)
 
             if isinstance(val, str):
+                file_path = path.parent / val
                 report.add_metadata(
                     cls,
                     key + '_file',
-                    (path.parent / val).relative_to(report.path),
+                    file_path.relative_to(report.path),
                     path
                 )
+                if not file_path.exists():
+                    report.add_issue(cls, f"{key}_file does not exist.")
 
             elif isinstance(val, dict):
                 if 'file' in val:
+                    file_path = (path.parent / val['file'])
                     report.add_metadata(
                         cls,
                         key + '_file',
-                        (path.parent / val['file']).relative_to(report.path),
+                        file_path.relative_to(report.path),
                         path
                     )
-                elif 'text' in val:
+                    if not file_path.exists():
+                        report.add_issue(cls, f"{key}_file does not exist.", file_path)
+
+                if 'text' in val:
                     report.add_metadata(cls, key, val['text'])
 
         with open(path, 'rb') as file:
-            data = tomllib.load(file)
+            try:
+                data = tomllib.load(file)
+
+            except tomllib.TOMLDecodeError:
+                report.add_issue(cls, "Invalid pyproject.toml file.", path)
+                return
 
         if 'project' in data:
             project = data['project']
@@ -148,7 +160,12 @@ class PackagingPython(Analyser):
             Dictionary of the analysis results.
         """
         with open(path, 'rb') as file:
-            data = tomllib.load(file)
+            try:
+                data = tomllib.load(file)
+
+            except tomllib.TOMLDecodeError:
+                report.add_issue(cls, "Invalid setup.cfg file.", path)
+                return
 
         if 'metadata' in data:
             for key in [

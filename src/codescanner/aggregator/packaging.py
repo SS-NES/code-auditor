@@ -19,4 +19,9 @@ class Packaging(Aggregator):
             report (Report): Analysis report.
             results (dict): Analyser results.
         """
-        raise NotImplementedError
+        if not results:
+            report.add_issue(cls, "No packaging.")
+
+        else:
+            report.add_notice(cls, "Packaging exits.")
+

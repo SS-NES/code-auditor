@@ -19,4 +19,9 @@ class Documentation(Aggregator):
             report (Report): Analysis report.
             results (dict): Analyser results.
         """
-        raise NotImplementedError
+        if not results:
+            report.add_issue(cls, "No documentation.")
+
+        else:
+            report.add_notice(cls, "Documentation exits.")
+
