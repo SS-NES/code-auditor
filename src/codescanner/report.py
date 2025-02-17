@@ -46,7 +46,7 @@ def find_issue(msg: str) -> dict:
     """
     for issue in get_issues():
         if 'match' in issue:
-            if issue['math'].fullmatch(msg):
+            if issue['match'].fullmatch(msg):
                 return issue
         elif msg == issue['name']:
             return issue
@@ -194,10 +194,10 @@ class Report:
 
         issue = find_issue(item['val'])
         if issue and 'suggestion' in issue:
-            out += issue['suggestion']
+            out += issue['suggestion'] + "\n"
 
         if item['path']:
-            out += f" (`{item['path']}`)"
+            out += f"(`{item['path']}`)\n"
 
         return out
 
@@ -267,7 +267,7 @@ class Report:
 
             if format in [OutputType.RTF, OutputType.DOCX]:
                 if not path:
-                    date = report['stats']['date'].isoformat(timespec='seconds').replace(':', '-')
+                    date = report['stats']['date'].replace(':', '-')
                     path = f"report_{date}.{format.value}"
 
                 pypandoc.convert_text(
