@@ -7,6 +7,7 @@ import tarfile
 import urllib.request
 import git
 import tempfile
+import json
 import yaml
 
 import click
@@ -232,8 +233,8 @@ def main(
 
     # Compare with reference metadata if required
     if reference:
-        metadata = yaml.safe_load(reference)
-        report.compare(metadata)
+        reference_metadata = yaml.safe_load(reference)
+        report.compare(reference_metadata)
 
     # Generate output
     out = report.output(OutputType(format), plain, output)
@@ -249,7 +250,11 @@ def main(
             click.echo(out)
 
     if metadata:
-        yaml.dump(report.as_dict(plain)['metadata'], metadata)
+        out = report.as_dict(plain)['metadata']
+        if metadata.name.endswith('.json'):
+            metadata.write(json.dumps(out, indent=4))
+        else:
+            yaml.dump(out, metadata)
 
 
 if __name__ == '__main__':
