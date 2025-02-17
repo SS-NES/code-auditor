@@ -72,8 +72,39 @@ class Citation(Analyser):
         Returns:
             Dictionary of the analysis results.
         """
-        with open(path, 'r', encoding='utf-8') as file:
-            content = yaml.safe_load(file)
+        # Read citation file
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                content = yaml.safe_load(file)
+
+        except:
+            report.add_issue(cls, "Invalid citation file.", path)
+            return {}
+
+        # Check if title is missing
+        if 'title' not in content:
+            report.add_issue(cls, "The citation file is missing the title.", path)
+
+        # Check if authors are missing
+        if 'authors' not in content:
+            report.add_issue(cls, "The citation file is missing the authors.", path)
+
+        # Check if type of work is indicated different from software (e.g. dataset)
+        if content.get('type') and content['type'] != 'software':
+            report.add_issue(cls, "The type of work is not indicated as software.", path)
+
+        # Set metadata
+        keys = {
+            'abstract': 'description',
+            'date-released': 'date_released',
+            'doi': 'doi',
+            'keywords': 'keywords',
+            'repository-code': 'repository_code',
+            'title': 'name',
+            'version': 'version',
+        }
+        for key, metadata_key in keys.items():
+            report.add_metadata(cls, metadata_key, content.get(key), path)
 
 
     @classmethod
