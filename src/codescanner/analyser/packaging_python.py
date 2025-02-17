@@ -122,6 +122,8 @@ class PackagingPython(Analyser):
                 _set(project, 'license')
 
             for key in ['authors', 'maintainers']:
+                persons = []
+
                 for i, item in enumerate(project.get(key, [])):
                     if isinstance(item, dict):
                         person = {}
@@ -129,10 +131,13 @@ class PackagingPython(Analyser):
                             person['name'] = item['name']
                         if item.get('email'):
                             person['email'] = item['email']
-                        report.add_metadata(cls, key, person, path)
+                        persons.append(person)
                         continue
 
                     report.add_issue(cls, f"Invalid {key}[{i+1}].", path)
+
+                if persons:
+                    report.add_metadata(cls, key, persons, path)
 
             for item in project.get('classifiers', []):
                 parts = [part.strip() for part in item.split('::')]

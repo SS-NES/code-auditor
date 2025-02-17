@@ -277,9 +277,14 @@ def analyse(
             logger.debug(f"{id} aggregator is not implemented.")
             continue
 
+    # Analyse metadata
+    report.analyse_metadata()
 
+    # Set statistics
     stats['end_date'] = datetime.now()
     stats['duration'] = (stats['end_date'] - stats['date']).total_seconds()
+
     report.stats = stats
 
+    # Return report
     return report

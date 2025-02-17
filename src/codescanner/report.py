@@ -75,6 +75,26 @@ def is_empty(val) -> bool:
     return False
 
 
+def is_list(items: list[dict]) -> bool:
+    """Checks if items contain a list.
+
+    Args:
+        items (list[dict]): Items
+
+    Returns:
+        True if items contain a list, False otherwise.
+    """
+    ids = set()
+
+    for item in items:
+        if item['id'] in ids:
+            return True
+
+        ids.add(item['id'])
+
+    return False
+
+
 class Report:
     """Analysis report class.
 
@@ -141,9 +161,26 @@ class Report:
 
 
     def analyse_metadata(self):
+        # For each metadata attribute
         for key, items in self.metadata.items():
-            # TODO: Analyse metadata attribute
-            pass
+
+            # Skip if unique value
+            if len(items) < 2:
+                continue
+
+            # Check if it is a value list
+            if is_list(items):
+                continue
+
+            for item in items[1:]:
+                if item['val'] == items[0]['val']:
+                    continue
+
+                self.add_issue(
+                    self,
+                    f"Multiple values exists for {key}.",
+                    [items[0]['path'], item['path']]
+                )
 
 
     def add_metadata(self, analyser, key: str, val, path: Path=None):
@@ -189,24 +226,24 @@ class Report:
             })
 
 
-    def add_issue(self, analyser, msg: str, path: Path=None):
+    def add_issue(self, analyser, msg: str, path: Path | list[Path]=None):
         """Adds an issue message.
 
         Args:
             analyser (Analyser): Analyser class.
             msg (str): Issue message.
-            path (Path): Path of the source file (optional).
+            path (Path | list[Path]): Path of the source file(s) (optional).
         """
         self.issues.append({'val': msg, 'analyser': analyser, 'path': path})
 
 
-    def add_notice(self, analyser, msg: str, path: Path=None):
+    def add_notice(self, analyser, msg: str, path: Path | list[Path]=None):
         """Adds a notice message.
 
         Args:
             analyser (Analyser): Analyser class.
             msg (str): Notice message.
-            path (Path): Path of the source file (optional).
+            path (Path | list[Path]): Path of the source file(s) (optional).
         """
         self.notices.append({'val': msg, 'analyser': analyser, 'path': path})
 
@@ -266,10 +303,17 @@ class Report:
             if plain:
                 return self.serialize(item['val'], key)
 
+            if isinstance(item['path'], list):
+                path = [str(path.relative_to(self.path)) for path in item['path']]
+            elif item['path']:
+                path = str(item['path'].relative_to(self.path))
+            else:
+                path = None
+
             return {
                 'val': self.serialize(item['val'], key),
                 'analyser': get_id(item['analyser']),
-                'path': str(item['path'].relative_to(self.path)) if item['path'] else None,
+                'path': path,
             }
 
         metadata = {}
@@ -314,7 +358,14 @@ class Report:
             out += issue['suggestion'] + "\n"
 
         if item['path']:
-            out += f"(`{item['path']}`)\n"
+            out += (
+                "(" +
+                ", ".join(map(
+                    lambda path: str(path.relative_to(self.path)),
+                    item['path'] if isinstance(item['path'], list) else [item['path']]
+                )) +
+                ")"
+            )
 
         return out
 
@@ -335,20 +386,13 @@ class Report:
             return default
 
         out = []
-        ids = set()
-        is_list = False
 
         for item in items:
-            if not is_list and 'id' in item:
-                if item['id'] in ids:
-                    is_list = True
-                else:
-                    ids.add(item['id'])
 
             if item['val'] not in out:
                 out.append(item['val'])
 
-        if is_list or (not one and len(out) > 1):
+        if is_list(items) or (not one and len(out) > 1):
             return out
 
         return out.pop()
@@ -372,20 +416,24 @@ class Report:
             return yaml.dump(self.as_dict(plain))
 
         else:
-            report = self.as_dict()
-
             env = jinja2.Environment(
                 loader=jinja2.PackageLoader('codescanner'),
                 autoescape=jinja2.select_autoescape(),
                 trim_blocks=True
             )
             env.filters.update({
-                'notice': self.output_notice,
                 'issue': self.output_issue,
                 'metadata': self.output_metadata,
+                'notice': self.output_notice,
+                'serialize': self.serialize,
             })
             template = env.get_template('report.md')
-            out = template.render(**report)
+            out = template.render(**{
+                'issues': self.issues,
+                'metadata': self.metadata,
+                'notices': self.notices,
+                'stats': self.stats,
+            })
 
             if format == OutputType.MARKDOWN:
                 return out
@@ -394,7 +442,7 @@ class Report:
 
             if format in [OutputType.RTF, OutputType.DOCX]:
                 if not path:
-                    date = report['stats']['date'].replace(':', '-')
+                    date = self.serialize(self.stats['date']).replace(':', '-')
                     path = f"report_{date}.{format.value}"
 
                 pypandoc.convert_text(
