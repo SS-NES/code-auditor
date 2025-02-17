@@ -5,7 +5,6 @@ import yaml
 import jinja2
 import pypandoc
 import functools
-import inspect
 from pathlib import Path
 from datetime import datetime
 
@@ -53,6 +52,14 @@ def find_issue(msg: str) -> dict:
 
 
 def is_empty(val) -> bool:
+    """Checks if value is empty.
+
+    Args:
+        val: Value
+
+    Returns:
+        True if value is empty, False otherwise.
+    """
     if val is None:
         return True
 
@@ -69,7 +76,34 @@ def is_empty(val) -> bool:
 
 
 class Report:
-    """Analysis report class."""
+    """Analysis report class.
+
+    Statistics object:
+        path (Path): Analysis path.
+        date (datetime.datetime): Analysis start date.
+        end_date (datimetime.datetime): Analysis end date.
+        duration (float): Analysis duration in seconds.
+        version (str): Package version.
+        num_dirs (int): Number of directories analysed.
+        num_dirs_excluded (int): Number of directories excluded from analysis.
+        num_files (int): Number of files analysed.
+
+    Attributes:
+        path (Path): Path of the code base.
+        issues (list): List of issues.
+        notices (list): List of notices.
+        metadata (dict): Metadata.
+        results (dict): Analyser results (id: result).
+        stats (dict): Statistics.
+
+    Class Attributes:
+        counter (int): Counter.
+        REGEXP_DOI: Regular expression for DOI validation.
+        REGEXP_URL: Regular expression for URL validation.
+    """
+    REGEXP_DOI = re.compile(r"10\.\d{4,9}/[-._;()/:a-z\d]+", re.IGNORECASE)
+    REGEXP_URL = re.compile(r"((http|ftp)(s)?):\/\/(www\.)?[a-z\d@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-z\d@:%_\+.~#?&//=]*)", re.IGNORECASE)
+
 
     def __init__(self, path: Path):
         """Initializes analysis report object.
@@ -83,6 +117,33 @@ class Report:
         self.metadata = {}
         self.results = {}
         self.stats = {}
+        self.uid = 0
+
+
+    def validate_metadata(self, key: str, val):
+        """Validates metadata value.
+
+        Args:
+            key (str): Metadata attribute key.
+            val: Metadata attribute value.
+
+        Raises:
+            ValueError: If metadata value is invalid.
+        """
+        # Digital Object Identifier (DOI)
+        if key == 'doi':
+            if not re.fullmatch(Report.REGEXP_DOI, val):
+                raise ValueError("Invalid DOI.")
+
+        elif key in ['repository_code']:
+            if not re.fullmatch(Report.REGEXP_URL, val):
+                raise ValueError("Invalid URL address.")
+
+
+    def analyse_metadata(self):
+        for key, items in self.metadata.items():
+            # TODO: Analyse metadata attribute
+            pass
 
 
     def add_metadata(self, analyser, key: str, val, path: Path=None):
@@ -91,16 +152,41 @@ class Report:
         Args:
             analyser (Analyser): Analyser class.
             key (str): Metadata attribute key.
-            val: Metadata attribute value.
+            val: Metadata attribute value(s).
             path (Path): Path of the source file (optional).
         """
+        # Return if empty value
         if is_empty(val):
             return
 
+        # Initialize metadata list if required
         if key not in self.metadata:
             self.metadata[key] = []
 
-        self.metadata[key].append({'val': val, 'analyser': analyser, 'path': path})
+        # Increase id counter
+        self.uid += 1
+
+        # For each value
+        for _val in val if isinstance(val, list) else [val]:
+
+            # Skip if empty value
+            if is_empty(val):
+                continue
+
+            # Validate value
+            try:
+                self.validate_metadata(key, _val)
+
+            except Exception as err:
+                self.add_issue(analyser, key, str(err), path)
+
+            # Add value to metadata list
+            self.metadata[key].append({
+                'val': _val,
+                'analyser': analyser,
+                'path': path,
+                'id': self.uid,
+            })
 
 
     def add_issue(self, analyser, msg: str, path: Path=None):
@@ -126,6 +212,13 @@ class Report:
 
 
     def compare(self, metadata: dict):
+        """Compares reference metadata with the report metadata.
+
+        Adds issues and notices for the identified issues.
+
+        Args:
+            metadata (dict): Reference metadata.
+        """
         for key, val in metadata:
             if key not in self.metadata:
                 pass
@@ -136,6 +229,15 @@ class Report:
 
 
     def serialize(self, val, key: str=None) -> str:
+        """Serializes value.
+
+        Args:
+            val: Value
+            key (str): Value key (optional)
+
+        Returns:
+            Serialized value.
+        """
         if isinstance(val, Path):
             return str(val)
 
@@ -152,7 +254,14 @@ class Report:
 
 
     def as_dict(self, plain: bool=False) -> dict:
-        """Converts analysis report into a dictionary."""
+        """Converts analysis report into a dictionary.
+
+        Args:
+            plain (bool): Set True for a plain dictionary (default = False)
+
+        Returns:
+            Report dictionary.
+        """
         def _serialize(item: dict, key: str=None, plain: bool=False) -> dict:
             if plain:
                 return self.serialize(item['val'], key)
@@ -178,6 +287,14 @@ class Report:
 
 
     def output_notice(self, item: dict) -> str:
+        """Generates notice output.
+
+        Args:
+            item (dict): Notice item.
+
+        Returns:
+            Notice output.
+        """
         return f"- {item['val']}"
 
 
@@ -203,19 +320,33 @@ class Report:
 
 
     def output_metadata(self, items: list, key: str=None, one: bool=False, default: str=None) -> str:
+        """Generates metadata output.
+
+        Args:
+            items (list): Metadata attribute items.
+            key (str): Metadata attribute key (optional).
+            one (bool): Set True to return a single attribute value (default = False)
+            default (str): Default value if no attribute items (optional)
+
+        Returns:
+            Metadata output.
+        """
         if not items:
             return default
 
-        is_list = isinstance(items[0]['val'], list)
-        out = set()
+        out = []
+        ids = set()
+        is_list = False
 
         for item in items:
-            val = item['val'][0] if is_list else item['val']
-            if isinstance(val, dict):
-                val = tuple(val.items())
-            out.add(val)
+            if not is_list and 'id' in item:
+                if item['id'] in ids:
+                    is_list = True
+                else:
+                    ids.add(item['id'])
 
-        out = [(dict(item) if isinstance(item, tuple) else item) for item in out]
+            if item['val'] not in out:
+                out.append(item['val'])
 
         if is_list or (not one and len(out) > 1):
             return out
@@ -233,10 +364,6 @@ class Report:
 
         Returns:
             Analysis report output.
-
-        Raises:
-            ValueError("Invalid output format.")
-            ValueError("Output file is required.")
         """
         if format == OutputType.JSON:
             return json.dumps(self.as_dict(plain), indent=4)
