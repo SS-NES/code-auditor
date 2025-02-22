@@ -78,7 +78,7 @@ class PackagingPython(Analyser):
                     path
                 )
                 if not file_path.exists():
-                    report.add_issue(cls, f"{key}_file does not exist.")
+                    report.add_issue(cls, f"{key}_file does not exist.", path)
 
             elif isinstance(val, dict):
                 if 'file' in val:
@@ -90,10 +90,10 @@ class PackagingPython(Analyser):
                         path
                     )
                     if not file_path.exists():
-                        report.add_issue(cls, f"{key}_file does not exist.", file_path)
+                        report.add_issue(cls, f"{key}_file does not exist.", path)
 
                 if 'text' in val:
-                    report.add_metadata(cls, key, val['text'])
+                    report.add_metadata(cls, key, val['text'], path)
 
         with open(path, 'rb') as file:
             try:

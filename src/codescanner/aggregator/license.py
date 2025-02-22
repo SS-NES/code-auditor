@@ -23,25 +23,15 @@ class License(Aggregator):
         """
         if not results:
             report.add_issue(cls, "No license file.")
+            return
 
-        elif len(results) > 1:
-            report.add_issue(cls, "Multiple license files found.")
+        if len(results) > 1:
+            report.add_issue(cls, "Multiple license files found.", results.keys())
 
         else:
             report.add_notice(cls, "License file exists.")
 
-            if 'license_file' in report.metadata:
-                license_file = report.metadata['license_file'][0]['val']
-                file = list(results.keys())[0]
+        for path, item in results.items():
+            report.add_metadata(cls, 'license_file', path.relative_to(report.path), path)
+            report.add_metadata(cls, 'license', item['ids'][0], path)
 
-                if license_file.name != file:
-                    report.add_issue(cls, f"License files do not match: {license_file}, {file}")
-
-            if 'license' in report.metadata:
-                license = report.metadata['license'][0]['val']
-                found = False
-                for file, item in results.items():
-                    if "ids" in item and license.lower() in item['ids']:
-                        found = True
-                if not found:
-                    report.add_issue(cls, f"License identifier {license} does not match the license file.")

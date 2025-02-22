@@ -102,14 +102,15 @@ class Analyser(ABC):
             report (Report): Analysis report.
 
         Returns:
-            Dictionary of the analysis results of the files.
+            Dictionary of the analysis results of the files {path: result, ...}.
         """
         results = {}
 
-        for path in files:
-            logger.debug(f"Analysing `{path}`.")
+        for file in files:
+            logger.debug(f"Analysing `{file}`.")
+            path = root / file
             try:
-                results[path.as_posix()] = cls.analyse_file(root / path, report)
+                results[path] = cls.analyse_file(path, report)
 
             except NotImplementedError:
                 logger.debug(f"{cls} file analyser is not implemented.")

@@ -179,6 +179,7 @@ def analyse(
         'num_files': 0,
     }
 
+    # Generate list of files to be analysed
     _files = {}
 
     logger.debug(f"Scanning `{path}`.")

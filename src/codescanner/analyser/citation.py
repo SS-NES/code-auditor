@@ -89,12 +89,8 @@ class Citation(Analyser):
         if 'authors' not in content:
             report.add_issue(cls, "The citation file is missing the authors.", path)
 
-        # Check if type of work is indicated different from software (e.g. dataset)
-        if content.get('type') and content['type'] != 'software':
-            report.add_issue(cls, "The type of work is not indicated as software.", path)
-
-        # Set metadata
-        keys = {
+        # Process attributes
+        metadata_keys = {
             'abstract': 'description',
             'date-released': 'date_released',
             'doi': 'doi',
@@ -102,18 +98,16 @@ class Citation(Analyser):
             'repository-code': 'repository_code',
             'title': 'name',
             'version': 'version',
+            'license': 'license',
         }
-        for key, metadata_key in keys.items():
-            report.add_metadata(cls, metadata_key, content.get(key), path)
 
+        for key, val in content.items():
+            if key not in VALID_ATTRS:
+                report.add_issue(cls, f"Invalid citation file attribute {key}", path)
+                continue
 
-    @classmethod
-    def analyse_results(cls, results: dict, report: Report):
-        """Analyses the analysis results of the files.
+            if key == 'type' and val != 'software':
+                report.add_issue(cls, "The type of work is not indicated as software.", path)
 
-        Args:
-            results (dict): Analysis results of the files.
-            report (Report): Analysis report.
-        """
-        if len(results) > 1:
-            report.add_issue(cls, "Multiple citation files found.")
+            if key in metadata_keys:
+                report.add_metadata(cls, metadata_keys[key], val, path)

@@ -220,7 +220,7 @@ class Report:
             self.metadata[key].append({
                 'val': _val,
                 'analyser': analyser,
-                'path': path,
+                'path': Path(path) if isinstance(path, str) else path,
                 'id': self.uid,
             })
 
@@ -240,8 +240,11 @@ class Report:
         if not isinstance(type, MessageType):
             raise ValueError("Invalid message type.")
 
-        if path and not isinstance(path, list):
-            path = [path]
+        if path:
+            if not isinstance(path, list):
+                path = [path]
+
+            path = [item if isinstance(item, Path) else Path(item) for item in path]
 
         self.messages[type].append({'val': msg, 'analyser': analyser, 'path': path})
 
@@ -293,7 +296,7 @@ class Report:
 
         for key, items in self.metadata:
             if key not in metadata:
-                self.add_issue(f"Missing metadata attribute {key}.")
+                self.add_issue(self, f"Missing metadata attribute {key}.")
 
 
     def serialize(self, val, key: str=None) -> str:
@@ -404,7 +407,7 @@ class Report:
                 "(" +
                 ", ".join(map(
                     lambda path: str(path.relative_to(self.path)),
-                    item['path'] if isinstance(item['path'], list) else [item['path']]
+                    item['path']
                 )) +
                 ")"
             )
