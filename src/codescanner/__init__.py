@@ -13,10 +13,12 @@ from .rule import Rule
 from .analyser import Analyser
 from .aggregator import Aggregator
 from .report import Report
-from .utils import get_id, OutputType
+from .utils import get_class_name, OutputType
+
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 __version__ = "0.1.0"
 
@@ -39,7 +41,7 @@ def _get_subclasses(parent) -> dict:
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
             if issubclass(obj, parent) and obj is not parent:
-                classes[get_id(obj)] = obj
+                classes[get_class_name(obj)] = obj
 
     return classes
 
