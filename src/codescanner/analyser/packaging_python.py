@@ -194,7 +194,7 @@ class PackagingPython(Analyser):
             return cls.analyse_pyproject(path, report)
 
         elif path.name == 'setup.py':
-            pass
+            report.add_issue(cls, "Using setup.py for packaging is not suggested.", path)
 
         elif path.name == 'setup.cfg':
             return cls.analyse_setup_config(path, report)
