@@ -148,3 +148,68 @@ class Citation(Analyser):
 
             if key in metadata_keys:
                 report.add_metadata(cls, metadata_keys[key], val, path)
+
+
+    @classmethod
+    def create_citation(cls, report, path: Path='CITATION.cff'):
+        def _set(key, val):
+            if not is_empty(val):
+                out[key] = val
+
+        out = {}
+        metadata = report.get_metadata_as_dict()
+
+        # Abstract
+        _set('abstract', metadata.get('description'))
+        _set('abstract', metadata.get('long_description'))
+
+        # Authors
+
+        # CFF version
+        _set('cff-version', '1.2.0')
+
+        # Commit
+        # Contact
+
+        # Date released
+        _set('date-released', metadata.get('date_released'))
+
+        # DOI
+        # Identifiers
+
+        # Keywords
+        _set('keywords', metadata.get('keywords'))
+
+        # License
+        _set('license', metadata.get('license'))
+
+        # License URL
+        _set('license-url', metadata.get('license_url'))
+
+        # Message
+        if 'preferred_citation' in metadata:
+            _set('message', "Please cite this software using the metadata from 'preferred-citation'.")
+
+        else:
+            _set('message', "Please cite this software using these metadata.")
+
+        # Preferred citation
+        # References
+        # Repository
+        # Artifact repository
+        # Code repository
+
+        # Title
+        _set('title', metadata.get('name'))
+
+        # Type
+        _set('type', 'software')
+
+        # URL address
+
+        # Version
+        _set('version', metadata.get('version'))
+
+        # Store citation file
+        with open(path, 'w', encoding='utf-8') as file:
+            yaml.dump(out, file)
