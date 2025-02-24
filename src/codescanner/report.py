@@ -260,6 +260,17 @@ class Report:
         self.add_message(MessageType.ISSUE, analyser, msg, path)
 
 
+    def add_warning(self, analyser, msg: str, path: Path | list[Path]=None):
+        """Adds a warning message.
+
+        Args:
+            analyser (Analyser): Analyser class.
+            msg (str): Issue message.
+            path (Path | list[Path]): Path of the source file(s) (optional).
+        """
+        self.add_message(MessageType.WARNING, analyser, msg, path)
+
+
     def add_notice(self, analyser, msg: str, path: Path | list[Path]=None):
         """Adds a notice message.
 
@@ -269,6 +280,17 @@ class Report:
             path (Path | list[Path]): Path of the source file(s) (optional).
         """
         self.add_message(MessageType.NOTICE, analyser, msg, path)
+
+
+    def add_suggestion(self, analyser, msg: str, path: Path | list[Path]=None):
+        """Adds a suggestion message.
+
+        Args:
+            analyser (Analyser): Analyser class.
+            msg (str): Notice message.
+            path (Path | list[Path]): Path of the source file(s) (optional).
+        """
+        self.add_message(MessageType.SUGGESTION, analyser, msg, path)
 
 
     def add_info(self, analyser, msg: str, path: Path | list[Path]=None):
@@ -363,39 +385,30 @@ class Report:
         out = {
             'metadata': metadata,
             'stats': self.serialize(self.stats),
-            'issues': [_serialize(item, plain=plain) for item in self.messages[MessageType.ISSUE]],
         }
 
-        if level.value <= MessageType.NOTICE.value:
-            out['notices'] = [_serialize(item, plain=plain) for item in self.messages[MessageType.NOTICE]]
-
-        if level.value <= MessageType.INFO.value:
-            out['infos'] = [_serialize(item, plain=plain) for item in self.messages[MessageType.INFO]]
+        for type in MessageType:
+            if level.value <= type.value:
+                out[type.name.lower()] = [
+                    _serialize(item, plain=plain)
+                    for item in self.messages[type]
+                ]
 
         return out
 
 
-    def output_message(self, item: dict) -> str:
-        """Generates notice output.
+    def output_message(self, item: dict, plain: bool=False) -> str:
+        """Generates message output.
 
         Args:
-            item (dict): Notice item.
+            item (dict): Message item.
 
         Returns:
-            Notice output.
+            Message output.
         """
-        return f"- {item['val']}"
+        if plain:
+            return f"- {item['val']}"
 
-
-    def output_issue(self, item: dict) -> str:
-        """Generates issue output.
-
-        Args:
-            item (dict): Issue item.
-
-        Returns:
-            Issue output.
-        """
         out = f"### {item['val']}\n"
 
         issue = find_issue(item['val'])
@@ -478,8 +491,8 @@ class Report:
             )
             env.filters.update({
                 'metadata': self.output_metadata,
-                'issue': self.output_issue,
-                'message': self.output_message,
+                'issue': self.output_message,
+                'message': lambda item : self.output_message(item, plain=True),
                 'serialize': self.serialize,
             })
 
@@ -489,11 +502,9 @@ class Report:
                 'issues': self.messages[MessageType.ISSUE],
             }
 
-            if level.value <= MessageType.NOTICE.value:
-                out['notices'] = self.messages[MessageType.NOTICE]
-
-            if level.value <= MessageType.INFO.value:
-                out['infos'] = self.messages[MessageType.INFO]
+            for type in MessageType:
+                if level.value <= type.value:
+                    out[type.name.lower()] = self.messages[type]
 
             template = env.get_template('report.md')
             out = template.render(**out)

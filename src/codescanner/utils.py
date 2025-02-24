@@ -10,8 +10,15 @@ REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
 class MessageType(Enum):
     """Message type."""
     INFO = 1
-    NOTICE = 2
-    ISSUE = 3
+    # Informational only, no action required.
+    SUGGESTION = 2
+    # A recommended improvement for better code quality.
+    NOTICE = 3
+    # Something noteworthy but not necessarily problematic.
+    WARNING = 4
+    # A potential issue that should be addressed.
+    ISSUE = 5
+    # A problem that needs to be fixed.
 
 
 class OutputType(Enum):
