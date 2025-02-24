@@ -17,11 +17,21 @@ class Aggregator(ABC):
 
     @classmethod
     @abstractmethod
-    def aggregate(cls, report: Report, results: dict):
-        """Aggregates available analysis results.
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        raise NotImplementedError
+
+
+    @classmethod
+    @abstractmethod
+    def aggregate(cls, report: Report, results: dict) -> dict:
+        """Returns aggregated analysis results of the analyser results.
 
         Args:
             report (Report): Analysis report.
             results (dict): Analyser results.
+
+        Returns:
+            Dictionary of the aggregation results.
         """
         raise NotImplementedError

@@ -1,24 +1,30 @@
+import click
+import git
+import json
+import tarfile
+import tempfile
+import urllib.request
+import yaml
+import zipfile
+
 import codescanner
 from .analyser import AnalyserType
-from .utils import OutputType, MessageType
+from .report import OutputType, MessageType
 
-import zipfile
-import tarfile
-import urllib.request
-import git
-import tempfile
-import json
-import yaml
-
-import click
 
 import logging
 logger = logging.getLogger(__name__)
 
 
 PATH_TYPES = [
+    # ZIP archive
     'zip',
-    'tar', 'tgz', 'tar.gz',
+    # TAR archive
+    'tar',
+    # Gzipped TAR archive
+    'tgz',
+    'tar.gz',
+    # Git repository
     'git',
 ]
 

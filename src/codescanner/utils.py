@@ -1,46 +1,38 @@
 """Utilities module."""
+import importlib
+import inspect
+import pkgutil
 import re
-from enum import Enum
+from pathlib import Path
 
 
-"""Snake case conversion regular expression."""
 REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
-
-
-class MessageType(Enum):
-    """Message type."""
-    INFO = 1
-    """Informational only, no action required."""
-    SUGGESTION = 2
-    """A recommended improvement for better code quality."""
-    NOTICE = 3
-    """Something noteworthy but not necessarily problematic."""
-    WARNING = 4
-    """A potential issue that should be addressed."""
-    ISSUE = 5
-    """A problem that needs to be fixed."""
-
-
-class OutputType(Enum):
-    """Output type."""
-    PLAIN = 'plain'
-    """Plain text"""
-    HTML = 'html'
-    """HTML"""
-    JSON = 'json'
-    """JSON"""
-    YAML = 'yaml'
-    """YAML"""
-    MARKDOWN = 'markdown'
-    """Markdown"""
-    RST = 'rst'
-    """reStructuredText"""
-    RTF = 'rtf'
-    """Rich text format"""
-    DOCX = 'docx'
-    """Office Open XML"""
+"""Snake case conversion regular expression."""
 
 
 def get_class_name(cls) -> str:
     """Returns snake-case class name."""
     return REGEXP_SNAKE_CASE.sub('_', cls.__qualname__).lower()
+
+
+def get_subclasses(cls) -> dict:
+    """Returns available subclasses of the parent class.
+
+    Args:
+        cls (object): Parent class.
+
+    Returns:
+        Dictionary of the available subclasses (name: class).
+    """
+    subclasses = {}
+
+    for _, name, _ in pkgutil.iter_modules([Path(inspect.getfile(cls)).parent]):
+
+        module = importlib.import_module(f'.{name}', f'{cls.__module__}')
+
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+
+            if issubclass(obj, cls) and obj is not cls:
+                subclasses[get_class_name(obj)] = obj
+
+    return subclasses

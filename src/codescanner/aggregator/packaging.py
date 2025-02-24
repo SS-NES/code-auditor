@@ -5,10 +5,18 @@ from ..report import Report
 
 
 class Packaging(Aggregator):
+    """Packaging aggregator class."""
+
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         return AnalyserType.PACKAGING
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        return "Packaging Aggregator"
 
 
     @classmethod

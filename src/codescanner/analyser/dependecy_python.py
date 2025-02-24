@@ -1,7 +1,6 @@
 """Python dependency analyser module."""
-from pip_requirements_parser import RequirementsFile
-
 from pathlib import Path
+from pip_requirements_parser import RequirementsFile
 
 from . import Analyser, AnalyserType
 from ..report import Report

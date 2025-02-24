@@ -9,10 +9,43 @@ from enum import Enum
 from pathlib import Path
 from datetime import datetime
 
-from .utils import get_class_name, OutputType, MessageType
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+class MessageType(Enum):
+    """Message type."""
+    INFO = 1
+    """Informational only, no action required."""
+    SUGGESTION = 2
+    """A recommended improvement for better code quality."""
+    NOTICE = 3
+    """Something noteworthy but not necessarily problematic."""
+    WARNING = 4
+    """A potential issue that should be addressed."""
+    ISSUE = 5
+    """A problem that needs to be fixed."""
+
+
+class OutputType(Enum):
+    """Output type."""
+    PLAIN = 'plain'
+    """Plain text"""
+    HTML = 'html'
+    """HTML"""
+    JSON = 'json'
+    """JSON"""
+    YAML = 'yaml'
+    """YAML"""
+    MARKDOWN = 'markdown'
+    """Markdown"""
+    RST = 'rst'
+    """reStructuredText"""
+    RTF = 'rtf'
+    """Rich text format"""
+    DOCX = 'docx'
+    """Office Open XML"""
 
 
 @functools.cache
@@ -113,7 +146,7 @@ class Report:
         path (Path): Path of the code base.
         messages (dict): List of messages.
         metadata (dict): Metadata.
-        results (dict): Analyser results (id: result).
+        results (dict): Analyser results (analyser: result).
         stats (dict): Statistics.
 
     Class Attributes:
@@ -443,7 +476,7 @@ class Report:
 
             return {
                 'val': self.serialize(item['val'], key),
-                'analyser': get_class_name(item['analyser']),
+                'analyser': item['analyser'].get_name(),
                 'path': path,
             }
 
@@ -582,6 +615,10 @@ class Report:
 
             else:
                 out += "No issues found.\n"
+
+            # Output analyser results
+            for analyser, results in self.results.items():
+                out += analyser.output(self, results)
 
             # Output metadata
             out += "Metadata\n"

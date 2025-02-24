@@ -5,10 +5,18 @@ from ..report import Report
 
 
 class VersionControl(Aggregator):
+    """Version control aggregator class."""
+
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         return AnalyserType.VERSION_CONTROL
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        return "Version Control Aggregator"
 
 
     @classmethod

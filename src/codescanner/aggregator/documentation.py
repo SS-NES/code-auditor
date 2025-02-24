@@ -5,10 +5,18 @@ from ..report import Report
 
 
 class Documentation(Aggregator):
+    """Documentation aggregator class."""
+
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         return AnalyserType.DOCUMENTATION
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        return "Documentation Aggregator"
 
 
     @classmethod

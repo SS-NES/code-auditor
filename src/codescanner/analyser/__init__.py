@@ -1,11 +1,10 @@
 """Analyser module."""
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
 
 from ..report import Report
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -14,13 +13,21 @@ logger = logging.getLogger(__name__)
 class AnalyserType(Enum):
     """Analyser type."""
     CITATION = "Citation"
+    """Citation."""
     CODE = "Code"
+    """Source code."""
     DEPENDENCY = "Dependency"
+    """Dependency management."""
     DOCUMENTATION = "Documentation"
+    """Software documentation."""
     LICENSE = "License"
+    """Software licensing."""
     PACKAGING = "Packaging"
+    """Software packaging."""
     REPOSITORY = "Repository"
+    """Code repository."""
     VERSION_CONTROL = "Version Control"
+    """Version control system."""
 
 
 class Analyser(ABC):
@@ -123,5 +130,14 @@ class Analyser(ABC):
 
 
     @classmethod
-    def output_results(cls, results: dict) -> str:
-        pass
+    def output(cls, report: Report, results: dict) -> str:
+        """Generates output from the analysis report and results.
+
+        Args:
+            report (Report): Analysis report.
+            results (dict): Analysis results.
+
+        Returns:
+            Analysis output.
+        """
+        return ''

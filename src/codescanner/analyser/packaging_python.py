@@ -57,7 +57,7 @@ class PackagingPython(Analyser):
 
         - Metadata paths are relative to pyproject.toml.
         - List of classifiers is available at https://pypi.org/classifiers/.
-        - Description is a one-liner summary
+        - Description is a one-liner summary.
 
         Args:
             path (Path): Path of the pyproject.toml file.

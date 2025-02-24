@@ -1,9 +1,9 @@
 """License analyser module."""
 import json
-import re
 import os
-from pathlib import Path
+import re
 from hashlib import md5
+from pathlib import Path
 
 from . import Analyser, AnalyserType
 from ..report import Report

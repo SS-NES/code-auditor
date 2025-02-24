@@ -1,16 +1,22 @@
 """License aggregator module."""
-from pathlib import Path
-
 from . import Aggregator
 from ..analyser import AnalyserType
 from ..report import Report
 
 
 class License(Aggregator):
+    """License aggregator class."""
+
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         return AnalyserType.LICENSE
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        return "License Aggregator"
 
 
     @classmethod

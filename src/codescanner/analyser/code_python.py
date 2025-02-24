@@ -1,7 +1,7 @@
 """Python code analyser module."""
-import sys
 import ast
 import docstring_parser
+import sys
 from pathlib import Path
 
 from . import Analyser, AnalyserType

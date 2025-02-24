@@ -5,10 +5,18 @@ from ..report import Report
 
 
 class Citation(Aggregator):
+    """Citation aggregator class."""
+
     @classmethod
     def get_type(cls) -> AnalyserType:
         """Returns analyser type of the aggregator."""
         return AnalyserType.CITATION
+
+
+    @classmethod
+    def get_name(cls) -> str:
+        """Returns aggregator name."""
+        return "Citation Aggregator"
 
 
     @classmethod

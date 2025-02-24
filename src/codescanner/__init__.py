@@ -1,9 +1,6 @@
 """
 codescanner
 """
-import pkgutil
-import importlib
-import inspect
 import functools
 import os
 from datetime import datetime
@@ -13,7 +10,7 @@ from .rule import Rule
 from .analyser import Analyser
 from .aggregator import Aggregator
 from .report import Report
-from .utils import get_class_name, OutputType
+from .utils import get_subclasses
 
 
 import logging
@@ -23,41 +20,18 @@ logger = logging.getLogger(__name__)
 __version__ = "0.1.0"
 
 
-def _get_subclasses(parent) -> dict:
-    """Returns available subclasses of the parent class.
-
-    Args:
-        parent (ob): Parent class.
-
-    Returns:
-        Dictionary of the available subclasses (name: class).
-    """
-    classes = {}
-
-    for _, name, _ in pkgutil.iter_modules([Path(inspect.getfile(parent)).parent]):
-
-        module = importlib.import_module(f'.{name}', f'{parent.__module__}')
-
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-
-            if issubclass(obj, parent) and obj is not parent:
-                classes[get_class_name(obj)] = obj
-
-    return classes
-
-
 @functools.cache
 def get_analysers() -> dict:
     """Returns available analysers.
 
     Returns:
-        Dictionary of the available analysers (name: class).
+        Dictionary of the available analysers (id: class).
 
     Examples:
         >>> codescanner.get_analysers()
         >>> {'license': <class 'codescanner.analyser.license.License'>, ...}
     """
-    return _get_subclasses(Analyser)
+    return get_subclasses(Analyser)
 
 
 @functools.cache
@@ -65,13 +39,13 @@ def get_aggregators() -> dict:
     """Returns available aggregators.
 
     Returns:
-        Dictionary of the available aggregators (name: class).
+        Dictionary of the available aggregators (id: class).
 
     Examples:
         >>> codescanner.get_aggregators()
         >>> {'code': <class 'codescanner.aggregator.code.Code'>, ...}
     """
-    return _get_subclasses(Aggregator)
+    return get_subclasses(Aggregator)
 
 
 def _get_includes(path: Path, analysers: dict = None) -> dict:
@@ -112,14 +86,14 @@ def _get_excludes(path: Path, analysers: dict = None) -> dict:
     return items
 
 
-def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dict:
+def _filter(items: dict, skip: list[str] = None, skip_type: list[str] = None) -> dict:
     _items = {}
     for name, item in items.items():
 
-        if name in skip:
+        if skip and name in skip:
             continue
 
-        if item.get_type().name.lower() in skip_type:
+        if skip_type and item.get_type().name.lower() in skip_type:
             continue
 
         _items[name] = item
@@ -129,9 +103,9 @@ def _filter(items: dict, skip: list[str] = [], skip_type: list[str] = []) -> dic
 
 def analyse(
     path: str | Path,
-    skip_analyser: list[str] = [],
-    skip_aggregator: list[str] = [],
-    skip_type: list[str] = [],
+    skip_analyser: list[str] = None,
+    skip_aggregator: list[str] = None,
+    skip_type: list[str] = None,
 ) -> dict:
     """Analyses a code base.
 
@@ -251,18 +225,23 @@ def analyse(
         # Try to run the analyser
         logger.debug(f"Running {id} analyser.")
         try:
-            report.results[id] = analyser.analyse(path, _files[id], report)
+            result = analyser.analyse(path, _files[id], report)
+            if not result:
+                continue
 
         # Skip if not implemented
         except NotImplementedError:
             logger.debug(f"{id} analyser is not implemented.")
             continue
 
+        # Set results
+        report.results[analyser] = result
+
         type = analyser.get_type()
         if type not in results:
             results[type] = {}
 
-        results[type].update(report.results[id])
+        results[type].update(result)
 
     # For each aggregator
     for id, aggregator in aggregators.items():
@@ -273,12 +252,17 @@ def analyse(
         # Try to run the aggregator
         logger.debug(f"Running {id} aggregator.")
         try:
-            aggregator.aggregate(report, results.get(type, {}))
+            result = aggregator.aggregate(report, results.get(type, {}))
+            if not result:
+                continue
 
         # Skip if not implemented
         except NotImplementedError:
             logger.debug(f"{id} aggregator is not implemented.")
             continue
+
+        # Set results
+        report.results[aggregator] = result
 
     # Analyse metadata
     report.analyse_metadata()
