@@ -99,7 +99,7 @@ PATH_TYPES = [
         [item.value for item in OutputType],
         case_sensitive = False
     ),
-    default = OutputType.MARKDOWN.value,
+    default = OutputType.RST.value,
     help = "Output format."
 )
 @click.option(

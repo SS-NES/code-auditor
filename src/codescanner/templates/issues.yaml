@@ -1,21 +1,24 @@
 - name: No citation file.
   suggestion: You can create a citation file by using
-    [CFF Init](https://citation-file-format.github.io/).
+    `CFF Init <https://citation-file-format.github.io/>`_.
 
 - name: Multiple license files found.
   suggestion: Keep only one of the license files and remove the others.
 
 - name: Invalid setup.cfg file.
-  suggestion: Check the [setup.cfg specification](https://setuptools.pypa.io/en/latest/userguide/declarative_config.html)
+  suggestion: Check the `setup.cfg specification
+    <https://setuptools.pypa.io/en/latest/userguide/declarative_config.html>`_
     to correct the file.
 
 - name: Invalid pyproject.toml file.
-  suggestion: Check the [pyproject.toml specification](https://packaging.python.org/en/latest/specifications/pyproject-toml/)
+  suggestion: Check the `pyproject.toml specification
+    <https://packaging.python.org/en/latest/specifications/pyproject-toml/>`_
     to correct the file.
 
 - match: License files do not match.+
   suggestion: Select one of the files as the license file and remove the others.
 
 - match: License identifier .+ does not match the license file.
-  suggestion: Set the license identifier to the one that corresponds to the license file.
-    You can find the list of license identifiers at the [SPDX License List](https://spdx.org/licenses/).
+  suggestion: Set the license identifier to the one that corresponds to the
+    license file. You can find the list of license identifiers at the
+    `SPDX License List <https://spdx.org/licenses/>`_.

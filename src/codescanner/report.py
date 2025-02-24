@@ -9,7 +9,7 @@ from enum import Enum
 from pathlib import Path
 from datetime import datetime
 
-from .utils import get_id, OutputType, MessageType
+from .utils import get_class_name, OutputType, MessageType
 
 import logging
 logger = logging.getLogger(__name__)
@@ -124,6 +124,44 @@ class Report:
     REGEXP_DOI = re.compile(r"10\.\d{4,9}/[-._;()/:a-z\d]+", re.IGNORECASE)
     REGEXP_URL = re.compile(r"((http|ftp)(s)?):\/\/(www\.)?[a-z\d@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-z\d@:%_\+.~#?&//=]*)", re.IGNORECASE)
 
+    METADATA = [
+        # Authors of the software.
+        'authors',
+        # Date the software has been released (YYYY-MM-DD).
+        'date_released',
+        # Description of the software.
+        'description',
+        # DOI of the software.
+        'doi',
+        # Keywords that describe the software.
+        'keywords',
+        # SPDX license identifier of the software.
+        'license',
+        # Name of the software license.
+        'license_name',
+        # File name of the software license.
+        'license_file',
+        # URL address of the software license.
+        'license_url',
+        # Long description of the software.
+        'long_description',
+        # Maintainers of the software.
+        'maintainers',
+        # Name of the software.
+        'name',
+        # List of dependency packages of the software (Python).
+        'python_dependencies',
+        # Readme of the software.
+        'readme',
+        # Readme file of the software.
+        'readme_file',
+        # URL of the source code repository of the software.
+        'repository_code',
+        # Version of the software.
+        'version',
+        # Version control system of the software.
+        'version_control',
+    ]
 
     def __init__(self, path: Path):
         """Initializes analysis report object.
@@ -180,6 +218,39 @@ class Report:
                     f"Multiple values exists for {key}.",
                     [items[0]['path'], item['path']]
                 )
+
+
+    def has_metadata(self, key: str) -> bool:
+        """Checks is metadata attribute value exists.
+
+        Args:
+            key (str): Metadata attribute key.
+
+        Returns:
+            True if metadata attribute value exists, False otherwise.
+        """
+        return True if key in self.metadata else False
+
+
+    def get_metadata(self, key: str):
+        """Returns a metadata attribute value.
+
+        Args:
+            key (str): Metadata attribute key.
+
+        Returns:
+            First metadata attribute value if exists, None otherwise.
+        """
+        return self.metadata[key][0]['val'] if key in self.metadata else None
+
+
+    def get_metadata_as_dict(self) -> dict:
+        """Returns metadata as a dictionary.
+
+        Returns:
+            Metadata dictionary.
+        """
+        return {key: items[0]['val'] for key, items in self.metadata.items()}
 
 
     def add_metadata(self, analyser, key: str, val, path: Path=None):
@@ -372,7 +443,7 @@ class Report:
 
             return {
                 'val': self.serialize(item['val'], key),
-                'analyser': get_id(item['analyser']),
+                'analyser': get_class_name(item['analyser']),
                 'path': path,
             }
 
@@ -407,22 +478,25 @@ class Report:
             Message output.
         """
         if plain:
-            return f"- {item['val']}"
+            return "* " + item['val'] + "\n"
 
-        out = f"### {item['val']}\n"
+        out = "* " + item['val'] + "\n"
 
         issue = find_issue(item['val'])
         if issue and 'suggestion' in issue:
-            out += issue['suggestion'] + "\n"
+            out += "  " + "\n"
+            out += "  " + issue['suggestion'] + "\n"
 
         if item['path']:
             out += (
+                "  " +
                 "(" +
                 ", ".join(map(
                     lambda path: str(path.relative_to(self.path)),
                     item['path']
                 )) +
-                ")"
+                ")" +
+                "\n"
             )
 
         return out
@@ -484,50 +558,93 @@ class Report:
             return yaml.dump(self.as_dict(level = level, plain = plain))
 
         else:
+            out = ''
+
+            # Output header
+            out += "CodeScanner Analysis Report\n"
+            out += "===========================\n\n"
+
+            out += "Code quality and conformity for software development best practices analysis report of {}.\n".format(
+                self.get_metadata('name') if self.has_metadata('name') else "Unnamed Software"
+            )
+            out += "The software is located at ``{}``.\n".format(
+                self.stats['path']
+            )
+            out += "\n"
+
+            # Output issues
+            out += "Issues\n"
+            out += "------\n\n"
+
+            if self.messages[MessageType.ISSUE]:
+                for item in self.messages[MessageType.ISSUE]:
+                    out += self.output_message(item) + "\n"
+
+            else:
+                out += "No issues found.\n"
+
+            # Output metadata
+            out += "Metadata\n"
+            out += "--------\n\n"
+
+            if self.metadata:
+                for key, items in self.metadata.items():
+                    out += key + ": " + str(self.output_metadata(items, key))
+                    out += "\n\n"
+
+            else:
+                out += "No metadata found.\n"
+
+            # Output footer
+            out += "\n\n----\n\n"
+            out += "| Created by `CodeScanner <https://github.com/SS-NES/codescanner>`_ v{} on {}.\n".format(
+                self.stats['version'],
+                self.serialize(self.stats['date'])
+            )
+            out += "| {} directories and {} files were analysed, {} directories were skipped.\n".format(
+                self.stats['num_dirs'],
+                self.stats['num_files'],
+                self.stats['num_dirs_excluded']
+            )
+            out += "| Analysis finished in {} s.\n".format(
+                round(self.stats['duration'], 2)
+            )
+
+            # Apply report template
             env = jinja2.Environment(
                 loader=jinja2.PackageLoader('codescanner'),
                 autoescape=jinja2.select_autoescape(),
                 trim_blocks=True
             )
-            env.filters.update({
-                'metadata': self.output_metadata,
-                'issue': self.output_message,
-                'message': lambda item : self.output_message(item, plain=True),
-                'serialize': self.serialize,
-            })
+            template = env.get_template('report.rst')
+            out = template.render(output = out)
 
-            out = {
-                'metadata': self.metadata,
-                'stats': self.stats,
-                'issues': self.messages[MessageType.ISSUE],
-            }
-
-            for type in MessageType:
-                if level.value <= type.value:
-                    out[type.name.lower()] = self.messages[type]
-
-            template = env.get_template('report.md')
-            out = template.render(**out)
-
-            if format == OutputType.MARKDOWN:
+            # Return if native format is requested
+            if format == OutputType.RST:
                 return out
 
+            # Ensure pandoc is installed
             pypandoc.ensure_pandoc_installed()
 
+            # Check if binary output is required
             if format in [OutputType.RTF, OutputType.DOCX]:
+                # Create path if required
                 if not path:
                     date = self.serialize(self.stats['date']).replace(':', '-')
                     path = f"report_{date}.{format.value}"
 
+                # Save output file
                 pypandoc.convert_text(
                     out,
                     format.value,
-                    format='md',
+                    format='rst',
                     outputfile=path,
                     extra_args=['--standalone']
                 )
 
+                # Return output file path
                 return path if isinstance(path, Path) else Path(path)
 
             else:
-                return pypandoc.convert_text(out, format.value, format='md')
+                # Return converted output
+                return pypandoc.convert_text(out, format.value, format='rst')
