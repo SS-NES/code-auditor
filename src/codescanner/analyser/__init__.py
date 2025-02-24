@@ -13,13 +13,14 @@ logger = logging.getLogger(__name__)
 
 class AnalyserType(Enum):
     """Analyser type."""
-    CODE = "Code"
-    LICENSE = "License"
     CITATION = "Citation"
-    VERSION_CONTROL = "Version Control"
+    CODE = "Code"
+    DEPENDENCY = "Dependency"
     DOCUMENTATION = "Documentation"
+    LICENSE = "License"
     PACKAGING = "Packaging"
     REPOSITORY = "Repository"
+    VERSION_CONTROL = "Version Control"
 
 
 class Analyser(ABC):

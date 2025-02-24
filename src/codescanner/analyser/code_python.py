@@ -93,8 +93,7 @@ def _analyse_node(node) -> dict:
 
     modules = modules.difference(sys.stdlib_module_names)
 
-    if modules:
-        report['modules'] = modules
+    report['modules'] = modules
 
     return report
 
@@ -161,3 +160,19 @@ class CodePython(Analyser):
         result = _analyse_node(node)
 
         return result
+
+
+    @classmethod
+    def analyse_results(cls, results: dict, report: Report):
+        """Analyses the analysis results of the files.
+
+        Args:
+            results (dict): Analysis results of the files.
+            report (Report): Analysis report.
+        """
+        modules = set()
+
+        for path, result in results.items():
+            modules.update(result['modules'])
+
+        report.add_metadata(cls, 'python_dependencies', sorted(list(modules)))
