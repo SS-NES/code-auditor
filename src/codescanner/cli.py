@@ -176,12 +176,17 @@ def main(
         format (str): Output format (default = 'text').
         debug (bool): Debug flag (default = False).
     """
-    logger.debug(f"Analysing `{path}`.")
-
     # Set logging level if debug flag is set
     if debug:
         logging.basicConfig(level=logging.DEBUG)
+
+        for name in logging.root.manager.loggerDict:
+            if name.startswith('codescanner'):
+                logging.getLogger(name).setLevel(logging.DEBUG)
+
         logger.debug("Debugging enabled.")
+
+    logger.debug(f"Analysing `{path}`.")
 
     # Set path type if required
     if not path_type:
