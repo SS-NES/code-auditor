@@ -1,13 +1,12 @@
 """Analysis report module."""
-import re
-import json
-import yaml
-import jinja2
-import pypandoc
 import functools
+import jinja2
+import json
+import pypandoc
+import re
+import yaml
 from enum import Enum
 from pathlib import Path
-from datetime import datetime
 
 from .metadata import Metadata
 from .utils import get_class_name
@@ -116,16 +115,7 @@ class Report:
         metadata (Metadata): Metadata.
         results (dict): Analyser results (analyser: result).
         stats (dict): Statistics.
-
-    Class Attributes:
-        counter (int): Counter.
-        REGEXP_DOI: Regular expression for DOI validation.
-        REGEXP_URL: Regular expression for URL validation.
     """
-    REGEXP_DOI = re.compile(r"10\.\d{4,9}/[-._;()/:a-z\d]+", re.IGNORECASE)
-    REGEXP_URL = re.compile(r"((http|ftp)(s)?):\/\/(www\.)?[a-z\d@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-z\d@:%_\+.~#?&//=]*)", re.IGNORECASE)
-
-
     def __init__(self, path: Path):
         """Initializes analysis report object.
 
@@ -247,31 +237,6 @@ class Report:
                 self.add_issue(self, f"Missing metadata attribute {key}.")
 
 
-    def serialize(self, val, key: str=None) -> str:
-        """Serializes value.
-
-        Args:
-            val: Value
-            key (str): Value key (optional)
-
-        Returns:
-            Serialized value.
-        """
-        if isinstance(val, Path):
-            return str(val)
-
-        if isinstance(val, datetime):
-            return val.isoformat(timespec='seconds')
-
-        elif isinstance(val, dict):
-            return {key: self.serialize(item, key) for key, item in val.items()}
-
-        elif isinstance(val, list):
-            return [self.serialize(item) for item in val]
-
-        return val
-
-
     def as_dict(
         self,
         level: MessageType = MessageType.NOTICE,
@@ -280,37 +245,42 @@ class Report:
         """Converts analysis report into a dictionary.
 
         Args:
+            level (MessageType): Minimum message level (default = MessageType.NOTICE)
             plain (bool): Set True for a plain dictionary (default = False)
 
         Returns:
             Report dictionary.
         """
         def _serialize(item: dict, key: str=None, plain: bool=False) -> dict:
+            val = Metadata.serialize(item['val'], key)
+
             if plain:
-                return self.serialize(item['val'], key)
+                return val
 
-            if isinstance(item['path'], list):
-                path = [str(path.relative_to(self.path)) for path in item['path']]
-            elif item['path']:
-                path = str(item['path'].relative_to(self.path))
-            else:
-                path = None
-
-            return {
-                'val': self.serialize(item['val'], key),
+            out = {
+                'val': val,
                 'analyser': get_class_name(item['analyser']),
-                'path': path,
             }
+
+            if item['path']:
+                path = [
+                    str(path.relative_to(self.path))
+                    for path in (item['path'] if isinstance(item['path'], list) else [item['path']])
+                ]
+                out['path'] = path[0] if len(path) < 2 else path
+
+            return out
 
         metadata = {}
         for key in self.metadata.keys():
-            metadata[key] = [_serialize(item, key) for item in items]
             if plain:
-                metadata[key] = self.output_metadata(metadata[key], key)
+                metadata[key] = self.metadata.get(key, plain=True, serialize=True)
+            else:
+                metadata[key] = [_serialize(item, key) for item in self.metadata.get(key)]
 
         out = {
             'metadata': metadata,
-            'stats': self.serialize(self.stats),
+            'stats': Metadata.serialize(self.stats),
         }
 
         for type in MessageType:
@@ -323,11 +293,11 @@ class Report:
         return out
 
 
-    def output_heading(cls, heading: str, level: int=1) -> str:
+    def output_heading(self, text: str, level: int=1) -> str:
         underlines = {1: '=', 2: '-', 3: '`', 4: "'", 5: '.'}
         return (
-            heading + "\n" +
-            underlines.get(level, underlines[1]) * len(heading) + "\n\n"
+            text + "\n" +
+            underlines.get(level, underlines[1]) * len(text) + "\n\n"
         )
 
 
@@ -340,10 +310,10 @@ class Report:
         Returns:
             Message output.
         """
-        if plain:
-            return "* " + item['val'] + "\n"
-
         out = "* " + item['val'] + "\n"
+
+        if plain:
+            return out
 
         issue = find_issue(item['val'])
         if issue and 'suggestion' in issue:
@@ -363,32 +333,6 @@ class Report:
             )
 
         return out
-
-
-    def output_metadata(self, items: list, key: str=None) -> str:
-        """Generates metadata output.
-
-        Args:
-            items (list): Metadata attribute items.
-            key (str): Metadata attribute key (optional).
-
-        Returns:
-            Metadata output.
-        """
-        if not items:
-            return
-
-        out = []
-
-        for item in items:
-
-            if item['val'] not in out:
-                out.append(item['val'])
-
-        if is_list(items) or len(out) > 1:
-            return out
-
-        return out.pop()
 
 
     def output(
@@ -425,7 +369,7 @@ class Report:
             out += self.output_heading("CodeScanner Analysis Report")
 
             out += "Code quality and conformity for software development best practices analysis report of {}.\n".format(
-                self.metadata.get('name') if self.metadata.has('name') else "Unnamed Software"
+                self.metadata.get('name', plain=True, first=True, default="Unnamed Software")
             )
             out += "The software is located at ``{}``.\n".format(
                 self.stats['path']
@@ -461,12 +405,7 @@ class Report:
             keys = self.metadata.keys()
 
             for key in keys:
-                vals = self.metadata.get_all(key)
-                out += key + ": "
-                if self.metadata.is_list(key) or len(vals) > 1:
-                    out += str(vals)
-                else:
-                    out += str(vals.pop())
+                out += key + ": " + str(self.metadata.get(key, plain = True))
                 out += "\n\n"
 
             if not keys:
@@ -476,7 +415,7 @@ class Report:
             out += "\n\n----\n\n"
             out += "| Created by `CodeScanner <https://github.com/SS-NES/codescanner>`_ v{} on {}.\n".format(
                 self.stats['version'],
-                self.serialize(self.stats['date'])
+                Metadata.serialize(self.stats['date'])
             )
             out += "| {} directories and {} files were analysed, {} directories were skipped.\n".format(
                 self.stats['num_dirs'],
@@ -507,7 +446,7 @@ class Report:
             if format in [OutputType.RTF, OutputType.DOCX]:
                 # Create path if required
                 if not path:
-                    date = self.serialize(self.stats['date']).replace(':', '-')
+                    date = Metadata.serialize(self.stats['date']).replace(':', '-')
                     path = f"report_{date}.{format.value}"
 
                 # Save output file
