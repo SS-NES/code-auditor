@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from . import Analyser, AnalyserType
+from .code import Code
 from ..report import Report
 
 
@@ -98,19 +99,19 @@ def _analyse_node(node) -> dict:
     return report
 
 
-class CodePython(Analyser):
+class CodePython(Code):
     """Python code analyser class."""
-
-    @classmethod
-    def get_type(cls) -> AnalyserType:
-        """Returns analyser type."""
-        return AnalyserType.CODE
-
 
     @classmethod
     def get_name(cls) -> str:
         """Returns analyser name."""
         return "Python Code"
+
+
+    @classmethod
+    def get_languages(cls) -> list[str]:
+        """Returns list of languages supported by the analyser."""
+        return ['python']
 
 
     @classmethod
@@ -144,18 +145,18 @@ class CodePython(Analyser):
 
 
     @classmethod
-    def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a Python file.
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses a Python code content.
 
         Args:
-            path (Path): Path of the Python file.
+            content (str): Python code content.
             report (Report): Analysis report.
+            path (Path): Path of the Python file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
-        with open(path, 'r') as file:
-            node = ast.parse(file.read(), filename=path, type_comments=True)
+        node = ast.parse(content, filename=path, type_comments=True)
 
         result = _analyse_node(node)
 
