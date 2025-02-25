@@ -1,19 +1,26 @@
 """Rule module."""
-from dataclasses import dataclass
 import fnmatch
 
+from .analyser import Analyser
 
-@dataclass(init=False)
+
 class Rule:
-    """Rule class."""
+    """Rule class.
 
-    val: str
-    is_dir: bool
-    is_nested: bool
-    analysers: list[str]
+    Attributes:
+        is_dir (bool): True if a directory rule, i.e. ends with ``/``.
+        is_nested (bool): True if a nested rule, i.e. contains ``/``.
+        val (str): Rule value.
+        analysers (list[Analyser]): List of analysers.
+    """
 
+    def __init__(self, val: str, analyser: Analyser = None):
+        """Initializes rule object.
 
-    def __init__(self, val: str, analyser: str = None):
+        Args:
+            val (str): Rule value.
+            analyser (Analyser): Analyser (optional).
+        """
         self.is_dir = val[-1] == '/'
         if self.is_dir:
             val = val[:-1]
@@ -27,4 +34,12 @@ class Rule:
 
 
     def match(self, val: str) -> bool:
+        """Check is value matches the rule.
+
+        Args:
+            val (str): Value.
+
+        Returns:
+            True is value matches the rule, False otherwise.
+        """
         return fnmatch.fnmatch(val, self.val)
