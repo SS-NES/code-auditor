@@ -42,8 +42,6 @@ class CodeMarkdown(Code):
             '*.mdtxt',
             '*.mdwn',
             '*.mkd',
-            '*.text',
-            '*.txt',
         ]
 
 
@@ -67,3 +65,45 @@ class CodeMarkdown(Code):
             return
 
         return result
+
+
+    @classmethod
+    def output(cls, report: Report, results: dict) -> str:
+        """Generates output from the analysis report and results.
+
+        Args:
+            report (Report): Analysis report.
+            results (dict): Analysis results.
+
+        Returns:
+            Analysis output.
+        """
+        out = ''
+
+        for path, result in results.items():
+            part = ''
+
+            for item in result.scan_failures:
+                part += "* {}{} (Line {}).\n".format(
+                    item.rule_description,
+                    (" " + item.extra_error_information)
+                    if item.extra_error_information
+                    else
+                    '',
+                    item.line_number
+                )
+
+            for item in result.pragma_errors:
+                part += "* {} (Line {}".format(
+                    item.pragma_error,
+                    item.line_number
+                )
+
+            if part:
+                out += report.output_heading(str(path.relative_to(report.path)), 3)
+                out += part
+
+        if out:
+            out = report.output_heading("Markdown Files", 2) + out + "\n"
+
+        return out

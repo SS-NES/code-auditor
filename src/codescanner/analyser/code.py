@@ -21,39 +21,6 @@ class Code(Analyser):
 
     @classmethod
     @abstractmethod
-    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
-        """Analyses a code content.
-
-        Args:
-            content (str): Code content.
-            report (Report): Analysis report.
-            path (Path): Path of the code file (optional).
-
-        Returns:
-            Dictionary of the analysis results.
-        """
-        raise NotImplementedError
-
-
-    @classmethod
-    def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a code file.
-
-        Args:
-            path (Path): Path of the code file.
-            report (Report): Analysis report.
-
-        Returns:
-            Dictionary of the analysis results.
-        """
-        with open(path, 'r', encoding='utf-8') as file:
-            content = file.read()
-
-        return cls.analyse_content(content, report, path)
-
-
-    @classmethod
-    @abstractmethod
     def get_languages(cls) -> list[str]:
         """Returns list of languages supported by the analyser."""
         raise NotImplementedError

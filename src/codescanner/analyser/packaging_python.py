@@ -49,8 +49,8 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def analyse_pyproject(cls, path: Path, report: Report) -> dict:
-        """Analyses a pyproject.toml file.
+    def analyse_pyproject(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses a pyproject.toml content.
 
         pyproject.toml specification is available at:
         https://packaging.python.org/en/latest/specifications/pyproject-toml/
@@ -60,8 +60,9 @@ class PackagingPython(Analyser):
         - Description is a one-liner summary.
 
         Args:
-            path (Path): Path of the pyproject.toml file.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
 
         Returns:
             Dictionary of the analysis results.
@@ -95,13 +96,12 @@ class PackagingPython(Analyser):
                 if 'text' in val:
                     report.add_metadata(cls, key, val['text'], path)
 
-        with open(path, 'rb') as file:
-            try:
-                data = tomllib.load(file)
+        try:
+            data = tomllib.loads(content)
 
-            except tomllib.TOMLDecodeError:
-                report.add_issue(cls, "Invalid pyproject.toml file.", path)
-                return
+        except tomllib.TOMLDecodeError:
+            report.add_issue(cls, "Invalid pyproject.toml file.", path)
+            return
 
         if 'project' in data:
             project = data['project']
@@ -146,26 +146,26 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def analyse_setup_config(cls, path: Path, report: Report) -> dict:
-        """Analyses a setup.cfg file.
+    def analyse_setup_config(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses a setup.cfg content.
 
         setup.cfg specification is available at:
         https://setuptools.pypa.io/en/latest/userguide/declarative_config.html
 
         Args:
-            path (Path): Path of the setup.cfg file.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
-        with open(path, 'rb') as file:
-            try:
-                data = tomllib.load(file)
+        try:
+            data = tomllib.loads(content)
 
-            except tomllib.TOMLDecodeError:
-                report.add_issue(cls, "Invalid setup.cfg file.", path)
-                return
+        except tomllib.TOMLDecodeError:
+            report.add_issue(cls, "Invalid setup.cfg file.", path)
+            return
 
         if 'metadata' in data:
             for key in [
@@ -180,21 +180,22 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a packaging file.
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses content.
 
         Args:
-            path (Path): Path of the packaging file.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
         if path.name == 'pyproject.toml':
-            return cls.analyse_pyproject(path, report)
+            return cls.analyse_pyproject(content, report, path)
 
         elif path.name == 'setup.py':
             report.add_issue(cls, "Using setup.py for packaging is not suggested.", path)
 
         elif path.name == 'setup.cfg':
-            return cls.analyse_setup_config(path, report)
+            return cls.analyse_setup_config(content, report, path)

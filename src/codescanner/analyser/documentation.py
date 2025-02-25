@@ -38,6 +38,21 @@ class Documentation(Analyser):
 
 
     @classmethod
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses content.
+
+        Args:
+            content (str): Content.
+            report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
+
+        Returns:
+            Dictionary of the analysis results.
+        """
+        pass
+
+
+    @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
         """Analyses a git file.
 
@@ -49,3 +64,4 @@ class Documentation(Analyser):
             Dictionary of the analysis results.
         """
         report.add_metadata(cls, 'readme_file', path.relative_to(report.path), path)
+        return super().analyse_file(path, report)

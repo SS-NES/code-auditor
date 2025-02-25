@@ -87,20 +87,20 @@ class Citation(Analyser):
 
 
     @classmethod
-    def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a citation file.
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses content.
 
         Args:
-            path (Path): Path of the citation file.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
         # Read citation file
         try:
-            with open(path, 'r', encoding='utf-8') as file:
-                content = yaml.safe_load(file)
+            content = yaml.safe_load(content)
 
         except:
             report.add_issue(cls, "Invalid citation file.", path)

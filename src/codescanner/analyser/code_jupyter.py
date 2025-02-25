@@ -102,6 +102,4 @@ class CodeJupyter(Code):
         for cell in cells:
             pass
 
-        print(content['metadata'])
-
         return results

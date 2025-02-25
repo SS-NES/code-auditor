@@ -75,18 +75,22 @@ class Analyser(ABC):
 
 
     @classmethod
-    def analyse_results(cls, results: dict, report: Report):
-        """Analyses the analysis results of the files.
+    @abstractmethod
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses content.
 
         Args:
-            results (dict): Analysis results of the files.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
+
+        Returns:
+            Dictionary of the analysis results.
         """
-        pass
+        raise NotImplementedError
 
 
     @classmethod
-    @abstractmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
         """Analyses a file.
 
@@ -97,7 +101,25 @@ class Analyser(ABC):
         Returns:
             Dictionary of the analysis results.
         """
-        raise NotImplementedError
+        if path.is_file():
+            with open(path, 'r', encoding='utf-8') as file:
+                content = file.read()
+
+        else:
+            content = None
+
+        return cls.analyse_content(content, report, path)
+
+
+    @classmethod
+    def analyse_results(cls, results: dict, report: Report):
+        """Analyses the analysis results of the files.
+
+        Args:
+            results (dict): Analysis results of the files.
+            report (Report): Analysis report.
+        """
+        pass
 
 
     @classmethod

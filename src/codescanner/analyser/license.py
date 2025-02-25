@@ -200,20 +200,18 @@ class License(Analyser):
 
 
     @classmethod
-    def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a license file.
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses content.
 
         Args:
-            path (Path): Path of the license file.
+            content (str): Content.
             report (Report): Analysis report.
+            path (Path): Path of the content file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
-        with open(path, 'r', encoding='utf-8') as file:
-            text = file.read()
-
-        ids, score = find_license(text, Path(__file__).parent / 'data/licenses.json')
+        ids, score = find_license(content, Path(__file__).parent / 'data/licenses.json')
 
         result = {
             'ids': ids,
