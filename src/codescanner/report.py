@@ -511,6 +511,14 @@ class Report:
         return out
 
 
+    def output_heading(cls, heading: str, level: int=1) -> str:
+        underlines = {1: '=', 2: '-', 3: '`', 4: "'", 5: '.'}
+        return (
+            heading + "\n" +
+            underlines.get(level, underlines[1]) * len(heading) + "\n\n"
+        )
+
+
     def output_message(self, item: dict, plain: bool=False) -> str:
         """Generates message output.
 
@@ -604,8 +612,7 @@ class Report:
             out = ''
 
             # Output header
-            out += "CodeScanner Analysis Report\n"
-            out += "===========================\n\n"
+            out += self.output_heading("CodeScanner Analysis Report")
 
             out += "Code quality and conformity for software development best practices analysis report of {}.\n".format(
                 self.get_metadata('name') if self.has_metadata('name') else "Unnamed Software"
@@ -624,9 +631,7 @@ class Report:
                 if not self.messages[type] and type != MessageType.ISSUE:
                     continue
 
-                title = type.get_plural_name()
-                out += title + "\n"
-                out += ("-" * len(title)) + "\n\n"
+                out += self.output_heading(type.get_plural_name(), 2)
 
                 if self.messages[type]:
                     for item in self.messages[type]:
