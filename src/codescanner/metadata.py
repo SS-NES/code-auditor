@@ -1,6 +1,5 @@
 """Metadata module."""
 import re
-from datetime import datetime
 from pathlib import Path
 
 
@@ -79,32 +78,6 @@ class Metadata:
         return False
 
 
-    @staticmethod
-    def serialize(val, key: str=None):
-        """Serializes value.
-
-        Args:
-            val: Value
-            key (str): Value key (optional)
-
-        Returns:
-            Serialized value.
-        """
-        if isinstance(val, Path):
-            return str(val)
-
-        if isinstance(val, datetime):
-            return val.isoformat(timespec='seconds')
-
-        elif isinstance(val, dict):
-            return {key: Metadata.serialize(item) for key, item in val.items()}
-
-        elif isinstance(val, list):
-            return [Metadata.serialize(item) for item in val]
-
-        return val
-
-
     def __init__(self):
         self.uid = 0
         self.metadata = {}
@@ -133,7 +106,6 @@ class Metadata:
         key: str,
         plain: bool=False,
         first: bool=False,
-        serialize: bool=False,
         default=None
     ):
         """Returns metadata attribute values.
@@ -158,26 +130,21 @@ class Metadata:
                         break
                     out.append(item['val'] if plain else item)
 
-                if not plain or not serialize:
-                    return out
-
-                return [Metadata.serialize(val, key) for val in out]
+                return out
 
             elif not plain:
                 return self.metadata[key][0]
 
             else:
-                val = self.metadata[key][0]['val']
-                return Metadata.serialize(val, key) if serialize else val
+                return self.metadata[key][0]['val']
 
         if not plain:
             return self.metadata[key]
 
         out = []
         for item in self.metadata[key]:
-            val = Metadata.serialize(item['val'], key) if serialize else item['val']
-            if val not in out:
-                out.append(val)
+            if item['val'] not in out:
+                out.append(item['val'])
 
         if not self.is_list(key) and len(out) < 2:
             return out[0]

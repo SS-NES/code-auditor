@@ -5,6 +5,7 @@ import json
 import pypandoc
 import re
 import yaml
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
@@ -94,6 +95,31 @@ def find_issue(msg: str) -> dict:
                 return issue
         elif msg == issue['name']:
             return issue
+
+
+def serialize(val, key: str=None):
+    """Serializes value.
+
+    Args:
+        val: Value
+        key (str): Value key (optional)
+
+    Returns:
+        Serialized value.
+    """
+    if isinstance(val, Path):
+        return str(val)
+
+    if isinstance(val, datetime):
+        return val.isoformat(timespec='seconds')
+
+    elif isinstance(val, dict):
+        return {key: serialize(item) for key, item in val.items()}
+
+    elif isinstance(val, list):
+        return [serialize(item) for item in val]
+
+    return val
 
 
 class Report:
@@ -252,7 +278,7 @@ class Report:
             Report dictionary.
         """
         def _serialize(item: dict, key: str=None, plain: bool=False) -> dict:
-            val = Metadata.serialize(item['val'], key)
+            val = serialize(item['val'], key)
 
             if plain:
                 return val
@@ -274,13 +300,13 @@ class Report:
         metadata = {}
         for key in self.metadata.keys():
             if plain:
-                metadata[key] = self.metadata.get(key, plain=True, serialize=True)
+                metadata[key] = serialize(self.metadata.get(key, plain=True), key)
             else:
                 metadata[key] = [_serialize(item, key) for item in self.metadata.get(key)]
 
         out = {
             'metadata': metadata,
-            'stats': Metadata.serialize(self.stats),
+            'stats': serialize(self.stats),
         }
 
         for type in MessageType:
@@ -415,7 +441,7 @@ class Report:
             out += "\n\n----\n\n"
             out += "| Created by `CodeScanner <https://github.com/SS-NES/codescanner>`_ v{} on {}.\n".format(
                 self.stats['version'],
-                Metadata.serialize(self.stats['date'])
+                serialize(self.stats['date'])
             )
             out += "| {} directories and {} files were analysed, {} directories were skipped.\n".format(
                 self.stats['num_dirs'],
@@ -446,7 +472,7 @@ class Report:
             if format in [OutputType.RTF, OutputType.DOCX]:
                 # Create path if required
                 if not path:
-                    date = Metadata.serialize(self.stats['date']).replace(':', '-')
+                    date = serialize(self.stats['date']).replace(':', '-')
                     path = f"report_{date}.{format.value}"
 
                 # Save output file
