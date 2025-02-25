@@ -27,6 +27,15 @@ class MessageType(Enum):
     ISSUE = 5
     """A problem that needs to be fixed."""
 
+    def get_plural_name(self) -> str:
+        return {
+            1: "Information",
+            2: "Suggestions",
+            3: "Notices",
+            4: "Warnings",
+            5: "Issues",
+        }[self.value]
+
 
 class OutputType(Enum):
     """Output type."""
@@ -195,6 +204,7 @@ class Report:
         # Version control system of the software.
         'version_control',
     ]
+
 
     def __init__(self, path: Path):
         """Initializes analysis report object.
@@ -605,16 +615,25 @@ class Report:
             )
             out += "\n"
 
-            # Output issues
-            out += "Issues\n"
-            out += "------\n\n"
+            # Output messages
+            for type in MessageType:
 
-            if self.messages[MessageType.ISSUE]:
-                for item in self.messages[MessageType.ISSUE]:
-                    out += self.output_message(item) + "\n"
+                if level.value > type.value:
+                    continue
 
-            else:
-                out += "No issues found.\n"
+                if not self.messages[type] and type != MessageType.ISSUE:
+                    continue
+
+                title = type.get_plural_name()
+                out += title + "\n"
+                out += ("-" * len(title)) + "\n\n"
+
+                if self.messages[type]:
+                    for item in self.messages[type]:
+                        out += self.output_message(item) + "\n"
+
+                elif type == MessageType.ISSUE:
+                    out += "No issues found.\n\n"
 
             # Output analyser results
             for analyser, results in self.results.items():
