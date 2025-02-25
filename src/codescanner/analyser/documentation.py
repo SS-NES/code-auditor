@@ -54,10 +54,10 @@ class Documentation(Analyser):
 
     @classmethod
     def analyse_file(cls, path: Path, report: Report) -> dict:
-        """Analyses a git file.
+        """Analyses a documentation file.
 
         Args:
-            path (Path): Path of the git file.
+            path (Path): Path of the documentation file.
             report (Report): Analyse report.
 
         Returns:

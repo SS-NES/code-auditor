@@ -1,4 +1,5 @@
 """Git version control analyser module."""
+import git
 from pathlib import Path
 
 from . import Analyser, AnalyserType
@@ -75,4 +76,32 @@ class Git(Analyser):
         Returns:
             Dictionary of the analysis results.
         """
+        pass
+
+
+    @classmethod
+    def analyse_file(cls, path: Path, report: Report) -> dict:
+        """Analyses a git file.
+
+        Args:
+            path (Path): Path of the git file.
+            report (Report): Analyse report.
+
+        Returns:
+            Dictionary of the analysis results.
+        """
+        try:
+            repo = git.Repo(path)
+
+        except git.exc.InvalidGitRepositoryError as err:
+            report.add_warning(cls, "Invalid git repository.", path)
+            return
+
+        # Set version control metadata
         report.add_metadata(cls, 'version_control', 'git', path)
+
+        # Set code repository URL address metadata if remote repository exists
+        for remote in repo.remotes:
+
+            if remote.name == 'origin':
+                report.add_metadata(cls, 'repository_code', remote.url, path)
