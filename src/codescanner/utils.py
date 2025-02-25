@@ -18,6 +18,8 @@ def get_class_name(cls) -> str:
 def get_subclasses(cls) -> dict:
     """Returns available subclasses of the parent class.
 
+    Subclasses with abstract methods are skipped.
+
     Args:
         cls (object): Parent class.
 
@@ -32,7 +34,7 @@ def get_subclasses(cls) -> dict:
 
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
-            if issubclass(obj, cls) and obj is not cls:
+            if issubclass(obj, cls) and obj is not cls and not obj.__abstractmethods__:
                 subclasses[get_class_name(obj)] = obj
 
     return subclasses
