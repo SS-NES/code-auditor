@@ -22,6 +22,8 @@ class AnalyserType(Enum):
     """Software documentation."""
     LICENSE = "License"
     """Software licensing."""
+    METADATA = "Metadata"
+    """Metadata."""
     PACKAGING = "Packaging"
     """Software packaging."""
     REPOSITORY = "Repository"
