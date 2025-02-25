@@ -10,6 +10,7 @@ import zipfile
 import codescanner
 from .analyser import AnalyserType
 from .report import OutputType, MessageType
+from .utils import get_class_name
 
 
 import logging
@@ -42,7 +43,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-analyser',
     type = click.Choice(
-        codescanner.get_analysers().keys(),
+        [get_class_name(cls) for cls in codescanner.get_analysers()],
         case_sensitive = False
     ),
     multiple = True,
@@ -51,7 +52,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-aggregator',
     type = click.Choice(
-        codescanner.get_aggregators().keys(),
+        [get_class_name(cls) for cls in codescanner.get_aggregators()],
         case_sensitive=False
     ),
     multiple = True,

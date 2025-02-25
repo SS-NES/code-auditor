@@ -23,6 +23,12 @@ class Aggregator(ABC):
 
 
     @classmethod
+    def get_rank(cls) -> int:
+        """Returns aggregator rank."""
+        return 1
+
+
+    @classmethod
     @abstractmethod
     def aggregate(cls, report: Report, results: dict) -> dict:
         """Returns aggregated analysis results of the analyser results.

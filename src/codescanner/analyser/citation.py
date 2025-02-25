@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 
 from . import Analyser, AnalyserType
-from ..report import Report, is_empty
+from ..report import Report
 
 
 VALID_ATTRS = [
@@ -157,7 +157,7 @@ class Citation(Analyser):
                 out[key] = val
 
         out = {}
-        metadata = report.get_metadata_as_dict()
+        metadata = report.metadata.as_dict()
 
         # Abstract
         _set('abstract', metadata.get('description'))

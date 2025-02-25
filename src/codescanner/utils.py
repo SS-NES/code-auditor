@@ -19,7 +19,7 @@ def get_class_name(cls) -> str:
     return REGEXP_SNAKE_CASE.sub('_', cls.__qualname__).lower()
 
 
-def get_subclasses(cls) -> dict:
+def get_subclasses(cls) -> list:
     """Returns available subclasses of the parent class.
 
     Subclasses with abstract methods are skipped.
@@ -28,9 +28,9 @@ def get_subclasses(cls) -> dict:
         cls (object): Parent class.
 
     Returns:
-        Dictionary of the available subclasses (name: class).
+        List of the available subclasses.
     """
-    subclasses = {}
+    subclasses = []
 
     for _, name, _ in pkgutil.iter_modules([Path(inspect.getfile(cls)).parent]):
 
@@ -40,7 +40,7 @@ def get_subclasses(cls) -> dict:
 
             if issubclass(obj, cls) and obj is not cls:
                 if not obj.__abstractmethods__:
-                    subclasses[get_class_name(obj)] = obj
+                    subclasses.append(obj)
                 else:
                     logger.debug(f"{obj} has abstract methods, skipping.")
 

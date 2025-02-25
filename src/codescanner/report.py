@@ -9,6 +9,9 @@ from enum import Enum
 from pathlib import Path
 from datetime import datetime
 
+from .metadata import Metadata
+from .utils import get_class_name
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -94,50 +97,6 @@ def find_issue(msg: str) -> dict:
             return issue
 
 
-def is_empty(val) -> bool:
-    """Checks if value is empty.
-
-    Args:
-        val: Value
-
-    Returns:
-        True if value is empty, False otherwise.
-    """
-    if val is None:
-        return True
-
-    if isinstance(val, str) and val.strip() == '':
-        return True
-
-    if isinstance(val, dict) or isinstance(val, list):
-        for item in val:
-            if not is_empty(item):
-                return False
-        return True
-
-    return False
-
-
-def is_list(items: list[dict]) -> bool:
-    """Checks if items contain a list.
-
-    Args:
-        items (list[dict]): Items
-
-    Returns:
-        True if items contain a list, False otherwise.
-    """
-    ids = set()
-
-    for item in items:
-        if item['id'] in ids:
-            return True
-
-        ids.add(item['id'])
-
-    return False
-
-
 class Report:
     """Analysis report class.
 
@@ -154,7 +113,7 @@ class Report:
     Attributes:
         path (Path): Path of the code base.
         messages (dict): List of messages.
-        metadata (dict): Metadata.
+        metadata (Metadata): Metadata.
         results (dict): Analyser results (analyser: result).
         stats (dict): Statistics.
 
@@ -166,45 +125,6 @@ class Report:
     REGEXP_DOI = re.compile(r"10\.\d{4,9}/[-._;()/:a-z\d]+", re.IGNORECASE)
     REGEXP_URL = re.compile(r"((http|ftp)(s)?):\/\/(www\.)?[a-z\d@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-z\d@:%_\+.~#?&//=]*)", re.IGNORECASE)
 
-    METADATA = [
-        # Authors of the software.
-        'authors',
-        # Date the software has been released (YYYY-MM-DD).
-        'date_released',
-        # Description of the software.
-        'description',
-        # DOI of the software.
-        'doi',
-        # Keywords that describe the software.
-        'keywords',
-        # SPDX license identifier of the software.
-        'license',
-        # Name of the software license.
-        'license_name',
-        # File name of the software license.
-        'license_file',
-        # URL address of the software license.
-        'license_url',
-        # Long description of the software.
-        'long_description',
-        # Maintainers of the software.
-        'maintainers',
-        # Name of the software.
-        'name',
-        # List of dependency packages of the software (Python).
-        'python_dependencies',
-        # Readme of the software.
-        'readme',
-        # Readme file of the software.
-        'readme_file',
-        # URL of the source code repository of the software.
-        'repository_code',
-        # Version of the software.
-        'version',
-        # Version control system of the software.
-        'version_control',
-    ]
-
 
     def __init__(self, path: Path):
         """Initializes analysis report object.
@@ -214,86 +134,9 @@ class Report:
         """
         self.path = path
         self.messages = {type: [] for type in MessageType}
-        self.metadata = {}
+        self.metadata = Metadata()
         self.results = {}
         self.stats = {}
-        self.uid = 0
-
-
-    def validate_metadata(self, key: str, val):
-        """Validates metadata value.
-
-        Args:
-            key (str): Metadata attribute key.
-            val: Metadata attribute value.
-
-        Raises:
-            ValueError: If metadata value is invalid.
-        """
-        # Digital Object Identifier (DOI)
-        if key == 'doi':
-            if not re.fullmatch(Report.REGEXP_DOI, val):
-                raise ValueError("Invalid DOI.")
-
-        elif key in ['repository_code']:
-            if not re.fullmatch(Report.REGEXP_URL, val):
-                raise ValueError("Invalid URL address.")
-
-
-    def analyse_metadata(self):
-        # For each metadata attribute
-        for key, items in self.metadata.items():
-
-            # Skip if unique value
-            if len(items) < 2:
-                continue
-
-            # Check if it is a value list
-            if is_list(items):
-                continue
-
-            for item in items[1:]:
-                if item['val'] == items[0]['val']:
-                    continue
-
-                self.add_issue(
-                    self,
-                    f"Multiple values exists for {key}.",
-                    [items[0]['path'], item['path']]
-                )
-
-
-    def has_metadata(self, key: str) -> bool:
-        """Checks is metadata attribute value exists.
-
-        Args:
-            key (str): Metadata attribute key.
-
-        Returns:
-            True if metadata attribute value exists, False otherwise.
-        """
-        return True if key in self.metadata else False
-
-
-    def get_metadata(self, key: str):
-        """Returns a metadata attribute value.
-
-        Args:
-            key (str): Metadata attribute key.
-
-        Returns:
-            First metadata attribute value if exists, None otherwise.
-        """
-        return self.metadata[key][0]['val'] if key in self.metadata else None
-
-
-    def get_metadata_as_dict(self) -> dict:
-        """Returns metadata as a dictionary.
-
-        Returns:
-            Metadata dictionary.
-        """
-        return {key: items[0]['val'] for key, items in self.metadata.items()}
 
 
     def add_metadata(self, analyser, key: str, val, path: Path=None):
@@ -305,38 +148,7 @@ class Report:
             val: Metadata attribute value(s).
             path (Path): Path of the source file (optional).
         """
-        # Return if empty value
-        if is_empty(val):
-            return
-
-        # Initialize metadata list if required
-        if key not in self.metadata:
-            self.metadata[key] = []
-
-        # Increase id counter
-        self.uid += 1
-
-        # For each value
-        for _val in val if isinstance(val, list) else [val]:
-
-            # Skip if empty value
-            if is_empty(val):
-                continue
-
-            # Validate value
-            try:
-                self.validate_metadata(key, _val)
-
-            except Exception as err:
-                self.add_issue(analyser, key, str(err), path)
-
-            # Add value to metadata list
-            self.metadata[key].append({
-                'val': _val,
-                'analyser': analyser,
-                'path': Path(path) if isinstance(path, str) else path,
-                'id': self.uid,
-            })
+        self.metadata.add(analyser, key, val, path)
 
 
     def add_message(self, type: MessageType, analyser, msg: str, path: Path | list[Path]=None):
@@ -427,10 +239,10 @@ class Report:
             metadata (dict): Reference metadata.
         """
         for key, val in metadata:
-            if key not in self.metadata:
+            if not self.metadata.has(key):
                 pass
 
-        for key, items in self.metadata:
+        for key in self.metadata.keys():
             if key not in metadata:
                 self.add_issue(self, f"Missing metadata attribute {key}.")
 
@@ -486,12 +298,12 @@ class Report:
 
             return {
                 'val': self.serialize(item['val'], key),
-                'analyser': item['analyser'].get_name(),
+                'analyser': get_class_name(item['analyser']),
                 'path': path,
             }
 
         metadata = {}
-        for key, items in self.metadata.items():
+        for key in self.metadata.keys():
             metadata[key] = [_serialize(item, key) for item in items]
             if plain:
                 metadata[key] = self.output_metadata(metadata[key], key)
@@ -553,20 +365,18 @@ class Report:
         return out
 
 
-    def output_metadata(self, items: list, key: str=None, one: bool=False, default: str=None) -> str:
+    def output_metadata(self, items: list, key: str=None) -> str:
         """Generates metadata output.
 
         Args:
             items (list): Metadata attribute items.
             key (str): Metadata attribute key (optional).
-            one (bool): Set True to return a single attribute value (default = False)
-            default (str): Default value if no attribute items (optional)
 
         Returns:
             Metadata output.
         """
         if not items:
-            return default
+            return
 
         out = []
 
@@ -575,7 +385,7 @@ class Report:
             if item['val'] not in out:
                 out.append(item['val'])
 
-        if is_list(items) or (not one and len(out) > 1):
+        if is_list(items) or len(out) > 1:
             return out
 
         return out.pop()
@@ -615,7 +425,7 @@ class Report:
             out += self.output_heading("CodeScanner Analysis Report")
 
             out += "Code quality and conformity for software development best practices analysis report of {}.\n".format(
-                self.get_metadata('name') if self.has_metadata('name') else "Unnamed Software"
+                self.metadata.get('name') if self.metadata.has('name') else "Unnamed Software"
             )
             out += "The software is located at ``{}``.\n".format(
                 self.stats['path']
@@ -648,12 +458,18 @@ class Report:
             out += "Metadata\n"
             out += "--------\n\n"
 
-            if self.metadata:
-                for key, items in self.metadata.items():
-                    out += key + ": " + str(self.output_metadata(items, key))
-                    out += "\n\n"
+            keys = self.metadata.keys()
 
-            else:
+            for key in keys:
+                vals = self.metadata.get_all(key)
+                out += key + ": "
+                if self.metadata.is_list(key) or len(vals) > 1:
+                    out += str(vals)
+                else:
+                    out += str(vals.pop())
+                out += "\n\n"
+
+            if not keys:
                 out += "No metadata found.\n"
 
             # Output footer

@@ -10,7 +10,7 @@ from .rule import Rule
 from .analyser import Analyser
 from .aggregator import Aggregator
 from .report import Report
-from .utils import get_subclasses
+from .utils import get_class_name, get_subclasses
 
 
 import logging
@@ -21,62 +21,46 @@ __version__ = "0.1.0"
 
 
 @functools.cache
-def get_analysers() -> dict:
-    """Returns available analysers.
-
-    Returns:
-        Dictionary of the available analysers (id: class).
-
-    Examples:
-        >>> codescanner.get_analysers()
-        >>> {'license': <class 'codescanner.analyser.license.License'>, ...}
-    """
+def get_analysers() -> list:
+    """Returns list of available analysers."""
     return get_subclasses(Analyser)
 
 
 @functools.cache
-def get_aggregators() -> dict:
-    """Returns available aggregators.
-
-    Returns:
-        Dictionary of the available aggregators (id: class).
-
-    Examples:
-        >>> codescanner.get_aggregators()
-        >>> {'code': <class 'codescanner.aggregator.code.Code'>, ...}
-    """
+def get_aggregators() -> list:
+    """Returns list of available aggregators."""
     return get_subclasses(Aggregator)
 
 
-def _get_includes(path: Path, analysers: dict = None) -> dict:
+def _get_includes(path: Path, analysers: list = None) -> dict:
     items = {}
 
     if not analysers:
         analysers = get_analysers()
 
-    for id, analyser in analysers.items():
+    for analyser in analysers:
 
         for val in analyser.includes(path):
 
             if val not in items:
                 items[val] = Rule(val)
 
-            items[val].analysers.append(id)
+            items[val].analysers.append(analyser)
 
     return items
 
 
-def _get_excludes(path: Path, analysers: dict = None) -> dict:
+def _get_excludes(path: Path, analysers: list = None) -> dict:
     items = {}
 
     if not analysers:
         analysers = get_analysers()
 
-    for id, analyser in analysers.items():
+    for analyser in analysers:
 
         for val in analyser.excludes(path):
 
-            rule = Rule(val, id)
+            rule = Rule(val, analyser)
 
             if not rule.is_dir:
                 raise ValueError("Invalid exclusion rule.", val)
@@ -86,9 +70,11 @@ def _get_excludes(path: Path, analysers: dict = None) -> dict:
     return items
 
 
-def _filter(items: dict, skip: list[str] = None, skip_type: list[str] = None) -> dict:
-    _items = {}
-    for name, item in items.items():
+def _filter(items: list, skip: list[str] = None, skip_type: list[str] = None) -> list:
+    filtered = []
+
+    for item in items:
+        name = get_class_name(item)
 
         if skip and name in skip:
             continue
@@ -96,9 +82,9 @@ def _filter(items: dict, skip: list[str] = None, skip_type: list[str] = None) ->
         if skip_type and item.get_type().name.lower() in skip_type:
             continue
 
-        _items[name] = item
+        filtered.append(item)
 
-    return _items
+    return filtered
 
 
 def analyse(
@@ -175,12 +161,12 @@ def analyse(
 
                 if rule.match(relpath if rule.is_nested else dir):
 
-                    for id in rule.analysers:
+                    for analyser in rule.analysers:
 
-                        if id not in _files:
-                            _files[id] = []
+                        if analyser not in _files:
+                            _files[analyser] = []
 
-                        _files[id].append(relpath)
+                        _files[analyser].append(relpath)
 
             for _, rule in excludes.items():
 
@@ -205,33 +191,33 @@ def analyse(
                 if rule.match(relpath if rule.is_nested else file):
                     stats['num_files'] += 1
 
-                    for id in rule.analysers:
+                    for analyser in rule.analysers:
 
-                        if id not in _files:
-                            _files[id] = []
+                        if analyser not in _files:
+                            _files[analyser] = []
 
-                        _files[id].append(relpath)
+                        _files[analyser].append(relpath)
 
     report = Report(path)
     results = {}
 
     # For each analyser
-    for id, analyser in analysers.items():
+    for analyser in analysers:
 
         # Skip if no files are available for the analyser
-        if id not in _files:
+        if analyser not in _files:
             continue
 
         # Try to run the analyser
-        logger.debug(f"Running {id} analyser.")
+        logger.debug(f"Running {analyser.get_name()} analyser.")
         try:
-            result = analyser.analyse(path, _files[id], report)
+            result = analyser.analyse(path, _files[analyser], report)
             if not result:
                 continue
 
         # Skip if not implemented
         except NotImplementedError:
-            logger.debug(f"{id} analyser is not implemented.")
+            logger.debug(f"{analyser} analyse is not implemented.")
             continue
 
         # Set results
@@ -244,13 +230,13 @@ def analyse(
         results[type].update(result)
 
     # For each aggregator
-    for id, aggregator in aggregators.items():
+    for aggregator in aggregators:
 
         # Get aggregator type
         type = aggregator.get_type()
 
         # Try to run the aggregator
-        logger.debug(f"Running {id} aggregator.")
+        logger.debug(f"Running {aggregator.get_name()} aggregator.")
         try:
             result = aggregator.aggregate(report, results.get(type, {}))
             if not result:
@@ -258,14 +244,11 @@ def analyse(
 
         # Skip if not implemented
         except NotImplementedError:
-            logger.debug(f"{id} aggregator is not implemented.")
+            logger.debug(f"{aggregator} aggregate is not implemented.")
             continue
 
         # Set results
         report.results[aggregator] = result
-
-    # Analyse metadata
-    report.analyse_metadata()
 
     # Set statistics
     stats['end_date'] = datetime.now()
