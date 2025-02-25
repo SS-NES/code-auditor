@@ -157,9 +157,7 @@ class Citation(Analyser):
                 out[key] = val
 
         out = {}
-        metadata = {}
-        for key in report.metadata.keys():
-            metadata[key] = report.metadata.get(key, plain=True, first=True)
+        metadata = report.metadata.as_dict()
 
         # Abstract
         _set('abstract', metadata.get('description'))
@@ -189,7 +187,7 @@ class Citation(Analyser):
         _set('license-url', metadata.get('license_url'))
 
         # Message
-        if report.metadata.has('preferred_citation'):
+        if 'preferred_citation' in metadata:
             _set('message', "Please cite this software using the metadata from 'preferred-citation'.")
 
         else:

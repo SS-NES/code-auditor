@@ -30,23 +30,24 @@ class Metadata(Aggregator):
         # For each metadata attribute
         for key in report.metadata.keys():
 
-            # Get metadata attribute items
-            items = report.metadata.get(key)
+            # Get metadata attribute values
+            vals = report.metadata.get_all(key)
 
             # Skip if unique value
-            if len(items) < 2:
+            if len(vals) < 2:
                 continue
 
             # Check if it is a value list
             if report.metadata.is_list(key):
                 continue
 
-            for item in items[1:]:
-                if item['val'] == items[0]['val']:
-                    continue
+            # FIXME: Correct the validation loop
+            # for item in items[1:]:
+                # if item['val'] == items[0]['val']:
+                    # continue
 
-                report.add_issue(
-                    cls,
-                    f"Multiple values exists for {key}.",
-                    [items[0]['path'], item['path']]
-                )
+                # self.add_issue(
+                    # self,
+                    # f"Multiple values exists for {key}.",
+                    # [items[0]['path'], item['path']]
+                # )

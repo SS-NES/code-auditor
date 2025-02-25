@@ -1,14 +1,6 @@
 """Metadata module."""
-import re
-from datetime import datetime
 from pathlib import Path
 
-
-REGEXP_DOI = re.compile(r"10\.\d{4,9}/[-._;()/:a-z\d]+", re.IGNORECASE)
-"""Regular expression for DOI validation."""
-
-REGEXP_URL = re.compile(r"((http|ftp)(s)?):\/\/(www\.)?[a-z\d@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-z\d@:%_\+.~#?&//=]*)", re.IGNORECASE)
-"""Regular expression for URL validation."""
 
 METADATA = [
     # Authors of the software.
@@ -48,67 +40,38 @@ METADATA = [
     # Version control system of the software.
     'version_control',
 ]
-"""Metadata attributes."""
+
+
+def is_empty(val) -> bool:
+    """Checks if value is empty.
+
+    Args:
+        val: Value
+
+    Returns:
+        True if value is empty, False otherwise.
+    """
+    if val is None:
+        return True
+
+    if isinstance(val, str) and val.strip() == '':
+        return True
+
+    if isinstance(val, dict) or isinstance(val, list):
+        for item in val:
+            if not is_empty(item):
+                return False
+        return True
+
+    return False
 
 
 class Metadata:
     """Metadata class."""
 
-    @staticmethod
-    def is_empty(val) -> bool:
-        """Checks if value is empty.
-
-        Args:
-            val: Value
-
-        Returns:
-            True if value is empty, False otherwise.
-        """
-        if val is None:
-            return True
-
-        if isinstance(val, str) and val.strip() == '':
-            return True
-
-        if isinstance(val, dict) or isinstance(val, list):
-            for item in val:
-                if not Metadata.is_empty(item):
-                    return False
-            return True
-
-        return False
-
-
-    @staticmethod
-    def serialize(val, key: str=None):
-        """Serializes value.
-
-        Args:
-            val: Value
-            key (str): Value key (optional)
-
-        Returns:
-            Serialized value.
-        """
-        if isinstance(val, Path):
-            return str(val)
-
-        if isinstance(val, datetime):
-            return val.isoformat(timespec='seconds')
-
-        elif isinstance(val, dict):
-            return {key: Metadata.serialize(item) for key, item in val.items()}
-
-        elif isinstance(val, list):
-            return [Metadata.serialize(item) for item in val]
-
-        return val
-
-
     def __init__(self):
         self.uid = 0
         self.metadata = {}
-        self.lists = {}
 
 
     def keys(self) -> list[str]:
@@ -128,61 +91,54 @@ class Metadata:
         return True if key in self.metadata else False
 
 
-    def get(
-        self,
-        key: str,
-        plain: bool=False,
-        first: bool=False,
-        serialize: bool=False,
-        default=None
-    ):
-        """Returns metadata attribute values.
+    def get(self, key: str):
+        """Returns a metadata attribute value.
 
         Args:
             key (str): Metadata attribute key.
 
         Returns:
-            Metadata attribute values.
+            First metadata attribute value if exists, None otherwise.
+        """
+        return self.metadata[key][0]['val'] if key in self.metadata else None
+
+
+    def get_all(self, key: str) -> list:
+        """Returns all values of a metadata attribute.
+
+        Args:
+            key (str): Metadata attribute key.
+
+        Returns:
+            List of metadata attribute values.
         """
         if key not in self.metadata:
-            return default
+            return []
 
-        if first:
+        return [item['val'] for item in self.metadata[key]]
 
-            if self.is_list(key):
-                out = []
-                id = self.metadata[key][0]['id']
 
-                for item in self.metadata[key]:
-                    if item['id'] != id:
-                        break
-                    out.append(item['val'] if plain else item)
+    def is_list(self, key: str) -> bool:
+        """Checks if metadata attribute is a list.
 
-                if not plain or not serialize:
-                    return out
+        Args:
+            key (str): Metadata attribute key.
 
-                return [Metadata.serialize(val, key) for val in out]
+        Returns:
+            True if metadata attribute is a list, False otherwise.
+        """
+        if key not in self.metadata:
+            return False
 
-            elif not plain:
-                return self.metadata[key][0]
+        ids = set()
 
-            else:
-                val = self.metadata[key][0]['val']
-                return Metadata.serialize(val, key) if serialize else val
-
-        if not plain:
-            return self.metadata[key]
-
-        out = []
         for item in self.metadata[key]:
-            val = Metadata.serialize(item['val'], key) if serialize else item['val']
-            if val not in out:
-                out.append(val)
+            if item['id'] in ids:
+                return True
 
-        if not self.is_list(key) and len(out) < 2:
-            return out[0]
+            ids.add(item['id'])
 
-        return out
+        return False
 
 
     def add(self, analyser, key: str, val, path: Path=None):
@@ -195,7 +151,7 @@ class Metadata:
             path (Path): Path of the source file (optional).
         """
         # Return if empty value
-        if Metadata.is_empty(val):
+        if is_empty(val):
             return
 
         # Initialize metadata list if required
@@ -205,40 +161,20 @@ class Metadata:
         # Increase id counter
         self.uid += 1
 
-        # Check if value is a list
-        if isinstance(val, list):
-            vals = val
-            self.lists[key] = True
-
-        else:
-            vals = [val]
-
         # For each value
-        for val in vals:
+        for _val in val if isinstance(val, list) else [val]:
 
             # Skip if empty value
-            if Metadata.is_empty(val):
+            if is_empty(val):
                 continue
 
             # Add value to metadata list
             self.metadata[key].append({
-                'val': val,
+                'val': _val,
                 'analyser': analyser,
                 'path': Path(path) if isinstance(path, str) else path,
                 'id': self.uid,
             })
-
-
-    def is_list(self, key: str) -> bool:
-        """Checks is metadata attribute is a list.
-
-        Args:
-            key (str): Metadata attribute key
-
-        Returns:
-            True if metadata attribute is a list, False otherwise.
-        """
-        return self.lists.get(key) == True
 
 
     def validate(self, key: str, val):
@@ -253,9 +189,18 @@ class Metadata:
         """
         # Digital Object Identifier (DOI)
         if key == 'doi':
-            if not re.fullmatch(REGEXP_DOI, val):
+            if not re.fullmatch(Report.REGEXP_DOI, val):
                 raise ValueError("Invalid DOI.")
 
         elif key in ['repository_code']:
-            if not re.fullmatch(REGEXP_URL, val):
+            if not re.fullmatch(Report.REGEXP_URL, val):
                 raise ValueError("Invalid URL address.")
+
+
+    def as_dict(self) -> dict:
+        """Returns metadata as a dictionary.
+
+        Returns:
+            Metadata dictionary.
+        """
+        return {key: items[0]['val'] for key, items in self.metadata.items()}
