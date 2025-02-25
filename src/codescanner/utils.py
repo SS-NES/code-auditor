@@ -6,6 +6,10 @@ import re
 from pathlib import Path
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
 """Snake case conversion regular expression."""
 
@@ -34,7 +38,10 @@ def get_subclasses(cls) -> dict:
 
         for name, obj in inspect.getmembers(module, inspect.isclass):
 
-            if issubclass(obj, cls) and obj is not cls and not obj.__abstractmethods__:
-                subclasses[get_class_name(obj)] = obj
+            if issubclass(obj, cls) and obj is not cls:
+                if not obj.__abstractmethods__:
+                    subclasses[get_class_name(obj)] = obj
+                else:
+                    logger.debug(f"{obj} has abstract methods, skipping.")
 
     return subclasses
