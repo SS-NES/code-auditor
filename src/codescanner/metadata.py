@@ -50,33 +50,32 @@ METADATA = [
 """Metadata attributes."""
 
 
+def is_empty(val) -> bool:
+    """Checks if value is empty.
+
+    Args:
+        val: Value
+
+    Returns:
+        True if value is empty, False otherwise.
+    """
+    if val is None:
+        return True
+
+    if isinstance(val, str) and val.strip() == '':
+        return True
+
+    if isinstance(val, dict) or isinstance(val, list):
+        for item in val:
+            if not is_empty(item):
+                return False
+        return True
+
+    return False
+
+
 class Metadata:
     """Metadata class."""
-
-    @staticmethod
-    def is_empty(val) -> bool:
-        """Checks if value is empty.
-
-        Args:
-            val: Value
-
-        Returns:
-            True if value is empty, False otherwise.
-        """
-        if val is None:
-            return True
-
-        if isinstance(val, str) and val.strip() == '':
-            return True
-
-        if isinstance(val, dict) or isinstance(val, list):
-            for item in val:
-                if not Metadata.is_empty(item):
-                    return False
-            return True
-
-        return False
-
 
     def __init__(self):
         self.uid = 0
@@ -162,7 +161,7 @@ class Metadata:
             path (Path): Path of the source file (optional).
         """
         # Return if empty value
-        if Metadata.is_empty(val):
+        if is_empty(val):
             return
 
         # Initialize metadata list if required
@@ -184,7 +183,7 @@ class Metadata:
         for val in vals:
 
             # Skip if empty value
-            if Metadata.is_empty(val):
+            if is_empty(val):
                 continue
 
             # Add value to metadata list
