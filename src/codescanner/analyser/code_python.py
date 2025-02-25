@@ -4,7 +4,6 @@ import docstring_parser
 import sys
 from pathlib import Path
 
-from . import Analyser, AnalyserType
 from .code import Code
 from ..report import Report
 
