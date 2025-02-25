@@ -125,7 +125,7 @@ PATH_TYPES = [
         max = MessageType.ISSUE.value,
         clamp = True
     ),
-    default = MessageType.NOTICE.value,
+    default = MessageType.INFO.value,
     help = "Message level.",
 )
 # Development options
