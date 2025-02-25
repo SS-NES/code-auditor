@@ -153,7 +153,7 @@ class Citation(Analyser):
     @classmethod
     def create_citation(cls, report, path: Path='CITATION.cff'):
         def _set(key, val):
-            if not is_empty(val):
+            if val is not None:
                 out[key] = val
 
         out = {}
