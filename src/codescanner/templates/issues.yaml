@@ -1,6 +1,9 @@
 - name: No citation file.
-  suggestion: You can create a citation file by using
-    `CFF Init <https://citation-file-format.github.io/>`_.
+  suggestion: A citation file is a plain text file with human- and
+    machine-readable citation information for software. You can include one to
+    your code base to let others know how to correctly cite your software.
+    You can read more on the Citation File Format at
+    https://citation-file-format.github.io/.
 
 - name: Multiple license files found.
   suggestion: Keep only one of the license files and remove the others.
@@ -22,3 +25,25 @@
   suggestion: Set the license identifier to the one that corresponds to the
     license file. You can find the list of license identifiers at the
     `SPDX License List <https://spdx.org/licenses/>`_.
+
+- match: No code of conduct.
+  suggestion: A code of conduct is a document that establishes expectations for
+    behavior for your project's participants. Adopting, and enforcing, a code
+    of conduct can help create a positive social atmoshpere for your community.
+    You can read more on code of conduct at `Open Source Guides
+    <https://opensource.guide/code-of-conduct/>`_, and use the `Contributor
+    Covenant <https://www.contributor-covenant.org/>`_ as a template for your
+    own.
+
+- match: No contributing guidelines.
+  suggestion: Contributing guidelines in a document describing how other may
+    contribute to your software project. The document explains how anyone
+    can engage in activities such as formatting code for submission or
+    submitting patches. You can read more on how to build a contributing
+    guidelines on `Mozilla Science Lab
+    <https://mozillascience.github.io/working-open-workshop/contributing/>`_.
+
+- match: Multiple values exists for .+.
+  suggestion: Choose one of the values listed for the attribute in the Metadata
+    section below and update the specified files accordingly to ensure
+    consistency.

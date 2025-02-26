@@ -48,10 +48,7 @@ class Community(Analyser):
             return
 
         if re.search(r'CONTRIBUTING', path.name, re.IGNORECASE):
-            report.add_notice(cls, "Contributing guidelines exists.", path)
             report.add_metadata(cls, 'contributing_file', path.relative_to(report.path), path)
 
         elif re.search(r'CONDUCT', path.name, re.IGNORECASE):
-            report.add_notice(cls, "Code of conduct exists.", path)
             report.add_metadata(cls, 'conduct_file', path.relative_to(report.path), path)
-

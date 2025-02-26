@@ -25,4 +25,4 @@ class Citation(Aggregator):
             report.add_issue(cls, "No citation file.")
 
         else:
-            report.add_notice(cls, "Citation file found.")
+            report.add_notice(cls, "Citation file exists.")

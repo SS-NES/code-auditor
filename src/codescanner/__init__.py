@@ -212,8 +212,6 @@ def analyse(
         logger.debug(f"Running analyser {analyser}.")
         try:
             result = analyser.analyse(path, _files[analyser], report)
-            if not result:
-                continue
 
         # Skip if not implemented
         except NotImplementedError:
