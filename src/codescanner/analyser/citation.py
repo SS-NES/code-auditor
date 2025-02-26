@@ -119,7 +119,7 @@ class Citation(Analyser):
 
         # Process attributes
         metadata_keys = {
-            'abstract': 'description',
+            'abstract': 'long_description',
             'date-released': 'date_released',
             'doi': 'doi',
             'keywords': 'keywords',
