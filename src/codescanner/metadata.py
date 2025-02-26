@@ -123,9 +123,11 @@ class Metadata:
 
         if first:
 
+            item = self.metadata[key][0]
+
             if self.is_list(key):
                 out = []
-                id = self.metadata[key][0]['id']
+                id = item['id']
 
                 for item in self.metadata[key]:
                     if item['id'] != id:
@@ -135,10 +137,10 @@ class Metadata:
                 return out
 
             elif not plain:
-                return self.metadata[key][0]
+                return item
 
             else:
-                return self.metadata[key][0]['val']
+                return item['val']
 
         if not plain:
             return self.metadata[key]
@@ -190,12 +192,15 @@ class Metadata:
                 continue
 
             # Add value to metadata list
-            self.metadata[key].append({
+            item = {
                 'val': val,
                 'analyser': analyser,
                 'path': Path(path) if isinstance(path, str) else path,
                 'id': self.uid,
-            })
+            }
+
+            if item not in self.metadata[key]:
+                self.metadata[key].append(item)
 
 
     def is_list(self, key: str) -> bool:
