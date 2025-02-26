@@ -33,6 +33,14 @@ class Metadata(Aggregator):
             # Get metadata attribute items
             items = report.metadata.get(key)
 
+            # Validate items
+            for item in items:
+                try:
+                    report.metadata.validate(key, item['val'])
+
+                except ValueError as err:
+                    report.add_issue(cls, f"{key}: {err}", item['path'])
+
             # Skip if unique value
             if len(items) < 2:
                 continue
