@@ -106,7 +106,9 @@ class Analyser(Processor):
             logger.debug(f"Analysing `{file}`.")
             path = root / file
             try:
-                results[path] = cls.analyse_file(path, report)
+                result = cls.analyse_file(path, report)
+                if result is not False:
+                    results[path] = result
 
             except NotImplementedError:
                 logger.debug(f"{cls} file analyser is not implemented.")
