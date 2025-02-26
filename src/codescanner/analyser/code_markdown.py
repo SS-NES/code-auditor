@@ -14,9 +14,9 @@ class CodeMarkdown(Code):
     """Markdown code analyser class."""
 
     @classmethod
-    def get_languages(cls) -> list[str]:
-        """Returns list of languages supported by the analyser."""
-        return ['markdown']
+    def get_language(cls) -> str:
+        """Returns language supported by the analyser."""
+        return 'markdown'
 
 
     @classmethod

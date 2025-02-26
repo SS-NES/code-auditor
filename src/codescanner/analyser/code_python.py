@@ -102,9 +102,9 @@ class CodePython(Code):
     """Python code analyser class."""
 
     @classmethod
-    def get_languages(cls) -> list[str]:
-        """Returns list of languages supported by the analyser."""
-        return ['python']
+    def get_language(cls) -> str:
+        """Returns language supported by the analyser."""
+        return 'python'
 
 
     @classmethod

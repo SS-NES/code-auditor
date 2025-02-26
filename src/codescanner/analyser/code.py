@@ -22,8 +22,8 @@ class Code(Analyser):
 
     @classmethod
     @abstractmethod
-    def get_languages(cls) -> list[str]:
-        """Returns list of languages supported by the analyser."""
+    def get_language(cls) -> str:
+        """Returns language supported by the analyser."""
         raise NotImplementedError
 
 
@@ -40,7 +40,7 @@ class Code(Analyser):
         """
         return [
             analyser for analyser in get_analysers()
-            if lang in analyser.get_languages()
+            if hasattr(analyser, 'get_language') and lang == analyser.get_language()
         ]
 
 
