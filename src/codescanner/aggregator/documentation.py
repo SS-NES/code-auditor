@@ -27,3 +27,10 @@ class Documentation(Aggregator):
         else:
             report.add_notice(cls, "Documentation exists.")
 
+        # Check if changelog exists
+        if report.metadata.has('changelog_file'):
+            report.add_notice(cls, "Changelog file exists.")
+
+        else:
+            report.add_issue(cls, "No changelog file.")
+

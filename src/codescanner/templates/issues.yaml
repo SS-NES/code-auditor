@@ -47,3 +47,9 @@
   suggestion: Choose one of the values listed for the attribute in the Metadata
     section below and update the specified files accordingly to ensure
     consistency.
+
+- match: No notice file.
+  suggestion: A notice file serves to provide attribution, legal notices, and
+    licensing information required by third-party dependencies. It is primarily
+    used to comply with attribution requirements of certain licenses (e.g.,
+    Apache 2.0) when redistributing software that includes third-party code.

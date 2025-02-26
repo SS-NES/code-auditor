@@ -31,3 +31,6 @@ class Community(Aggregator):
             report.add_notice(cls, "Code of conduct exists.")
         else:
             report.add_issue(cls, "No code of conduct.")
+
+        if report.metadata.has('notice_file'):
+            report.add_notice(cls, "Notice file exists.")
