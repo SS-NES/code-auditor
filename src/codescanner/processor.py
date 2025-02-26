@@ -78,7 +78,7 @@ class Processor(ABC):
 
             for name, obj in inspect.getmembers(module, inspect.isclass):
 
-                if issubclass(obj, cls) and obj is not cls:
+                if issubclass(obj, cls) and obj is not cls and obj not in subclasses:
                     if not obj.__abstractmethods__:
                         subclasses.append(obj)
                     else:
