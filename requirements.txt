@@ -3,5 +3,6 @@ docstring_parser
 gitpython
 jinja2
 pip-requirements-parser
+pymarkdownlnt
 pypandoc
 pyyaml
