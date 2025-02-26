@@ -51,4 +51,7 @@ def get_subclasses(cls) -> list:
                 else:
                     logger.debug(f"{obj} has abstract methods, skipping.")
 
+    if callable(getattr(cls, 'get_rank', None)):
+        subclasses.sort(key = lambda item: item.get_rank())
+
     return subclasses

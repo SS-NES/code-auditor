@@ -14,6 +14,12 @@ class Metadata(Aggregator):
 
 
     @classmethod
+    def get_rank(cls) -> int:
+        """Returns aggregator rank."""
+        return 10
+
+
+    @classmethod
     def aggregate(cls, report: Report, results: dict):
         """Aggregates available analysis results.
 
