@@ -224,7 +224,7 @@ def analyse(
         if type not in results:
             results[type] = {}
 
-        results[type].update(result)
+        results[type][analyser] = result
 
     # For each aggregator
     for aggregator in aggregators:

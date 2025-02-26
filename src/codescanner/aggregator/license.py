@@ -25,13 +25,17 @@ class License(Aggregator):
             report.add_issue(cls, "No license file.")
             return
 
-        if len(results) > 1:
-            report.add_issue(cls, "Multiple license files found.", results.keys())
+        report.add_notice(cls, "License file exists.")
 
-        else:
-            report.add_notice(cls, "License file exists.")
+        count = 0
+        for analyser, items in results.items():
+            count += len(items)
+            for path, item in items.items():
+                report.metadata.add(cls, 'license_file', path.relative_to(report.path), path)
+                report.metadata.add(cls, 'license', item['ids'][0], path)
 
-        for path, item in results.items():
-            report.metadata.add(cls, 'license_file', path.relative_to(report.path), path)
-            report.metadata.add(cls, 'license', item['ids'][0], path)
+        if count > 1:
+            report.add_issue(cls, "Multiple license files found.", files.keys())
+
+
 
