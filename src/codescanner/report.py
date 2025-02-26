@@ -422,7 +422,7 @@ class Report:
             # Output header
             out += self.output_heading("CodeScanner Analysis Report")
 
-            out += "Code quality and conformity for software development best practices analysis report of {}.\n".format(
+            out += "Analysis report on code quality and conformity to software development best practices for **{}**.\n".format(
                 self.metadata.get('name', plain=True, first=True, default="Unnamed Software")
             )
             out += "The software is located at ``{}``.\n".format(
@@ -447,6 +447,8 @@ class Report:
 
                 elif type == MessageType.ISSUE:
                     out += "No issues found.\n\n"
+
+                out += "\n"
 
             # Output processor results
             for processor, results in self.results.items():
