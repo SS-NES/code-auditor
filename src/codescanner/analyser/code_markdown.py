@@ -6,6 +6,10 @@ from .code import Code
 from ..report import Report
 
 
+import logging
+logging.getLogger('pymarkdown').setLevel(logging.CRITICAL)
+
+
 class CodeMarkdown(Code):
     """Markdown code analyser class."""
 
@@ -60,8 +64,8 @@ class CodeMarkdown(Code):
         try:
             result = PyMarkdownApi().scan_string(content)
 
-        except PyMarkdownApiException as err:
-            report.add_warning(cls, err, path)
+        except Exception as err:
+            report.add_warning(cls, str(err), path)
             return
 
         return result
@@ -81,6 +85,10 @@ class CodeMarkdown(Code):
         out = ''
 
         for path, result in results.items():
+
+            if not result:
+                continue
+
             part = ''
 
             for item in result.scan_failures:
@@ -101,7 +109,7 @@ class CodeMarkdown(Code):
 
             if part:
                 out += report.output_heading(str(path.relative_to(report.path)), 3)
-                out += part
+                out += part + "\n"
 
         if out:
             out = report.output_heading("Markdown Files", 2) + out + "\n"
