@@ -1,6 +1,7 @@
 import click
 import git
 import json
+import locale
 import tarfile
 import tempfile
 import urllib.request
@@ -260,6 +261,9 @@ def main(
     if reference:
         reference_metadata = yaml.safe_load(reference)
         report.compare(reference_metadata)
+
+    # Set locale
+    locale.setlocale(locale.LC_ALL, 'en_US')
 
     # Generate output
     logger.debug(f"Using message level {MessageType(level)}")
