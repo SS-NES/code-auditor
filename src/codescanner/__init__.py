@@ -1,5 +1,5 @@
 """
-codescanner
+CodeScholar
 """
 import functools
 import os

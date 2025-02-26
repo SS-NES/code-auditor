@@ -8,7 +8,7 @@ import urllib.request
 import yaml
 import zipfile
 
-import codescanner
+import codescholar
 from .processor import ProcessorType
 from .report import OutputType, MessageType
 
@@ -44,7 +44,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-analyser',
     type = click.Choice(
-        [cls.get_class_name() for cls in codescanner.get_analysers()],
+        [cls.get_class_name() for cls in codescholar.get_analysers()],
         case_sensitive = False
     ),
     multiple = True,
@@ -53,7 +53,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-aggregator',
     type = click.Choice(
-        [cls.get_class_name() for cls in codescanner.get_aggregators()],
+        [cls.get_class_name() for cls in codescholar.get_aggregators()],
         case_sensitive=False
     ),
     multiple = True,
@@ -183,7 +183,7 @@ def main(
         logging.basicConfig(level=logging.DEBUG)
 
         for name in logging.root.manager.loggerDict:
-            if name.startswith('codescanner'):
+            if name.startswith('codescholar'):
                 logging.getLogger(name).setLevel(logging.DEBUG)
 
         logger.debug("Debugging enabled.")
@@ -246,7 +246,7 @@ def main(
             is_local = True
 
         # Generate analysis report
-        report = codescanner.analyse(
+        report = codescholar.analyse(
             path if is_local else tempdir.name,
             skip_analyser=skip_analyser,
             skip_aggregator=skip_aggregator,

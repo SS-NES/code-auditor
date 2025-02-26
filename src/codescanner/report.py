@@ -420,7 +420,7 @@ class Report:
             out = ''
 
             # Output header
-            out += self.output_heading("CodeScanner Analysis Report")
+            out += self.output_heading("Code Analysis Report")
 
             out += "Analysis report on code quality and conformity to software development best practices for **{}**.\n".format(
                 self.metadata.get('name', plain=True, first=True, default="Unnamed Software")
@@ -470,7 +470,7 @@ class Report:
 
             # Output footer
             out += "\n\n----\n\n"
-            out += "| Created by `CodeScanner <https://github.com/SS-NES/codescanner>`_ v{} on {}.\n".format(
+            out += "| Created by `CodeScholar <https://github.com/SS-NES/codescholar>`_ v{} on {}.\n".format(
                 self.stats['version'],
                 serialize(self.stats['date'])
             )
@@ -485,7 +485,7 @@ class Report:
 
             # Apply report template
             env = jinja2.Environment(
-                loader=jinja2.PackageLoader('codescanner'),
+                loader=jinja2.PackageLoader('codescholar'),
                 autoescape=jinja2.select_autoescape(),
                 trim_blocks=True
             )

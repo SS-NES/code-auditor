@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "CodeScanner"
+name = "CodeScholar"
 dynamic = ["version"]
 authors = [
     { name="Serkan Girgin", email="girgink@gmail.com" },
@@ -41,11 +41,11 @@ keywords = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/SS-NES/CodeScanner"
-Issues = "https://github.com/SS-NES/CodeScanner/issues"
+Homepage = "https://github.com/SS-NES/CodeScholar"
+Issues = "https://github.com/SS-NES/CodeScholar/issues"
 
 [project.scripts]
-codescanner = "codescanner.cli:main"
+codescholar = "codescholar.cli:main"
 
 [tool.hatch.version]
-path = "src/codescanner/__init__.py"
+path = "src/codescholar/__init__.py"
