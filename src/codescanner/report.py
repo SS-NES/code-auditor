@@ -155,18 +155,6 @@ class Report:
         self.stats = {}
 
 
-    def add_metadata(self, analyser, key: str, val, path: Path=None):
-        """Adds a metadata attribute.
-
-        Args:
-            analyser (Analyser): Analyser class.
-            key (str): Metadata attribute key.
-            val: Metadata attribute value(s).
-            path (Path): Path of the source file (optional).
-        """
-        self.metadata.add(analyser, key, val, path)
-
-
     def add_message(self, type: MessageType, analyser, msg: str, path: Path | list[Path]=None):
         """Adds a message.
 

@@ -66,7 +66,7 @@ class PackagingPython(Analyser):
 
             if isinstance(val, str):
                 file_path = path.parent / val
-                report.add_metadata(
+                report.metadata.add(
                     cls,
                     key + '_file',
                     file_path.relative_to(report.path),
@@ -78,7 +78,7 @@ class PackagingPython(Analyser):
             elif isinstance(val, dict):
                 if 'file' in val:
                     file_path = (path.parent / val['file'])
-                    report.add_metadata(
+                    report.metadata.add(
                         cls,
                         key + '_file',
                         file_path.relative_to(report.path),
@@ -88,7 +88,7 @@ class PackagingPython(Analyser):
                         report.add_issue(cls, f"{key}_file does not exist.", path)
 
                 if 'text' in val:
-                    report.add_metadata(cls, key, val['text'], path)
+                    report.metadata.add(cls, key, val['text'], path)
 
         try:
             data = tomllib.loads(content)
@@ -106,7 +106,7 @@ class PackagingPython(Analyser):
                 'version',
                 'keywords',
             ]:
-                report.add_metadata(cls, key, project.get(key), path)
+                report.metadata.add(cls, key, project.get(key), path)
 
             _set(project, 'readme')
 
@@ -131,12 +131,12 @@ class PackagingPython(Analyser):
                     report.add_issue(cls, f"Invalid {key}[{i+1}].", path)
 
                 if persons:
-                    report.add_metadata(cls, key, persons, path)
+                    report.metadata.add(cls, key, persons, path)
 
             for item in project.get('classifiers', []):
                 parts = [part.strip() for part in item.split('::')]
                 if parts[0] == 'License':
-                    report.add_metadata(cls, 'license_name', parts[-1], path)
+                    report.metadata.add(cls, 'license_name', parts[-1], path)
 
 
     @classmethod
@@ -170,7 +170,7 @@ class PackagingPython(Analyser):
                 'keywords',
             ]:
                 val = data['metadata'].get(key)
-                report.add_metadata(cls, key, val, path)
+                report.metadata.add(cls, key, val, path)
 
 
     @classmethod

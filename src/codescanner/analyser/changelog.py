@@ -42,4 +42,4 @@ class ChangeLog(Analyser):
             Dictionary of the analysis results.
         """
         if path:
-            report.add_metadata(cls, 'changelog_file', path.relative_to(report.path), path)
+            report.metadata.add(cls, 'changelog_file', path.relative_to(report.path), path)

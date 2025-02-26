@@ -169,4 +169,4 @@ class CodePython(Code):
         for path, result in results.items():
             modules.update(result['modules'])
 
-        report.add_metadata(cls, 'python_dependencies', sorted(list(modules)))
+        report.metadata.add(cls, 'python_dependencies', sorted(list(modules)))

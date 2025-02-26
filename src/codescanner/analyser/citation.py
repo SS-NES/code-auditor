@@ -141,7 +141,7 @@ class Citation(Analyser):
                 report.add_warning(cls, "License URL should be used only if there is no license identifier.")
 
             if key in metadata_keys:
-                report.add_metadata(cls, metadata_keys[key], val, path)
+                report.metadata.add(cls, metadata_keys[key], val, path)
 
 
     @classmethod

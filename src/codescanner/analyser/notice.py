@@ -42,4 +42,4 @@ class Notice(Analyser):
             Dictionary of the analysis results.
         """
         if path:
-            report.add_metadata(cls, 'notice_file', path.relative_to(report.path), path)
+            report.metadata.add(cls, 'notice_file', path.relative_to(report.path), path)

@@ -43,4 +43,4 @@ class Conduct(Analyser):
             Dictionary of the analysis results.
         """
         if path:
-            report.add_metadata(cls, 'conduct_file', path.relative_to(report.path), path)
+            report.metadata.add(cls, 'conduct_file', path.relative_to(report.path), path)

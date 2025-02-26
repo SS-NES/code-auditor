@@ -32,6 +32,6 @@ class License(Aggregator):
             report.add_notice(cls, "License file exists.")
 
         for path, item in results.items():
-            report.add_metadata(cls, 'license_file', path.relative_to(report.path), path)
-            report.add_metadata(cls, 'license', item['ids'][0], path)
+            report.metadata.add(cls, 'license_file', path.relative_to(report.path), path)
+            report.metadata.add(cls, 'license', item['ids'][0], path)
 

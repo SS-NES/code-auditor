@@ -92,10 +92,10 @@ class Git(Analyser):
             return
 
         # Set version control metadata
-        report.add_metadata(cls, 'version_control', 'git', path)
+        report.metadata.add(cls, 'version_control', 'git', path)
 
         # Set code repository URL address metadata if remote repository exists
         for remote in repo.remotes:
 
             if remote.name == 'origin':
-                report.add_metadata(cls, 'repository_code', remote.url, path)
+                report.metadata.add(cls, 'repository_code', remote.url, path)

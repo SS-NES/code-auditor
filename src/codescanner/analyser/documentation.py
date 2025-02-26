@@ -57,5 +57,5 @@ class Documentation(Analyser):
         Returns:
             Dictionary of the analysis results.
         """
-        report.add_metadata(cls, 'readme_file', path.relative_to(report.path), path)
+        report.metadata.add(cls, 'readme_file', path.relative_to(report.path), path)
         return super().analyse_file(path, report)
