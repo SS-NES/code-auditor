@@ -44,13 +44,13 @@ class CodeMarkdown(Code):
 
 
     @classmethod
-    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
-        """Analyses Markdown content.
+    def analyse_code(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses Markdown code.
 
         Args:
-            content (str): Markdown content.
+            content (str): Markdown code.
             report (Report): Analysis report.
-            path (Path): Path of the Markdown file (optional).
+            path (Path): Path of the file (optional).
 
         Returns:
             Dictionary of the analysis results.
@@ -62,7 +62,10 @@ class CodeMarkdown(Code):
             report.add_warning(cls, str(err), path)
             return
 
-        return result
+        return {
+            'scan_failures': result.scan_failures,
+            'pragma_errors': result.pragma_errors,
+        }
 
 
     @classmethod
@@ -85,7 +88,7 @@ class CodeMarkdown(Code):
 
             part = ''
 
-            for item in result.scan_failures:
+            for item in result['scan_failures']:
                 part += "* {}{} (Line {}).\n".format(
                     item.rule_description,
                     (" " + item.extra_error_information)
@@ -95,7 +98,7 @@ class CodeMarkdown(Code):
                     item.line_number
                 )
 
-            for item in result.pragma_errors:
+            for item in result['pragma_errors']:
                 part += "* {} (Line {}".format(
                     item.pragma_error,
                     item.line_number

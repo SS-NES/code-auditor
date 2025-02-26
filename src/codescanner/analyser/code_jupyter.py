@@ -50,8 +50,8 @@ class CodeJupyter(Code):
 
 
     @classmethod
-    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
-        """Analyses a Jupyter notebook content.
+    def analyse_code(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses Jupyter notebook.
 
         Results:
             nbformat (int): Notebook format version.
@@ -61,12 +61,12 @@ class CodeJupyter(Code):
         Args:
             content (str): Jupyter notebook content.
             report (Report): Analysis report.
-            path (Path): Path of the Jupyter notebook file (optional).
+            path (Path): Path of the file (optional).
 
         Returns:
             Dictionary of the analysis results.
         """
-        # Parese notebook content
+        # Parse notebook content
         content = json.loads(content)
 
         # Add warning if invalid notebook file

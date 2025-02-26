@@ -138,13 +138,13 @@ class CodePython(Code):
 
 
     @classmethod
-    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
-        """Analyses a Python code content.
+    def analyse_code(cls, content: str, report: Report, path: Path=None) -> dict:
+        """Analyses Python code.
 
         Args:
-            content (str): Python code content.
+            content (str): Python code.
             report (Report): Analysis report.
-            path (Path): Path of the Python file (optional).
+            path (Path): Path of the file (optional).
 
         Returns:
             Dictionary of the analysis results.
@@ -168,5 +168,7 @@ class CodePython(Code):
 
         for path, result in results.items():
             modules.update(result['modules'])
+
+        print(results)
 
         report.metadata.add(cls, 'python_dependencies', sorted(list(modules)))
