@@ -53,3 +53,10 @@
     licensing information required by third-party dependencies. It is primarily
     used to comply with attribution requirements of certain licenses (e.g.,
     Apache 2.0) when redistributing software that includes third-party code.
+
+- match: No version control.
+  suggestion: Version control is a system that tracks changes to code, which
+    helps maintain a history of modifications, making it easier to revert to
+    previous versions, and track contributions. You can use `git
+    <https://git-scm.com/>`_ to handle everything from small to very large
+    projects.
