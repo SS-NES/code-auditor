@@ -13,7 +13,6 @@ class Rule:
         val (str): Rule value.
         analysers (list[Analyser]): List of analysers.
     """
-
     def __init__(self, val: str, analyser: Analyser = None):
         """Initializes rule object.
 
@@ -34,7 +33,7 @@ class Rule:
 
 
     def match(self, val: str) -> bool:
-        """Check is value matches the rule.
+        """Checks if value matches the rule.
 
         Args:
             val (str): Value.

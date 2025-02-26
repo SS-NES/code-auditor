@@ -15,7 +15,14 @@ REGEXP_SNAKE_CASE = re.compile(r'(?<!^)(?=[A-Z])')
 
 
 def get_class_name(cls) -> str:
-    """Returns snake-case class name."""
+    """Returns snake-case class name.
+
+    Args:
+        cls (object): Class.
+
+    Returns:
+        Snake-case class name.
+    """
     return REGEXP_SNAKE_CASE.sub('_', cls.__qualname__).lower()
 
 

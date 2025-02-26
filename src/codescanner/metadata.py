@@ -40,7 +40,7 @@ METADATA = [
     'readme',
     # Readme file of the software.
     'readme_file',
-    # URL of the source code repository of the software.
+    # URL address of the source code repository of the software.
     'repository_code',
     # Version of the software.
     'version',
@@ -75,9 +75,15 @@ def is_empty(val) -> bool:
 
 
 class Metadata:
-    """Metadata class."""
+    """Metadata class.
 
+    Attributes:
+        uid (int): Unique identifier counter.
+        metadata (dict): Metadata dictionary.
+        lists (dict): List attributes.
+    """
     def __init__(self):
+        """Initializes metadata object."""
         self.uid = 0
         self.metadata = {}
         self.lists = {}
@@ -100,17 +106,14 @@ class Metadata:
         return True if key in self.metadata else False
 
 
-    def get(
-        self,
-        key: str,
-        plain: bool=False,
-        first: bool=False,
-        default=None
-    ):
+    def get(self, key: str, plain: bool=False, first: bool=False, default=None):
         """Returns metadata attribute values.
 
         Args:
             key (str): Metadata attribute key.
+            plain (bool): Set True to return value(s) only (default = False).
+            first (bool): Set True to return the firsy value (default = False).
+            default: Default value is no attribute value (optional).
 
         Returns:
             Metadata attribute values.
@@ -196,7 +199,7 @@ class Metadata:
 
 
     def is_list(self, key: str) -> bool:
-        """Checks is metadata attribute is a list.
+        """Checks if metadata attribute is a list.
 
         Args:
             key (str): Metadata attribute key
@@ -222,6 +225,6 @@ class Metadata:
             if not re.fullmatch(REGEXP_DOI, val):
                 raise ValueError("Invalid DOI.")
 
-        elif key in ['repository_code']:
+        elif key in ['repository_code', 'license_url']:
             if not re.fullmatch(REGEXP_URL, val):
                 raise ValueError("Invalid URL address.")

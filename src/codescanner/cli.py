@@ -28,6 +28,7 @@ PATH_TYPES = [
     # Git repository
     'git',
 ]
+"""Path types."""
 
 
 @click.command(
