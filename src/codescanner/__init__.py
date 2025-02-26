@@ -92,7 +92,7 @@ def analyse(
     skip_analyser: list[str] = None,
     skip_aggregator: list[str] = None,
     skip_type: list[str] = None,
-) -> dict:
+) -> Report:
     """Analyses a code base.
 
     Args:
@@ -102,7 +102,7 @@ def analyse(
         skip_type (list[str]): List of analyser types to skip (optional).
 
     Returns:
-        Dictionary of the analysis results.
+        Analysis report.
 
     Raises:
         ValueError("Invalid path."): If path is invalid.
