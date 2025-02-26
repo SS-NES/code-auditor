@@ -253,6 +253,10 @@ def main(
             skip_type=skip_type
         )
 
+        # Update stats path if required
+        if not is_local:
+            report.stats['path'] = path
+
     finally:
         # Clean up temporary directory
         tempdir.cleanup()
