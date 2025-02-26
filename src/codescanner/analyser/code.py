@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import final
 
-from . import Analyser, AnalyserType
+from . import Analyser
 from .. import get_analysers
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -14,9 +15,9 @@ class Code(Analyser):
 
     @classmethod
     @final
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type."""
-        return AnalyserType.CODE
+        return ProcessorType.CODE
 
 
     @classmethod

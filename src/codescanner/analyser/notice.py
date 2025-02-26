@@ -1,7 +1,8 @@
 """Notice analyser module."""
 from pathlib import Path
 
-from . import Analyser, AnalyserType
+from . import Analyser
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -9,9 +10,9 @@ class Notice(Analyser):
     """Notice analyser class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type."""
-        return AnalyserType.DOCUMENTATION
+        return ProcessorType.DOCUMENTATION
 
 
     @classmethod

@@ -1,6 +1,6 @@
 """Metadata aggregator module."""
 from . import Aggregator
-from ..analyser import AnalyserType
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -8,9 +8,9 @@ class Metadata(Aggregator):
     """Metadata aggregator class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.METADATA
+        return ProcessorType.METADATA
 
 
     @classmethod

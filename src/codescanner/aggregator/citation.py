@@ -1,6 +1,6 @@
 """Citation aggregator module."""
 from . import Aggregator
-from ..analyser import AnalyserType
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -8,9 +8,9 @@ class Citation(Aggregator):
     """Citation aggregator class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.CITATION
+        return ProcessorType.CITATION
 
 
     @classmethod

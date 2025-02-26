@@ -7,7 +7,8 @@ try:
 except ModuleNotFoundError:
     import pip._vendor.tomli as tomllib
 
-from . import Analyser, AnalyserType
+from . import Analyser
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -32,9 +33,9 @@ class PackagingPython(Analyser):
     """
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type."""
-        return AnalyserType.PACKAGING
+        return ProcessorType.PACKAGING
 
 
     @classmethod

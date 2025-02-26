@@ -1,8 +1,8 @@
 """Analyser module."""
-from abc import ABC, abstractmethod
-from enum import Enum
+from abc import abstractmethod
 from pathlib import Path
 
+from ..processor import Processor, ProcessorType
 from ..report import Report
 
 
@@ -10,39 +10,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class AnalyserType(Enum):
-    """Analyser type."""
-    CITATION = "Citation"
-    """Citation."""
-    CODE = "Code"
-    """Source code."""
-    COMMUNITY = "Community"
-    """Community."""
-    DEPENDENCY = "Dependency"
-    """Dependency management."""
-    DOCUMENTATION = "Documentation"
-    """Software documentation."""
-    LICENSE = "License"
-    """Software licensing."""
-    METADATA = "Metadata"
-    """Metadata."""
-    PACKAGING = "Packaging"
-    """Software packaging."""
-    REPOSITORY = "Repository"
-    """Code repository."""
-    VERSION_CONTROL = "Version Control"
-    """Version control system."""
-
-
-class Analyser(ABC):
+class Analyser(Processor):
     """Analyse abstract class."""
-
-    @classmethod
-    @abstractmethod
-    def get_type(cls) -> AnalyserType:
-        """Returns analyser type."""
-        raise NotImplementedError
-
 
     @classmethod
     @abstractmethod
@@ -146,17 +115,3 @@ class Analyser(ABC):
         cls.analyse_results(results, report)
 
         return results
-
-
-    @classmethod
-    def output(cls, report: Report, results: dict) -> str:
-        """Generates output from the analysis report and results.
-
-        Args:
-            report (Report): Analysis report.
-            results (dict): Analysis results.
-
-        Returns:
-            Analysis output.
-        """
-        return ''

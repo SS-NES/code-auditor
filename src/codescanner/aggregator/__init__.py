@@ -1,25 +1,12 @@
 """Aggregator module."""
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-from ..analyser import AnalyserType
+from ..processor import Processor, ProcessorType
 from ..report import Report
 
 
-class Aggregator(ABC):
+class Aggregator(Processor):
     """Aggregator abstract class."""
-
-    @classmethod
-    @abstractmethod
-    def get_type(cls) -> AnalyserType:
-        """Returns analyser type of the aggregator."""
-        raise NotImplementedError
-
-
-    @classmethod
-    def get_rank(cls) -> int:
-        """Returns aggregator rank."""
-        return 1
-
 
     @classmethod
     @abstractmethod

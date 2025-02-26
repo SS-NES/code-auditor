@@ -10,7 +10,6 @@ from enum import Enum
 from pathlib import Path
 
 from .metadata import Metadata
-from .utils import get_class_name
 
 
 import logging
@@ -273,7 +272,7 @@ class Report:
 
             out = {
                 'val': val,
-                'analyser': get_class_name(item['analyser']),
+                'analyser': item['analyser'].get_class_name(),
             }
 
             if item['path']:

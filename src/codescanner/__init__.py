@@ -10,7 +10,6 @@ from .rule import Rule
 from .analyser import Analyser
 from .aggregator import Aggregator
 from .report import Report
-from .utils import get_class_name, get_subclasses
 
 
 import logging
@@ -23,13 +22,13 @@ __version__ = "0.1.0"
 @functools.cache
 def get_analysers() -> list:
     """Returns list of available analysers."""
-    return get_subclasses(Analyser)
+    return Analyser.get_subclasses()
 
 
 @functools.cache
 def get_aggregators() -> list:
     """Returns list of available aggregators."""
-    return get_subclasses(Aggregator)
+    return Aggregator.get_subclasses()
 
 
 def _get_includes(path: Path, analysers: list = None) -> dict:
@@ -74,7 +73,7 @@ def _filter(items: list, skip: list[str] = None, skip_type: list[str] = None) ->
     filtered = []
 
     for item in items:
-        name = get_class_name(item)
+        name = item.get_class_name()
 
         if skip and name in skip:
             continue

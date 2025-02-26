@@ -1,6 +1,6 @@
 """Packaging aggregator module."""
 from . import Aggregator
-from ..analyser import AnalyserType
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -8,9 +8,9 @@ class Packaging(Aggregator):
     """Packaging aggregator class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type of the aggregator."""
-        return AnalyserType.PACKAGING
+        return ProcessorType.PACKAGING
 
 
     @classmethod

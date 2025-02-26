@@ -2,7 +2,8 @@
 from pathlib import Path
 from pip_requirements_parser import RequirementsFile
 
-from . import Analyser, AnalyserType
+from . import Analyser
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -10,9 +11,9 @@ class DependencyPython(Analyser):
     """Python dependency analyser class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type."""
-        return AnalyserType.DEPENDENCY
+        return ProcessorType.DEPENDENCY
 
 
     @classmethod

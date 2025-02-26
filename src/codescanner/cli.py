@@ -8,9 +8,8 @@ import yaml
 import zipfile
 
 import codescanner
-from .analyser import AnalyserType
+from .processor import ProcessorType
 from .report import OutputType, MessageType
-from .utils import get_class_name
 
 
 import logging
@@ -44,7 +43,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-analyser',
     type = click.Choice(
-        [get_class_name(cls) for cls in codescanner.get_analysers()],
+        [cls.get_class_name() for cls in codescanner.get_analysers()],
         case_sensitive = False
     ),
     multiple = True,
@@ -53,7 +52,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-aggregator',
     type = click.Choice(
-        [get_class_name(cls) for cls in codescanner.get_aggregators()],
+        [cls.get_class_name() for cls in codescanner.get_aggregators()],
         case_sensitive=False
     ),
     multiple = True,
@@ -62,11 +61,11 @@ PATH_TYPES = [
 @click.option(
     '--skip-type',
     type = click.Choice(
-        [item.name.lower() for item in AnalyserType],
+        [item.name.lower() for item in ProcessorType],
         case_sensitive = False
     ),
     multiple = True,
-    help = "List of analysers types to skip."
+    help = "List of processor types to skip."
 )
 @click.option(
     '-r',

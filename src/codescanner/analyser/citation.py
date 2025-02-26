@@ -2,7 +2,8 @@
 import yaml
 from pathlib import Path
 
-from . import Analyser, AnalyserType
+from . import Analyser
+from ..processor import ProcessorType
 from ..report import Report
 
 
@@ -60,9 +61,9 @@ class Citation(Analyser):
     """Citation analyser class."""
 
     @classmethod
-    def get_type(cls) -> AnalyserType:
+    def get_type(cls) -> ProcessorType:
         """Returns analyser type."""
-        return AnalyserType.CITATION
+        return ProcessorType.CITATION
 
 
     @classmethod
