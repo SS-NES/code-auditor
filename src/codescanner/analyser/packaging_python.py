@@ -1,4 +1,6 @@
 """Python packaging analyser module."""
+import re
+import string
 from pathlib import Path
 try:
     import tomllib
@@ -7,6 +9,16 @@ except ModuleNotFoundError:
 
 from . import Analyser, AnalyserType
 from ..report import Report
+
+
+def normalize_name(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def normalize_label(label: str) -> str:
+    chars_to_remove = string.punctuation + string.whitespace
+    removal_map = str.maketrans("", "", chars_to_remove)
+    return label.translate(removal_map).lower()
 
 
 class PackagingPython(Analyser):
