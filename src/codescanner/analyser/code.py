@@ -26,13 +26,13 @@ class Code(Analyser):
         raise NotImplementedError
 
 
-    @staticmethod
+    @classmethod
     @functools.cache
-    def get_analysers(lang: str) -> list[Analyser]:
+    def get_analysers(cls, lang: str) -> list[Analyser]:
         """Returns analysers for the specified language.
 
         Args:
-            lang (str): Language
+            lang (str): Language.
 
         Returns:
             List of analysers.
