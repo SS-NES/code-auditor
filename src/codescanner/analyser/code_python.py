@@ -170,3 +170,39 @@ class CodePython(Code):
             modules.update(result['modules'])
 
         report.metadata.add(cls, 'python_dependencies', sorted(list(modules)))
+
+
+    @classmethod
+    def output(cls, report: Report, results: dict) -> str:
+        """Generates output from the analysis report and results.
+
+        Args:
+            report (Report): Analysis report.
+            results (dict): Analysis results.
+
+        Returns:
+            Analysis output.
+        """
+        num_files = len(results)
+        num_lines = 0
+        num_code_lines = 0
+        size = 0
+        for path, result in results.items():
+            num_lines += result['num_lines']
+            num_code_lines += result['num_code_lines']
+            size += result['size']
+
+        out = report.output_heading("Python Files", 2)
+        out += "{} {} found ({}).\n".format(
+            num_files,
+            'files' if num_files > 1 else 'file',
+            report.output_size(size)
+        )
+        out += "There are {} lines of code ({} non-empty).\n".format(
+            report.output_number(num_lines),
+            report.output_number(num_code_lines)
+        )
+
+        out += "\n"
+
+        return out

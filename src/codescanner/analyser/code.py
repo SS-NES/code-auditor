@@ -68,6 +68,7 @@ class Code(Analyser):
         Results:
             num_lines (int): Number of lines.
             num_code_lines (int): Number non-empty lines.
+            size (int): Size in bytes.
 
         Args:
             content (str): Content.
@@ -81,6 +82,9 @@ class Code(Analyser):
         result = cls.analyse_code(content, report, path)
         if not result:
             result = {}
+
+        # Set content size
+        result['size'] = len(content)
 
         # Set number of lines
         lines = content.splitlines()
