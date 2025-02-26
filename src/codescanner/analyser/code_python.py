@@ -38,6 +38,9 @@ def _analyse_node(node) -> dict:
 
     name = node.name if hasattr(node, 'name') else ''
 
+    if name:
+        item['name'] = name
+
     item['docs'] = {}
 
     docs = ast.get_docstring(node, clean=True)
@@ -203,6 +206,6 @@ class CodePython(Code):
             report.output_number(num_code_lines)
         )
 
-        out += "\n"
+        out += "\n\n"
 
         return out

@@ -36,8 +36,12 @@ class ProcessorType(Enum):
     """Metadata."""
     PACKAGING = "Packaging"
     """Software packaging."""
+    PUBLISHING = "Publishing"
+    """Publishing."""
     REPOSITORY = "Repository"
     """Code repository."""
+    TESTING = "Testing"
+    """Testing."""
     VERSION_CONTROL = "Version Control"
     """Version control system."""
 
