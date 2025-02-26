@@ -26,7 +26,8 @@ class ChangeLog(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/CHANGELOG.*',
+            '/changelog'
+            '/changelog.*',
         ]
 
 

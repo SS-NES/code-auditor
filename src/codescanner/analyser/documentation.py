@@ -26,7 +26,8 @@ class Documentation(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/README(.*)?',
+            '/readme',
+            '/readme.*',
         ]
 
 

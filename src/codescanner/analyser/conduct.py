@@ -26,8 +26,9 @@ class Conduct(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/CONDUCT.*',
-            '/CODE_OF_CONDUCT.*',
+            '/conduct.*',
+            '/code_of_conduct',
+            '/code_of_conduct.*',
         ]
 
 

@@ -407,9 +407,9 @@ class Report:
                 elif type == MessageType.ISSUE:
                     out += "No issues found.\n\n"
 
-            # Output analyser results
-            for analyser, results in self.results.items():
-                out += analyser.output(self, results)
+            # Output processor results
+            for processor, results in self.results.items():
+                out += processor.output(self, results)
 
             # Output metadata
             out += "Metadata\n"

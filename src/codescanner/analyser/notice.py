@@ -26,7 +26,10 @@ class Notice(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/NOTICE[S](.*)?',
+            '/notice',
+            '/notice.*',
+            '/notices',
+            '/notices.*',
         ]
 
 

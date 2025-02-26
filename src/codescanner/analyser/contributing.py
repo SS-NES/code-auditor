@@ -26,7 +26,8 @@ class Contributing(Analyser):
             List of file and directory patterns.
         """
         return [
-            '/CONTRIBUTING.*',
+            '/contributing',
+            '/contributing.*',
         ]
 
 
