@@ -16,6 +16,8 @@ class AnalyserType(Enum):
     """Citation."""
     CODE = "Code"
     """Source code."""
+    COMMUNITY = "Community"
+    """Community."""
     DEPENDENCY = "Dependency"
     """Dependency management."""
     DOCUMENTATION = "Documentation"
