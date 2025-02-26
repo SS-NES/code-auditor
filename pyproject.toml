@@ -43,8 +43,8 @@ keywords = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/SS-NES/CodeScholar"
-Issues = "https://github.com/SS-NES/CodeScholar/issues"
+Homepage = "https://github.com/SS-NES/codescholar"
+Issues = "https://github.com/SS-NES/codescholar/issues"
 
 [project.scripts]
 codescholar = "codescholar.cli:main"
