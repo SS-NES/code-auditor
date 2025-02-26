@@ -2,6 +2,8 @@
 import functools
 import jinja2
 import json
+import locale
+import math
 import pypandoc
 import re
 import yaml
@@ -306,12 +308,51 @@ class Report:
         return out
 
 
-    def output_heading(self, text: str, level: int=1) -> str:
+    def output_heading(self, val: str, level: int=1) -> str:
+        """Returns heading output.
+
+        Args:
+            val (str): Value.
+            level (int): Heading level (default = 1)
+
+        Returns:
+            Heading output.
+        """
         underlines = {1: '=', 2: '-', 3: '`', 4: "'", 5: '.'}
         return (
-            text + "\n" +
-            underlines.get(level, underlines[1]) * len(text) + "\n\n"
+            val + "\n" +
+            underlines.get(level, underlines[1]) * len(val) + "\n\n"
         )
+
+
+    def output_number(self, val, format: str=None):
+        """Returns number output.
+
+        Args:
+            val: Value.
+            format (str): Number format (optional)
+
+        Returns:
+            Number output.
+        """
+        if not format:
+            format = '%d' if isinstance(val, int) else '%f'
+
+        return locale.format_string(format, val, grouping=True)
+
+
+    def output_size(self, size: int) -> str:
+        """Returns data size output.
+
+        Args:
+            size (int): Data size.
+
+        Return:
+            Data size output.
+        """
+        units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        i = int(math.floor(math.log(size, 1024)))
+        return "{} {}".format(round(size / math.pow(1024, i), 2), units[i])
 
 
     def output_message(self, item: dict, plain: bool=False) -> str:
@@ -409,7 +450,8 @@ class Report:
 
             # Output processor results
             for processor, results in self.results.items():
-                out += processor.output(self, results)
+                if results:
+                    out += processor.output(self, results)
 
             # Output metadata
             out += "Metadata\n"
