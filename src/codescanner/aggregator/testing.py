@@ -4,8 +4,10 @@ from ..processor import ProcessorType
 from ..report import Report
 
 
-FRAMEWORKS = {
+URLS = {
     'pytest': 'https://docs.pytest.org/en/stable/',
+    'test-outside': 'https://docs.pytest.org/en/stable/explanation/goodpractices.html#tests-outside-application-code',
+    'test-inside': 'https://docs.pytest.org/en/stable/explanation/goodpractices.html#tests-as-part-of-application-code',
 }
 
 
@@ -45,9 +47,9 @@ class Testing(Aggregator):
 
         if not num_tests:
             report.add_issue(cls, "No testing.")
+            return
 
-        else:
-            report.add_notice(cls, "Testing exists.")
+        report.add_notice(cls, "Testing exists.")
 
         layout = None
         for path in paths:
@@ -93,23 +95,23 @@ class Testing(Aggregator):
 
         else:
             out += "Testing framework is {}.\n".format(
-                f"` {val}<{FRAMEWORKS[val]}>`_" if val in FRAMEWORKS else val
+                f"`{val} <{URLS[val]}>`_" if val in URLS else val
             )
 
         val = report.metadata.get('test_layout', plain=True)
 
         if val == 'outside':
             out += "Tests are outside the application code [#test-outside].\n"
-            notes += '.. [#test-outside] https://docs.pytest.org/en/stable/explanation/goodpractices.html#tests-outside-application-code\n'
+            notes += f".. [#test-outside] {URLS['test-outside']}\n"
 
         elif val == 'inside':
             out += "Tests are part of the application code [#test-inside].\n"
-            notes += '.. [#test-inside] https://docs.pytest.org/en/stable/explanation/goodpractices.html#tests-as-part-of-application-code\n'
+            notes += f".. [#test-inside] {URLS['test-inside']}\n"
 
         elif val == 'mixed':
             out += "Tests have a mixed layout; they are located both inside and outside the application code.\n"
 
-        out += "They are located in ``{}`` {}.\n".format(
+        out += "Tests are located in ``{}`` {}.\n".format(
             "``, ``".join([str(path) for path in results['paths']]),
             "directories" if len(results['paths']) > 1 else "directory"
         )
