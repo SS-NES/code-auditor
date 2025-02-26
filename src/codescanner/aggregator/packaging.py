@@ -14,12 +14,6 @@ class Packaging(Aggregator):
 
 
     @classmethod
-    def get_name(cls) -> str:
-        """Returns aggregator name."""
-        return "Packaging Aggregator"
-
-
-    @classmethod
     def aggregate(cls, report: Report, results: dict):
         """Aggregates available analysis results.
 

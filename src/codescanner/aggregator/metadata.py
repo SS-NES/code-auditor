@@ -14,12 +14,6 @@ class Metadata(Aggregator):
 
 
     @classmethod
-    def get_name(cls) -> str:
-        """Returns aggregator name."""
-        return "Metadata Aggregator"
-
-
-    @classmethod
     def aggregate(cls, report: Report, results: dict):
         """Aggregates available analysis results.
 

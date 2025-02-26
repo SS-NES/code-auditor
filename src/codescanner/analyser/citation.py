@@ -66,12 +66,6 @@ class Citation(Analyser):
 
 
     @classmethod
-    def get_name(cls) -> str:
-        """Returns analyser name."""
-        return "Citation"
-
-
-    @classmethod
     def includes(cls, path: Path) -> list[str]:
         """Returns file and directory patterns to be included in the analysis.
 

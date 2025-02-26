@@ -26,12 +26,6 @@ class PackagingPython(Analyser):
 
 
     @classmethod
-    def get_name(cls) -> str:
-        """Returns analyser name."""
-        return "Python Packaging"
-
-
-    @classmethod
     def includes(cls, path: Path) -> list[str]:
         """Returns file and directory patterns to be included in the analysis.
 

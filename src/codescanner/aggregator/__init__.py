@@ -16,13 +16,6 @@ class Aggregator(ABC):
 
 
     @classmethod
-    @abstractmethod
-    def get_name(cls) -> str:
-        """Returns aggregator name."""
-        raise NotImplementedError
-
-
-    @classmethod
     def get_rank(cls) -> int:
         """Returns aggregator rank."""
         return 1

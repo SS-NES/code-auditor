@@ -46,13 +46,6 @@ class Analyser(ABC):
 
     @classmethod
     @abstractmethod
-    def get_name(cls) -> str:
-        """Returns analyser name."""
-        raise NotImplementedError
-
-
-    @classmethod
-    @abstractmethod
     def includes(cls, path: Path) -> list[str]:
         """Returns file and directory patterns to be included in the analysis.
 

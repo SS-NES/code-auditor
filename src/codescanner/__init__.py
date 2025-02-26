@@ -209,7 +209,7 @@ def analyse(
             continue
 
         # Try to run the analyser
-        logger.debug(f"Running {analyser.get_name()} analyser.")
+        logger.debug(f"Running analyser {analyser}.")
         try:
             result = analyser.analyse(path, _files[analyser], report)
             if not result:
@@ -236,7 +236,7 @@ def analyse(
         type = aggregator.get_type()
 
         # Try to run the aggregator
-        logger.debug(f"Running {aggregator.get_name()} aggregator.")
+        logger.debug(f"Running aggregator {aggregator}.")
         try:
             result = aggregator.aggregate(report, results.get(type, {}))
             if not result:

@@ -14,12 +14,6 @@ class Citation(Aggregator):
 
 
     @classmethod
-    def get_name(cls) -> str:
-        """Returns aggregator name."""
-        return "Citation Aggregator"
-
-
-    @classmethod
     def aggregate(cls, report: Report, results: dict):
         """Aggregates available analysis results.
 
