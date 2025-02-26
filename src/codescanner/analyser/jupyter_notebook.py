@@ -2,11 +2,12 @@
 import json
 from pathlib import Path
 
-from .code import Code
+from . import Analyser
+from ..processor import ProcessorType
 from ..report import Report
 
 
-class CodeJupyter(Code):
+class JupyterNotebook(Analyser):
     """Jupyter notebooks analyser class."""
 
     LATEST_NBFORMAT = 4
@@ -14,9 +15,9 @@ class CodeJupyter(Code):
 
 
     @classmethod
-    def get_language(cls) -> str:
-        """Returns language supported by the analyser."""
-        return 'ipynb'
+    def get_type(cls) -> ProcessorType:
+        """Returns analyser type."""
+        return ProcessorType.CODE
 
 
     @classmethod
@@ -50,7 +51,7 @@ class CodeJupyter(Code):
 
 
     @classmethod
-    def analyse_code(cls, content: str, report: Report, path: Path=None) -> dict:
+    def analyse_content(cls, content: str, report: Report, path: Path=None) -> dict:
         """Analyses Jupyter notebook.
 
         Results:
