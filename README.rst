@@ -72,8 +72,48 @@ the terminal:
    codescholar .
 
 
-Analyse the code repository of Code Scholar:
+Analyse the code repository of Code Scholar and display the report in the
+terminal:
 
 .. code:: console
 
    codescholar https://github.com/SS-NES/codescholar
+
+
+Analyse the code repository of Code Scholar and save the report as report.docx:
+
+.. code:: console
+
+   codescholar https://github.com/SS-NES/codescholar --format docx --output report.docx
+
+
+Package Usage
+-------------
+
+Analyse the code in the current working directory and display the report in
+the terminal:
+
+.. code:: python
+
+   import codescholar
+
+   # Generate analysis report
+   report = codescholar.analyse('.')
+
+   # Get report output as Markdown
+   out = report.output(format=codescholar.report.OutputType.MARKDOWN)
+
+   # Display output
+   print(out)
+
+
+Acknowledgements
+----------------
+
+This software was developed as part of the TDCC-NES Bottleneck Project "`Best
+Practices for Sustainable Software <SS-NES_>`_" funded by the Thematic Digital
+Competence Centre (`TDCC`_) for the Natural & Engineering Sciences (`NES`_).
+
+.. _TDCC: https://tdcc.nl/
+.. _NES: https://tdcc.nl/about-tddc/nes/
+.. _SS-NES: https://tdcc.nl/projects/project-initiatives-nes/tdcc-nes-bottleneck-projects/best-practices-for-sustainable-software/
