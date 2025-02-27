@@ -13,4 +13,5 @@ __pycache__/
 
 # Packaging
 build/
+dist/
 *.egg
