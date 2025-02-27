@@ -10,7 +10,7 @@ authors = [
     { name="Robert Ohuru", email="r.o.ohuru@utwente.nl"},
 ]
 description = "A package and command-line utility to check code quality and compliance with best practices."
-readme = "README.md"
+readme = "README.rst"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
 classifiers = [
@@ -39,7 +39,7 @@ dependencies = [
 keywords = [
     "software development",
     "code quality",
-    "conformity check",
+    "conformity assessment",
 ]
 
 [project.urls]
