@@ -470,7 +470,7 @@ class Report:
 
             # Output footer
             out += "\n\n----\n\n"
-            out += "| Created by `CodeScholar <https://github.com/SS-NES/codescholar>`_ v{} on {}.\n".format(
+            out += "| Created by `Code Scholar <https://github.com/SS-NES/codescholar>`_ v{} on {}.\n".format(
                 self.stats['version'],
                 serialize(self.stats['date'])
             )

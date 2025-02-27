@@ -1,5 +1,5 @@
 """
-CodeScholar
+Code Scholar
 """
 import functools
 import os
