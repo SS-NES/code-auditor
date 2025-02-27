@@ -1,11 +1,8 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
 title: Code Scholar
 message: >-
   A package and command-line utility to check code quality
-  and compliance to the best practices.
+  and compliance with best practices.
 type: software
 authors:
   - given-names: Serkan
@@ -16,7 +13,7 @@ authors:
 repository-code: 'https://github.com/SS-NES/codescholar/'
 abstract: >-
   A package and command-line utility to check code quality
-  and compliance to the best practices.
+  and compliance with best practices.
 keywords:
   - software development
   - code quality
