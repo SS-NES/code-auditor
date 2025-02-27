@@ -10,6 +10,9 @@ authors:
     email: girgink@gmail.com
     affiliation: University of Twente
     orcid: 'https://orcid.org/0000-0002-0156-185X'
+doi: 'https://doi.org/10.5281/zenodo.14934232'
+repository: 'https://doi.org/10.5281/zenodo.14934232'
+repository-artifact: 'https://pypi.org/project/codescholar/'
 repository-code: 'https://github.com/SS-NES/codescholar/'
 abstract: >-
   A package and command-line utility to check code quality

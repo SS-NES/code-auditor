@@ -44,7 +44,10 @@ keywords = [
 
 [project.urls]
 Homepage = "https://github.com/SS-NES/codescholar"
+Source = "https://github.com/SS-NES/codescholar"
 Issues = "https://github.com/SS-NES/codescholar/issues"
+Changelog = "https://github.com/SS-NES/codescholar/commits"
+Download = "https://doi.org/10.5281/zenodo.14934232"
 
 [project.scripts]
 codescholar = "codescholar.cli:main"

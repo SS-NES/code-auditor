@@ -1,3 +1,35 @@
+.. list-table::
+   :widths: 25 25
+   :header-rows: 1
+
+   * - `fair-software.nl <https://fair-software.nl>`_ recommendations
+     - Badges
+   * - \1. Code repository
+     - |GitHub Badge|
+   * - \2. License
+     - |License Badge|
+   * - \3. Community Registry
+     - |PyPI Badge|
+   * - \4. Enable Citation
+     - |Zenodo Badge|
+
+.. |GitHub Badge| image:: https://img.shields.io/github/v/release/SS-NES/codescholar
+   :target: https://github.com/SS-NES/codescholar
+   :alt: GitHub Badge
+
+.. |License Badge| image:: https://img.shields.io/badge/license-GPLv3-blue
+   :target: https://opensource.org/license/gpl-3-0
+   :alt: License Badge
+
+.. |PyPI Badge| image:: https://img.shields.io/pypi/v/codescholar?colorB=blue
+   :target: https://pypi.org/project/codescholar/
+   :alt: PyPI Badge
+
+.. |Zenodo Badge| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14934232.svg
+   :target: https://doi.org/10.5281/zenodo.14934232
+   :alt: Zenodo Badge
+
+
 Code Scholar
 ============
 
@@ -8,23 +40,38 @@ with best practices.
 Installation
 ------------
 
-1. Clone or download the `source code <https://github.com/SS-NES/codescholar>`_:
+The package and command-line utility can be installed easily from `PyPI`_ using
+``pip``.
 
-   .. code:: shell
+.. code:: shell
 
-      git clone https://github.com/SS-NES/codescholar.git
+    pip install codescholar
 
-2. Go to the root directory:
 
-   .. code:: shell
+To install a specific version, e.g. v0.2.0, use:
 
-      cd codescholar/
+.. code:: shell
 
-3. Compile and install using pip:
+    pip install codescholar==0.2.0
 
-   .. code:: shell
 
-      pip install .
+To upgrade to the latest version:
+
+.. code:: shell
+
+    pip install --upgrade codescholar
+
+
+For the latest development version, you can install directly from the source:
+
+.. code:: shell
+
+    git clone https://github.com/SS-NES/codescholar.git
+    cd codescholar/
+    pip install .
+
+
+.. _PyPI: https://pypi.org/project/codescholar/
 
 
 CLI Usage
