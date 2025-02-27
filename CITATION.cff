@@ -1,0 +1,26 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Code Scholar
+message: >-
+  A package and command-line utility to check code quality
+  and compliance to the best practices.
+type: software
+authors:
+  - given-names: Serkan
+    family-names: Girgin
+    email: girgink@gmail.com
+    affiliation: University of Twente
+    orcid: 'https://orcid.org/0000-0002-0156-185X'
+repository-code: 'https://github.com/SS-NES/codescholar/'
+abstract: >-
+  A package and command-line utility to check code quality
+  and compliance to the best practices.
+keywords:
+  - software development
+  - code quality
+  - conformity check
+license: GPL-3.0
+version: 0.2.0
+date-released: '2025-02-27'
