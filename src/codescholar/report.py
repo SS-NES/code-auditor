@@ -325,7 +325,7 @@ class Report:
         )
 
 
-    def output_number(self, val, format: str=None):
+    def output_number(self, val, format: str=None) -> str:
         """Returns number output.
 
         Args:
@@ -353,6 +353,10 @@ class Report:
         units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
         i = int(math.floor(math.log(size, 1024)))
         return "{} {}".format(round(size / math.pow(1024, i), 2), units[i])
+
+
+    def output_ratio(self, val, sum) -> str:
+        return locale.format_string('%0.2f%%', val / sum * 100) if sum else "NA"
 
 
     def output_message(self, item: dict, plain: bool=False) -> str:
