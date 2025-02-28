@@ -44,7 +44,7 @@ class CodeMarkdown(Code):
 
 
     @classmethod
-    def analyse_code(cls, content: str, report: Report, path: Path=None) -> dict:
+    def analyse_code(cls, content: str, report: Report, path: Path=None, disable_rules: list[str]=None) -> dict:
         """Analyses Markdown code.
 
         Args:
@@ -55,8 +55,12 @@ class CodeMarkdown(Code):
         Returns:
             Dictionary of the analysis results.
         """
+        markdown = PyMarkdownApi()
+        for rule in disable_rules if disable_rules else []:
+            markdown.disable_rule_by_identifier(rule.lower())
+
         try:
-            result = PyMarkdownApi().scan_string(content)
+            result = markdown.scan_string(content)
 
         except Exception as err:
             report.add_warning(cls, str(err), path)
@@ -66,6 +70,29 @@ class CodeMarkdown(Code):
             'scan_failures': result.scan_failures,
             'pragma_errors': result.pragma_errors,
         }
+
+
+    @classmethod
+    def output_result(cls, report: Report, result: dict) -> str:
+        out = ''
+
+        for item in result.get('scan_failures', []):
+            out += "* {}{} (Line {}).\n".format(
+                item.rule_description,
+                (" " + item.extra_error_information)
+                if item.extra_error_information
+                else
+                '',
+                item.line_number
+            )
+
+        for item in result.get('pragma_errors', []):
+            out += "* {} (Line {}".format(
+                item.pragma_error,
+                item.line_number
+            )
+
+        return out
 
 
     @classmethod
@@ -86,23 +113,7 @@ class CodeMarkdown(Code):
             if not result:
                 continue
 
-            part = ''
-
-            for item in result['scan_failures']:
-                part += "* {}{} (Line {}).\n".format(
-                    item.rule_description,
-                    (" " + item.extra_error_information)
-                    if item.extra_error_information
-                    else
-                    '',
-                    item.line_number
-                )
-
-            for item in result['pragma_errors']:
-                part += "* {} (Line {}".format(
-                    item.pragma_error,
-                    item.line_number
-                )
+            part = cls.output_result(report, result)
 
             if part:
                 out += report.output_heading(str(path.relative_to(report.path)), 3)

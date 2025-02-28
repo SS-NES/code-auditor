@@ -95,3 +95,8 @@ class Code(Analyser):
         result['num_code_lines'] = len(code_lines)
 
         return result
+
+
+    @classmethod
+    def output_result(cls, report: Report, result: dict) -> str:
+        return ''
