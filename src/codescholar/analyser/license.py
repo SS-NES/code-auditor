@@ -54,14 +54,17 @@ def get_signature(text: str, max_tokens: int=MAX_TOKENS) -> list[str]:
 
 def save_signatures(
     repo: str='.',
+    suffix: str='.json',
     path: str='signatures.json',
     max_tokens: int=MAX_TOKENS,
-    token_size: int=TOKEN_SIZE
+    token_size: int=TOKEN_SIZE,
+    skip_tokens: list[str]=None
 ):
     """Stores the license signatures.
 
     Args:
         repo (str): Path of the repository of the licenses (default = '.')
+        suffix (str): License file suffix (default = '.json')
         path (str): Path of the signatures file (default = 'signatures.json')
         max_tokens (int): Number of maximum tokens (default = MAX_TOKENS)
         token_size (int): Token size (default = TOKEN_SIZE)
@@ -80,17 +83,34 @@ def save_signatures(
         for file in files:
 
             filepath = Path(os.path.join(root, file))
-            if filepath.suffix != '.json':
+            if filepath.suffix != suffix:
                 continue
 
             id = filepath.stem
-            with open(filepath, 'r') as file:
-                data = json.load(file)
 
-            if not 'text' in data:
+            skip = False
+            for token in skip_tokens if skip_tokens else []:
+                if token in id:
+                    skip = True
+                    break
+
+            if skip:
                 continue
 
-            tokens = get_signature(data['text'], max_tokens)
+            with open(filepath, 'r', encoding='utf-8') as file:
+
+                if suffix == '.json':
+                    data = json.load(file)
+
+                    if not 'text' in data:
+                        continue
+
+                    text = data['text']
+
+                elif suffix == '.txt':
+                    text = file.read()
+
+            tokens = get_signature(text, max_tokens)
 
             if token_size:
 
