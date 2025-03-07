@@ -13,7 +13,7 @@
    * - \4. Enable Citation
      - |Zenodo Badge|
 
-.. |GitHub Badge| image:: https://img.shields.io/github/v/release/SS-NES/code-auditor
+.. |GitHub Badge| image:: https://img.shields.io/github/v/release/SS-NES/code-auditor?color=blue
    :target: https://github.com/SS-NES/code-auditor
    :alt: GitHub Badge
 
