@@ -86,13 +86,13 @@ def _filter(items: list, skip: list[str] = None, skip_type: list[str] = None) ->
     return filtered
 
 
-def analyse(
+def audit(
     path: str | Path,
     skip_analyser: list[str] = None,
     skip_aggregator: list[str] = None,
     skip_type: list[str] = None,
 ) -> Report:
-    """Analyses a code base.
+    """Audits a code base.
 
     Args:
         path (str): Path of the code base.
@@ -101,7 +101,7 @@ def analyse(
         skip_type (list[str]): List of analyser types to skip (optional).
 
     Returns:
-        Analysis report.
+        Audit report.
 
     Raises:
         ValueError("Invalid path."): If path is invalid.

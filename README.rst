@@ -97,7 +97,7 @@ CLI Usage
                                      Type of the file located at the path.
      -m, --metadata FILENAME         Path to store the metadata extracted from
                                      the code base.
-     -o, --output PATH               Path to store the analysis output.
+     -o, --output PATH               Path to store the output.
      -f, --format [plain|html|json|yaml|markdown|rst|rtf|docx]
                                      Output format.  [default: rst]
      -p, --plain                     Enable plain output.
@@ -144,8 +144,8 @@ the terminal:
 
    import codeauditor
 
-   # Generate analysis report
-   report = codeauditor.analyse('.')
+   # Generate audit report
+   report = codeauditor.audit('.')
 
    # Get report output as Markdown
    out = report.output(format=codeauditor.report.OutputType.MARKDOWN)

@@ -246,7 +246,7 @@ def main(
             is_local = True
 
         # Generate audit report
-        report = codeauditor.analyse(
+        report = codeauditor.audit(
             path if is_local else tempdir.name,
             skip_analyser=skip_analyser,
             skip_aggregator=skip_aggregator,
