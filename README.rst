@@ -13,16 +13,16 @@
    * - \4. Enable Citation
      - |Zenodo Badge|
 
-.. |GitHub Badge| image:: https://img.shields.io/github/v/release/SS-NES/codescholar
-   :target: https://github.com/SS-NES/codescholar
+.. |GitHub Badge| image:: https://img.shields.io/github/v/release/SS-NES/code-auditor
+   :target: https://github.com/SS-NES/code-auditor
    :alt: GitHub Badge
 
 .. |License Badge| image:: https://img.shields.io/badge/license-GPLv3-blue
    :target: https://opensource.org/license/gpl-3-0
    :alt: License Badge
 
-.. |PyPI Badge| image:: https://img.shields.io/pypi/v/codescholar?colorB=blue
-   :target: https://pypi.org/project/codescholar/
+.. |PyPI Badge| image:: https://img.shields.io/pypi/v/code-auditor?colorB=blue
+   :target: https://pypi.org/project/code-auditor/
    :alt: PyPI Badge
 
 .. |Zenodo Badge| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14934232.svg
@@ -30,10 +30,10 @@
    :alt: Zenodo Badge
 
 
-Code Scholar
+code-auditor
 ============
 
-This is a package and command-line utility to check code quality and compliance
+This is a package and command-line utility to audit code quality and compliance
 with best practices.
 
 
@@ -45,33 +45,33 @@ The package and command-line utility can be installed easily from `PyPI`_ using
 
 .. code:: shell
 
-    pip install codescholar
+    pip install code-auditor
 
 
 To install a specific version, e.g. v0.2.0, use:
 
 .. code:: shell
 
-    pip install codescholar==0.2.0
+    pip install code-auditor==0.2.0
 
 
 To upgrade to the latest version:
 
 .. code:: shell
 
-    pip install --upgrade codescholar
+    pip install --upgrade code-auditor
 
 
 For the latest development version, you can install directly from the source:
 
 .. code:: shell
 
-    git clone https://github.com/SS-NES/codescholar.git
-    cd codescholar/
+    git clone https://github.com/SS-NES/code-auditor.git
+    cd code-auditor/
     pip install .
 
 
-.. _PyPI: https://pypi.org/project/codescholar/
+.. _PyPI: https://pypi.org/project/code-auditor/
 
 
 CLI Usage
@@ -79,9 +79,9 @@ CLI Usage
 
 .. code:: console
 
-   Usage: codescholar [OPTIONS] PATH
+   Usage: codeauditor [OPTIONS] PATH
 
-     Scans the code base, where PATH is the path or URL address of the code base.
+     Audits the code base, where PATH is the path or URL address of the code base.
 
    Options:
      --skip-analyser [change_log|citation|code_markdown|code_python|conduct|contributing|dependency_python|documentation|git|jupyter_notebook|license|notice|packaging_python|testing_python]
@@ -111,44 +111,44 @@ CLI Usage
 Examples
 ~~~~~~~~
 
-Analyse the code in the current working directory and display the report in
+Audit the code in the current working directory and display the report in
 the terminal:
 
 .. code:: console
 
-   codescholar .
+   codeauditor .
 
 
-Analyse the code repository of Code Scholar and display the report in the
+Audit the code repository of code-auditor and display the report in the
 terminal:
 
 .. code:: console
 
-   codescholar https://github.com/SS-NES/codescholar
+   codeauditor https://github.com/SS-NES/code-auditor
 
 
-Analyse the code repository of Code Scholar and save the report as report.docx:
+Audit the code repository of code-auditor and save the report as report.docx:
 
 .. code:: console
 
-   codescholar https://github.com/SS-NES/codescholar --format docx --output report.docx
+   codeauditor https://github.com/SS-NES/code-auditor --format docx --output report.docx
 
 
 Package Usage
 -------------
 
-Analyse the code in the current working directory and display the report in
+Audit the code in the current working directory and display the report in
 the terminal:
 
 .. code:: python
 
-   import codescholar
+   import codeauditor
 
    # Generate analysis report
-   report = codescholar.analyse('.')
+   report = codeauditor.analyse('.')
 
    # Get report output as Markdown
-   out = report.output(format=codescholar.report.OutputType.MARKDOWN)
+   out = report.output(format=codeauditor.report.OutputType.MARKDOWN)
 
    # Display output
    print(out)

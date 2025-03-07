@@ -1,5 +1,5 @@
 """
-Code Scholar
+code-auditor
 """
 import functools
 import os

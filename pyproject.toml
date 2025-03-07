@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "codescholar"
+name = "code-auditor"
 dynamic = ["version"]
 authors = [
     { name="Serkan Girgin", email="girgink@gmail.com" },
     { name="Robert Ohuru", email="r.o.ohuru@utwente.nl"},
 ]
-description = "A package and command-line utility to check code quality and compliance with best practices."
+description = "A package and command-line utility to audit code quality and compliance with best practices."
 readme = "README.rst"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
@@ -43,14 +43,17 @@ keywords = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/SS-NES/codescholar"
-Source = "https://github.com/SS-NES/codescholar"
-Issues = "https://github.com/SS-NES/codescholar/issues"
-Changelog = "https://github.com/SS-NES/codescholar/commits"
+Homepage = "https://github.com/SS-NES/code-auditor"
+Source = "https://github.com/SS-NES/code-auditor"
+Issues = "https://github.com/SS-NES/code-auditor/issues"
+Changelog = "https://github.com/SS-NES/code-auditor/commits"
 Download = "https://doi.org/10.5281/zenodo.14934232"
 
 [project.scripts]
-codescholar = "codescholar.cli:main"
+codeauditor = "codeauditor.cli:main"
 
 [tool.hatch.version]
-path = "src/codescholar/__init__.py"
+path = "src/codeauditor/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/codeauditor"]

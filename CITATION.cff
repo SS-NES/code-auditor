@@ -1,7 +1,7 @@
 cff-version: 1.2.0
-title: Code Scholar
+title: code-auditor
 message: >-
-  A package and command-line utility to check code quality
+  A package and command-line utility to audit code quality
   and compliance with best practices.
 type: software
 authors:
@@ -12,10 +12,10 @@ authors:
     orcid: 'https://orcid.org/0000-0002-0156-185X'
 doi: 'https://doi.org/10.5281/zenodo.14934232'
 repository: 'https://doi.org/10.5281/zenodo.14934232'
-repository-artifact: 'https://pypi.org/project/codescholar/'
-repository-code: 'https://github.com/SS-NES/codescholar/'
+repository-artifact: 'https://pypi.org/project/code-auditor/'
+repository-code: 'https://github.com/SS-NES/code-auditor/'
 abstract: >-
-  A package and command-line utility to check code quality
+  A package and command-line utility to audit code quality
   and compliance with best practices.
 keywords:
   - software development

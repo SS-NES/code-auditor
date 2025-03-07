@@ -8,7 +8,7 @@ import urllib.request
 import yaml
 import zipfile
 
-import codescholar
+import codeauditor
 from .processor import ProcessorType
 from .report import OutputType, MessageType
 
@@ -35,7 +35,7 @@ PATH_TYPES = [
     context_settings = {
         'show_default': True,
     },
-    help = "Scans the code base, where PATH is the path or URL address of the code base."
+    help = "Audits the code base, where PATH is the path or URL address of the code base."
 )
 @click.argument(
     'path',
@@ -44,7 +44,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-analyser',
     type = click.Choice(
-        [cls.get_class_name() for cls in codescholar.get_analysers()],
+        [cls.get_class_name() for cls in codeauditor.get_analysers()],
         case_sensitive = False
     ),
     multiple = True,
@@ -53,7 +53,7 @@ PATH_TYPES = [
 @click.option(
     '--skip-aggregator',
     type = click.Choice(
-        [cls.get_class_name() for cls in codescholar.get_aggregators()],
+        [cls.get_class_name() for cls in codeauditor.get_aggregators()],
         case_sensitive=False
     ),
     multiple = True,
@@ -183,7 +183,7 @@ def main(
         logging.basicConfig(level=logging.DEBUG)
 
         for name in logging.root.manager.loggerDict:
-            if name.startswith('codescholar'):
+            if name.startswith('codeauditor'):
                 logging.getLogger(name).setLevel(logging.DEBUG)
 
         logger.debug("Debugging enabled.")
@@ -245,8 +245,8 @@ def main(
         else:
             is_local = True
 
-        # Generate analysis report
-        report = codescholar.analyse(
+        # Generate audit report
+        report = codeauditor.analyse(
             path if is_local else tempdir.name,
             skip_analyser=skip_analyser,
             skip_aggregator=skip_aggregator,

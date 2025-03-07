@@ -483,7 +483,7 @@ class Report:
 
             # Output footer
             out += "\n\n----\n\n"
-            out += "| Created by `Code Scholar <https://github.com/SS-NES/codescholar>`_ v{} on {}.\n".format(
+            out += "| Created by `code-auditor <https://github.com/SS-NES/code-auditor>`_ v{} on {}.\n".format(
                 self.stats['version'],
                 serialize(self.stats['date'])
             )
@@ -498,7 +498,7 @@ class Report:
 
             # Apply report template
             env = jinja2.Environment(
-                loader=jinja2.PackageLoader('codescholar'),
+                loader=jinja2.PackageLoader('codeauditor'),
                 autoescape=jinja2.select_autoescape(),
                 trim_blocks=True
             )
