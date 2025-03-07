@@ -347,7 +347,7 @@ class Report:
         Args:
             size (int): Data size.
 
-        Return:
+        Returns:
             Data size output.
         """
         units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
@@ -355,7 +355,16 @@ class Report:
         return "{} {}".format(round(size / math.pow(1024, i), 2), units[i])
 
 
-    def output_ratio(self, val, sum) -> str:
+    def output_ratio(self, val: int | float, sum: int | float) -> str:
+        """Returns ratio as percentage.
+
+        Args:
+            val (int | float): Value.
+            sum (int | float): Total value.
+
+        Returns:
+            Ratio output.
+        """
         return locale.format_string('%0.2f%%', val / sum * 100) if sum else "NA"
 
 
