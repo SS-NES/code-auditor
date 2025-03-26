@@ -144,7 +144,9 @@ def audit(
     _files = {}
 
     logger.debug(f"Scanning `{path}`.")
-    for root, dirs, files in path.walk(top_down=True, follow_symlinks=True):
+    for root, dirs, files in os.walk(path, topdown=True, followlinks=True):
+
+        root = Path(root)
 
         stats['num_dirs'] += 1
 
