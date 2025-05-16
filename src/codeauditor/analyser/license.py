@@ -10,6 +10,11 @@ from ..processor import ProcessorType
 from ..report import Report
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+
 """Maximum number of tokens per signature."""
 MAX_TOKENS = 20
 
@@ -138,6 +143,14 @@ def save_signatures(
         json.dump(result, file)
 
 
+def rank_license(id: str) -> int:
+    if 'deprecated' in id:
+        return -1
+    if '-or-later' in id:
+        return 1
+    return 0
+
+
 def find_license(text: str, filename: str='signatures.json') -> tuple:
     """Finds the possible license identifiers given the license content.
 
@@ -184,6 +197,9 @@ def find_license(text: str, filename: str='signatures.json') -> tuple:
         elif min_score < 0 or score < min_score:
             min_score = score
             ids = [id]
+
+    if len(ids) > 1:
+        ids.sort(key=rank_license, reverse=True)
 
     return (ids, min_score)
 
@@ -232,5 +248,6 @@ class License(Analyser):
             'ids': ids,
             'score': score
         }
+        logging.debug(f"Licenses found {result}.")
 
         return result
