@@ -433,9 +433,9 @@ class Report:
             out = ''
 
             # Output header
-            out += self.output_heading("Code Analysis Report")
+            out += self.output_heading("Code Audit Report")
 
-            out += "Analysis report on code quality and conformity to software development best practices for **{}**.\n".format(
+            out += "Audit report on code quality and conformity to software development best practices for **{}**.\n".format(
                 self.metadata.get('name', plain=True, first=True, default="Unnamed Software")
             )
             out += "The software is located at ``{}``.\n".format(
@@ -492,7 +492,7 @@ class Report:
                 self.stats['num_files'],
                 self.stats['num_dirs_excluded']
             )
-            out += "| Analysis finished in {} s.\n".format(
+            out += "| Audit finished in {} s.\n".format(
                 round(self.stats['duration'], 2)
             )
 
