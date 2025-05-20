@@ -160,7 +160,12 @@ class CodePython(Code):
         Returns:
             Dictionary of the analysis results.
         """
-        node = ast.parse(content, filename=path, type_comments=True)
+        try:
+            node = ast.parse(content, filename=path, type_comments=True)
+
+        except:
+            report.add_issue(cls, "Invalid Python code.", path)
+            return {}
 
         result = _analyse_node(node)
 
@@ -178,7 +183,7 @@ class CodePython(Code):
         modules = set()
 
         for path, result in results.items():
-            modules.update(result['modules'])
+            modules.update(result.get('modules', []))
 
         report.metadata.add(cls, 'python_dependencies', sorted(list(modules)))
 

@@ -46,7 +46,7 @@ class TestingPython(Analyser):
         """
         result = CodePython.analyse_code(content, report, path)
 
-        if "pytest" in result['modules']:
+        if "pytest" in result.get('modules', []):
             num_tests = 0
             for item in result.values():
                 if (
