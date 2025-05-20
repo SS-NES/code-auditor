@@ -46,7 +46,7 @@ class Testing(Aggregator):
                 num_files += 1
 
         if not num_tests:
-            report.add_issue(cls, "No testing.")
+            report.add_issue(cls, "No unit testing.")
             return
 
         report.add_notice(cls, "Testing exists.")

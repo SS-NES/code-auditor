@@ -60,3 +60,39 @@
     previous versions, and track contributions. You can use `git
     <https://git-scm.com/>`_ to handle everything from small to very large
     projects.
+
+- match: No changelog file.
+  suggestion: A changelog is a curated, chronological record of all notable
+    changes made to a software project. For research software, a changelog
+    plays a vital role in ensuring transparency, reproducibility, and usability
+    by informing users, developers, and collaborators of updates and
+    improvements over time. A common and recommended format is `Keep a
+    Changelog <https://keepachangelog.com/en/>`_, which structures entries by
+    version and change type.
+
+- match: No unit testing.
+  suggestion: Unit testing is the process of writing and running small,
+    isolated tests to check that individual components (or units, e.g.
+    functions, classes, modules) of your software work as expected. For
+    research software, unit tests help ensure scientific correctness of
+    implemented algorithms, prevent regression when code evolves, improve
+    reproducibility and trust in computational results, and make it easier for
+    new contributors to refactor code safely. You can find more information on
+    unit testing in the "Code Testing" section of the `Turing Way
+    <https://book.the-turing-way.org/reproducible-research/testing>`_.
+
+- match: No packaging.
+  suggestion: Packaging is the process of bundling code, dependencies, and
+    metadata into a distributable and installable format. For research
+    software, packaging is crucial for ensuring that software can be shared,
+    installed, cited, and reused reliably by others. You can find more
+    information in the `Python for Scientific Computing
+    <https://aaltoscicomp.github.io/python-for-scicomp/packaging/>`_
+    CodeRefinery course.
+
+- match: No license file.
+  suggestion: A software license is a legal instrument that defines how others
+    can use, modify, and distribute your software. In the context of research
+    software, choosing an open license is critical for enabling reuse,
+    collaboration, reproducibility, and proper credit. Visit `Choose an open
+    source license <https://choosealicense.com>`_ website for more information.
