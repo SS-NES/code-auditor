@@ -534,3 +534,11 @@ class Report:
             else:
                 # Return converted output
                 return pypandoc.convert_text(out, format.value, format='rst')
+
+
+    def _repr_markdown_(self):
+        return self.output(OutputType.MARKDOWN)
+
+
+    def _repr_html_(self):
+        return self.output(OutputType.HTML)
