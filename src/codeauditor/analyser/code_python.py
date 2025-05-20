@@ -45,25 +45,33 @@ def _analyse_node(node) -> dict:
 
     docs = ast.get_docstring(node, clean=True)
     if docs:
-        docstring = docstring_parser.parse(docs)
 
         issues = []
 
-        for key in [
-            'style',
-            'short_description',
-            'long_description',
-            'params',
-            'returns',
-            'examples',
-        ]:
-            val = getattr(docstring, key)
-            if val:
-                item['docs'][key] = val
+        try:
+            docstring = docstring_parser.parse(docs)
 
-                if key == 'params':
-                    if hasattr(node, 'args') and len(val) != len(node.args.args):
-                        issues.append("Invalid number of arguments.")
+        except:
+            issues.append("Invalid code documentation.")
+
+
+        else:
+
+            for key in [
+                'style',
+                'short_description',
+                'long_description',
+                'params',
+                'returns',
+                'examples',
+            ]:
+                val = getattr(docstring, key)
+                if val:
+                    item['docs'][key] = val
+
+                    if key == 'params':
+                        if hasattr(node, 'args') and len(val) != len(node.args.args):
+                            issues.append("Invalid number of arguments.")
 
         if issues:
             item['docs']['issues'] = issues
