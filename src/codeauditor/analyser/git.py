@@ -99,4 +99,4 @@ class Git(Analyser):
         for remote in repo.remotes:
 
             if remote.name == 'origin':
-                report.metadata.add(cls, 'repository_code', remote.url, path)
+                report.metadata.add(cls, 'repository_code', remote.url.removesuffix('.git'), path)
