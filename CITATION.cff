@@ -10,10 +10,10 @@ authors:
     email: girgink@gmail.com
     affiliation: University of Twente
     orcid: 'https://orcid.org/0000-0002-0156-185X'
-doi: 'https://doi.org/10.5281/zenodo.14934232'
+doi: '10.5281/zenodo.14934232'
 repository: 'https://doi.org/10.5281/zenodo.14934232'
 repository-artifact: 'https://pypi.org/project/code-auditor/'
-repository-code: 'https://github.com/SS-NES/code-auditor/'
+repository-code: 'https://github.com/SS-NES/code-auditor'
 abstract: >-
   A package and command-line utility to audit code quality
   and compliance with best practices.
@@ -21,6 +21,6 @@ keywords:
   - software development
   - code quality
   - conformity assessment
-license: GPL-3.0
+license: GPL-3.0-or-later
 version: 0.2.1
 date-released: '2025-02-27'
