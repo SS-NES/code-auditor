@@ -1,0 +1,8 @@
+click>=7.0
+docstring_parser
+gitpython
+jinja2
+pip-requirements-parser
+pymarkdownlnt
+pypandoc
+pyyaml
